@@ -1,1 +1,35 @@
 @import "tailwindcss";
+:root {
+  /* Brand */
+  --color-primary: #2b6cb0;
+  --color-primary-hover: #2c5282;
+
+  --color-secondary: #2c7a7b;
+  --color-accent: #ed8936;
+
+  /* Feedback */
+  --color-success: #38a169;
+  --color-warning: #d69e2e;
+  --color-error: #e53e3e;
+
+  /* Text */
+  --color-text-primary: #1a202c;
+  --color-text-secondary: #a0aec0;
+
+  /* Backgrounds */
+  --color-bg-main: #f7fafc;
+  --color-surface: #ffffff;
+
+  /* Borders */
+  --color-border: #cbd5e0;
+
+  /* Focus */
+  --color-focus: #2b6cb0;
+}
+
+.dark {
+  --color-bg-main: #1a202c;
+  --color-surface: #2d3748;
+  --color-text-primary: #f7fafc;
+  --color-text-secondary: #a0aec0;
+}

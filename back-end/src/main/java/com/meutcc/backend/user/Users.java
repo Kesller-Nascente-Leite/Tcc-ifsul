@@ -6,24 +6,18 @@ import lombok.*;
 @Entity
 @Table(name = "tb_users")
 @EqualsAndHashCode
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String username;
+    @Column(nullable = false, name = "full_name")
+    private String fullName;
 
     @Column(unique = true, nullable = false)
     private String email;
-
-    @Column(unique = true, nullable = false)
-    private String cpf;
 
     @Column(nullable = false)
     private String password;
