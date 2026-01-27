@@ -1,4 +1,4 @@
-package com.meutcc.backend.content.mapper;
+package com.meutcc.backend.common.model;
 
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;

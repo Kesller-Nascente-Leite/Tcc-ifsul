@@ -1,6 +1,6 @@
 package com.meutcc.backend.content.subject;
 
-import com.meutcc.backend.content.mapper.BaseEntity;
+import com.meutcc.backend.common.model.BaseEntity;
 import com.meutcc.backend.content.module.Module;
 import jakarta.persistence.*;
 import lombok.Getter;

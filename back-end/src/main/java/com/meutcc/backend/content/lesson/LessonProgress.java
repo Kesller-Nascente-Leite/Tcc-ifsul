@@ -1,7 +1,7 @@
 package com.meutcc.backend.content.lesson;
 
-import com.meutcc.backend.content.mapper.BaseEntity;
-import com.meutcc.backend.user.Students;
+import com.meutcc.backend.common.model.BaseEntity;
+import com.meutcc.backend.user.Student;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -23,7 +23,7 @@ public class LessonProgress extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "student_id")
-    private Students student;
+    private Student student;
 
     @ManyToOne
     @JoinColumn(name = "lesson_id")

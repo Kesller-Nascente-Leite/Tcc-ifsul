@@ -1,6 +1,6 @@
 package com.meutcc.backend.user;
 
-import com.meutcc.backend.content.mapper.BaseEntity;
+import com.meutcc.backend.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 

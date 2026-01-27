@@ -1,7 +1,7 @@
 package com.meutcc.backend.user;
 
 import com.meutcc.backend.content.subject.Subject;
-import com.meutcc.backend.content.mapper.BaseEntity;
+import com.meutcc.backend.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,11 +14,11 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class Students extends BaseEntity {
+public class Student extends BaseEntity {
 
     @OneToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private Users studantId;
+    private User studantId;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

@@ -1,6 +1,6 @@
 package com.meutcc.backend.content.lesson;
 
-import com.meutcc.backend.content.mapper.BaseEntity;
+import com.meutcc.backend.common.model.BaseEntity;
 import com.meutcc.backend.content.module.Module;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;

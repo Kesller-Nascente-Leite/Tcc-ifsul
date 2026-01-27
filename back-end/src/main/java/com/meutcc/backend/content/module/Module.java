@@ -1,7 +1,7 @@
 package com.meutcc.backend.content.module;
 
 import com.meutcc.backend.content.lesson.Lesson;
-import com.meutcc.backend.content.mapper.BaseEntity;
+import com.meutcc.backend.common.model.BaseEntity;
 import com.meutcc.backend.content.subject.Subject;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,13 +1,13 @@
 package com.meutcc.backend.user;
 
-import com.meutcc.backend.content.mapper.BaseEntity;
+import com.meutcc.backend.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Table(name = "tb_users")
 @Data
-public class Users extends BaseEntity {
+public class User extends BaseEntity {
 
     @Column(nullable = false, name = "full_name")
     private String fullName;
