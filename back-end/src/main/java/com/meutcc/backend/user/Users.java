@@ -1,17 +1,13 @@
 package com.meutcc.backend.user;
 
+import com.meutcc.backend.content.mapper.BaseEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "tb_users")
-@EqualsAndHashCode
 @Data
-public class Users {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Users extends BaseEntity {
 
     @Column(nullable = false, name = "full_name")
     private String fullName;

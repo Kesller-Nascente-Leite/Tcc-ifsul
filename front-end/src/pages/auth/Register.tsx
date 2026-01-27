@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { FormComponent } from "../../components/FormComponent";
 import { InputComponent } from "../../components/InputComponent";
 import { ButtonComponent } from "../../components/ButtonComponent";
@@ -19,6 +19,9 @@ export function Register() {
   //estado de carregamento, muito massa
   const [isLoading, setIsLoading] = useState(false);
 
+  const handleChange = (e: ChangeEvent<HTMLInputElement>, field: string) => {
+    setFormData({ ...formData, [field]: e.target.value });
+  };
   const validate = () => {
     let isValid = true;
     const newErrors = { fullname: "", email: "", password: "" };
@@ -42,8 +45,8 @@ export function Register() {
   };
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault;
-    if (!validate) return;
+    e.preventDefault();
+    if (!validate()) return;
 
     setIsLoading(true);
   };
@@ -63,8 +66,8 @@ export function Register() {
             labelText="Nome de Usuário:"
             placeholder="Ex: Fulano"
             value={formData.fullname}
-            onChange={(e: any) =>
-              setFormData({ ...formData, fullname: e.target.value })
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleChange(e, "name")
             }
             error={error.fullname}
           />
@@ -73,9 +76,9 @@ export function Register() {
             labelText="E-mail"
             placeholder="Ex: fulaninho@teste.com"
             value={formData.email}
-            onChange={(e: any) => {
-              setFormData({ ...formData, email: e.target.value });
-            }}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              handleChange(e, "email")
+            }
             error={error.email}
           />
 
@@ -83,13 +86,18 @@ export function Register() {
             labelText="Senha"
             placeholder="********"
             value={formData.password}
-            onChange={(e: any) => {
-              setFormData({ ...formData, password: e.targer.value });
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              handleChange(e, "password");
             }}
             error={error.password}
           />
 
-          <ButtonComponent type="submit" fullWidth isLoading={isLoading} className="mt-3">
+          <ButtonComponent
+            type="submit"
+            fullWidth
+            isLoading={isLoading}
+            className="mt-3"
+          >
             Cadastre-se
           </ButtonComponent>
         </FormComponent>
