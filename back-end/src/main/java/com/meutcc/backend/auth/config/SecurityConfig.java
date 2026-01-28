@@ -1,4 +1,4 @@
-package com.meutcc.backend.common.utils;
+package com.meutcc.backend.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,9 +23,11 @@ public class SecurityConfig {
     public SecurityFilterChain segurityFilterChain(HttpSecurity http) throws Exception {
         // Futuramente usar o jwt e o OAuth2 para mexer com tokens
         http
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable()) // Desabilitado por enquanto,
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/register").permitAll() //permite que qualquer pessoa possa se registrar
+                        .requestMatchers("/api/auth/**").permitAll() //permite que todas as rotas de /api/auth/ para frente, possa não estar logado para acessar
+                        // linhas abaixo é para que todas as outras rotas terao a necessidade de estar logado
                         .anyRequest()
                         .authenticated())
                 .httpBasic(Customizer.withDefaults());// Todos requests precisao ser autenticadas aq para passar no projeto

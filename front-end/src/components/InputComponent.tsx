@@ -15,11 +15,11 @@ export function InputComponent({
   const inputId = useId();
 
   return (
-    <div className="flex flex-col gap-1.5 w-full">
+    <div className="flex flex-col gap-1.5 w-full text-left">
       {labelText && (
         <label
           htmlFor={inputId}
-          className="text-sm font-medium text-[rgb(var(--text-primary))]"
+          className="text-sm font-medium text-(--color-text-primary)"
         >
           {labelText}
         </label>
@@ -30,11 +30,11 @@ export function InputComponent({
         ref={ref}
         data-error={!!error}
         className={`
-          bg-[rgb(var(--surface))]
-          text-[rgb(var(--text-primary))]
-          placeholder:text-[rgb(var(--text-secondary))]
+          bg-(--color-surface)
+          text-(--color-text-primary)
+          placeholder:text-(--color-text-secondary)
           border 
-          border-[rgb(var(--border))]
+          border-(--color-border)
           rounded-lg
           p-2
           text-sm
@@ -42,12 +42,12 @@ export function InputComponent({
           transition-all
           duration-300
 
-          focus:border-[rgb(var(--primary))]
+          focus:border-(--color-primary)
           focus:ring-1
-          focus:ring-[rgb(var(--primary)/0.3)]
+          focus:ring-(--color-primary)/30
 
-          data-[error=true]:border-[rgb(var(--error))]
-          data-[error=true]:focus:ring-[rgb(var(--error)/0.3)]
+          data-[error=true]:border-(--color-error)
+          data-[error=true]:focus:ring-(--color-error)/30
 
           ${className || ""}
         `}
@@ -55,7 +55,9 @@ export function InputComponent({
       />
 
       {error && (
-        <span className="text-xs text-[rgb(var(--error))]">{error}</span>
+        <span className="text-xs text-(--color-error) font-medium">
+          {error}
+        </span>
       )}
     </div>
   );

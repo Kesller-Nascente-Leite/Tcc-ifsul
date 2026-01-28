@@ -14,6 +14,7 @@ public interface UserMapper {
 
     UserResponse toResponse(User user);
 }*/
+
 @Component // Isso faz o Spring "enxergar" o Bean e resolve o erro do Service
 public class UserMapper {
 

@@ -1,6 +1,5 @@
 package com.meutcc.backend.user;
 
-import com.meutcc.backend.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,8 +10,11 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class Roles extends BaseEntity {
+public class Roles {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private byte id;
     @Column(nullable = false, unique = true)
     private String name;
 }

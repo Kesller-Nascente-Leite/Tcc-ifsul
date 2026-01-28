@@ -2,10 +2,14 @@ package com.meutcc.backend.user;
 
 import com.meutcc.backend.common.model.BaseEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "tb_users")
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
 public class User extends BaseEntity {
 
@@ -23,5 +27,5 @@ public class User extends BaseEntity {
     private Roles role;
 
     @Column(nullable = false)
-    private boolean active = true;
+    private boolean active = false;
 }

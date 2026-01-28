@@ -6,6 +6,10 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface RegisterResponse {
+  message: string;  
+}
+
 export interface AuthReponse {
   accessToken: string;
   refreshToken?: string;
@@ -13,7 +17,7 @@ export interface AuthReponse {
 
 export const AuthApi = {
   register: (payload: RegisterRequest) => {
-    return api.post<AuthReponse>("/auth/register", payload);
+    return api.post<RegisterResponse>("/auth/register", payload);
   },
   // fazer login depois
 };

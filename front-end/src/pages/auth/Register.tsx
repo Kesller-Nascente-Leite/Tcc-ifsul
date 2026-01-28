@@ -2,32 +2,48 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import { FormComponent } from "../../components/FormComponent";
 import { InputComponent } from "../../components/InputComponent";
 import { ButtonComponent } from "../../components/ButtonComponent";
+import { useNavigate } from "react-router";
+import { AuthApi } from "../../api/auth.api";
+import axios from "axios";
 
 export function Register() {
+  const navigate = useNavigate();
+
+  const [showPassword, setShowPassword] = useState(false);
+
   // "Guardar" os dados do formulario
   const [formData, setFormData] = useState({
-    fullname: "",
+    fullName: "",
     email: "",
     password: "",
   });
   // estado para erro
   const [error, setError] = useState({
-    fullname: "",
+    fullName: "",
     email: "",
     password: "",
   });
   //estado de carregamento, muito massa
   const [isLoading, setIsLoading] = useState(false);
 
+  const [generalErro, setGeneralErro] = useState("");
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>, field: string) => {
     setFormData({ ...formData, [field]: e.target.value });
+    // limpa o erro quando o usuario digitar algo
+    if (generalErro) setGeneralErro("");
   };
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
+
   const validate = () => {
     let isValid = true;
-    const newErrors = { fullname: "", email: "", password: "" };
+    const newErrors = { fullName: "", email: "", password: "" };
 
-    if (formData.fullname.length < 3) {
-      newErrors.fullname = "O nome deve conter pelo menos 3 caracteres";
+    if (formData.fullName.length < 3) {
+      newErrors.fullName = "O nome deve conter pelo menos 3 caracteres";
       isValid = false;
     }
 
@@ -49,6 +65,38 @@ export function Register() {
     if (!validate()) return;
 
     setIsLoading(true);
+    setGeneralErro("");
+
+    try {
+      //primeiro prepara o objeto como o java esta esperando
+      const payload = {
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+      };
+      const response = await AuthApi.register(payload);
+
+      navigate("/login", {
+        state: {
+          successMessage: response.data.message,
+        },
+      });
+    } catch (err: unknown) {
+      console.error(err);
+
+      // Verifica se o erro é uma instância do AxiosError
+      if (axios.isAxiosError(err)) {
+        // Agora o TypeScript sabe que 'err' tem a propriedade 'response'
+        const message =
+          err.response?.data?.message || "Erro ao cadastrar usuário.";
+        setGeneralErro(message);
+      } else {
+        // Para erros que não são do Axios (ex: erro de código)
+        setGeneralErro("Ocorreu um erro inesperado.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -60,19 +108,25 @@ export function Register() {
             Comece a organizar seus estudos hoje.
           </p>
         </div>
-
+        {generalErro && (
+          <div className="mb-4 p-3 text-sm text-red-600 bg-red-100 border border-red-200 rounded-md">
+            {generalErro}
+          </div>
+        )}
         <FormComponent onSubmit={handleSubmit}>
           <InputComponent
+            type="text"
             labelText="Nome de Usuário:"
             placeholder="Ex: Fulano"
-            value={formData.fullname}
+            value={formData.fullName}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleChange(e, "name")
+              handleChange(e, "fullName")
             }
-            error={error.fullname}
+            error={error.fullName}
           />
 
           <InputComponent
+            type="email"
             labelText="E-mail"
             placeholder="Ex: fulaninho@teste.com"
             value={formData.email}
@@ -81,16 +135,25 @@ export function Register() {
             }
             error={error.email}
           />
-
-          <InputComponent
-            labelText="Senha"
-            placeholder="********"
-            value={formData.password}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              handleChange(e, "password");
-            }}
-            error={error.password}
-          />
+          <div className="relative">
+            <InputComponent
+              type={showPassword ? "text" : "password"}
+              labelText="Senha"
+              placeholder="********"
+              value={formData.password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                handleChange(e, "password");
+              }}
+              error={error.password}
+            />
+            <button
+              type="button"
+              className="text-xs text-blue-600 hover:text-blue-800 mt-1"
+              onClick={toggleShowPassword}
+            >
+              {showPassword ? "Esconder senha" : "Mostrar senha"}
+            </button>
+          </div>
 
           <ButtonComponent
             type="submit"

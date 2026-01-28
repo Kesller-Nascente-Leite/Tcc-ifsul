@@ -1,34 +1,47 @@
 package com.meutcc.backend.auth.service;
 
+import com.meutcc.backend.auth.dto.ApiResponse;
 import com.meutcc.backend.auth.dto.RegisterRequest;
-import com.meutcc.backend.auth.dto.UserResponse;
 import com.meutcc.backend.auth.mapper.UserMapper;
 import com.meutcc.backend.common.exceptions.UserAlreadyExistException;
-import com.meutcc.backend.user.User;
-import com.meutcc.backend.user.UserRepository;
+import com.meutcc.backend.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository repository;
+
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
     private final UserMapper mapper;
+    private final StudentRepository studentRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponse register(RegisterRequest dto) {
-        if (repository.existsByEmail(dto.email())) {
+    public ApiResponse register(RegisterRequest dto) {
+
+        if (userRepository.existsByEmail(dto.email())) {
             throw new UserAlreadyExistException("Email já cadastrado");
         }
 
         User user = mapper.toEntity(dto);
 
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Roles StudentRole = roleRepository.findById((byte) 3).orElseThrow(() -> new RuntimeException("Role não encontrado"));
 
-        User savedUser = repository.save(user);
+        user.setPassword(passwordEncoder.encode(dto.password()));
+        user.setRole(StudentRole);
 
-        return mapper.toResponse(savedUser);
+        User savedUser = userRepository.save(user);
+
+        Student student = Student.builder()
+                .user(savedUser)
+                .subjects(new ArrayList<>())
+                .build();
+        studentRepository.save(student);
+        return new ApiResponse("Usuário cadastrado com sucesso");
     }
 
 
