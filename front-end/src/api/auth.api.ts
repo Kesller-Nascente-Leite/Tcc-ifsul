@@ -7,17 +7,31 @@ export interface RegisterRequest {
 }
 
 export interface RegisterResponse {
-  message: string;  
+  message: string;
 }
 
-export interface AuthReponse {
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
   accessToken: string;
   refreshToken?: string;
+  user: {
+    id: number;
+    fullName: string;
+    email: string;
+    role: string;
+  };
 }
 
 export const AuthApi = {
   register: (payload: RegisterRequest) => {
     return api.post<RegisterResponse>("/auth/register", payload);
   },
-  // fazer login depois
+
+  login: (payload: LoginRequest) => {
+    return api.post<LoginResponse>("/auth/login", payload);
+  },
 };

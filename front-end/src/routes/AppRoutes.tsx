@@ -3,20 +3,26 @@ import { Login } from "../pages/auth/Login";
 import { Register } from "../pages/auth/Register";
 import { Welcome } from "../pages/Welcome";
 import { adminRoutes } from "./AdminRoutes";
+import { PublicMainLayout } from "../components/public/PublicMainLayout";
 
 const router = createBrowserRouter([
   //Passa todas as rotas aq
   {
-    path: "/",
-    element: <Welcome />,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/register",
-    element: <Register />,
+    element: <PublicMainLayout />,
+    children: [
+      {
+        path: "/",
+        element: <Welcome />,
+      },
+      {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/register",
+        element: <Register />,
+      },
+    ],
   },
   // Rota de admin
   ...adminRoutes,

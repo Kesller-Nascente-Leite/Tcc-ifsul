@@ -1,35 +1,36 @@
 @import "tailwindcss";
-:root {
-  /* Brand */
-  --color-primary: #2b6cb0;
-  --color-primary-hover: #2c5282;
 
-  --color-secondary: #2c7a7b;
-  --color-accent: #ed8936;
+@layer base {
+  :root {
+    --color-primary: #2b6cb0;
+    --color-primary-hover: #1f5294;
 
-  /* Feedback */
-  --color-success: #38a169;
-  --color-warning: #d69e2e;
-  --color-error: #e53e3e;
+    --color-secondary: #2c7a7b;
 
-  /* Text */
-  --color-text-primary: #1a202c;
-  --color-text-secondary: #a0aec0;
+    --color-accent: #ed8936;
+    --color-accent-hover: #dd6b20;
 
-  /* Backgrounds */
-  --color-bg-main: #f7fafc;
-  --color-surface: #ffffff;
+    --color-success: #38a169;
+    --color-warning: #d69e2e;
+    --color-error: #e53e3e;
 
-  /* Borders */
-  --color-border: #cbd5e0;
+    --color-text-primary: #1a202c;
+    --color-text-secondary: #718096;
+    --color-border: #cbd5e0;
 
-  /* Focus */
-  --color-focus: #2b6cb0;
-}
+    --color-bg-main: #f7fafc;
+    --color-surface: #ffffff;
+  }
 
-.dark {
-  --color-bg-main: #1a202c;
-  --color-surface: #2d3748;
-  --color-text-primary: #f7fafc;
-  --color-text-secondary: #a0aec0;
+  .dark {
+    --color-bg-main: #1a202c;
+    --color-surface: #2d3748;
+    --color-text-primary: #f7fafc;
+    --color-text-secondary: #a0aec0;
+    --color-border: #4a5568;
+  }
+
+  body {
+    @apply antialiased bg-[var(--color-bg-main)] text-[var(--color-text-primary)];
+  }
 }
