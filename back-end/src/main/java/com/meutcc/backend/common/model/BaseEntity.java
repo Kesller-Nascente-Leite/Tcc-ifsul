@@ -3,7 +3,6 @@ package com.meutcc.backend.common.model;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 

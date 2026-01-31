@@ -1,0 +1,14 @@
+{
+  "properties": [
+    {
+      "name": "api.security.token.secret",
+      "type": "java.lang.String",
+      "description": "Description for api.security.token.secret."
+    },
+    {
+      "name": "api.security.token.expiration",
+      "type": "java.lang.String",
+      "description": "Description for api.security.token.expiration."
+    }
+  ]
+}

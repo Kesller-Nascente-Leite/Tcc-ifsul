@@ -1,7 +1,7 @@
 package com.meutcc.backend.auth.mapper;
 
 import com.meutcc.backend.auth.dto.RegisterRequest;
-import com.meutcc.backend.auth.dto.UserResponse;
+import com.meutcc.backend.auth.dto.UserDTO;
 import com.meutcc.backend.user.User;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,7 @@ public interface UserMapper {
     //classe responsável por converter objetos DTO -> Entity e Entity -> DTO, nesse caso, interface
     User toEntity(RegisterRequest registerRequest);
 
-    UserResponse toResponse(User user);
+    RequestResponse toResponse(User user);
 }*/
 
 @Component // Isso faz o Spring "enxergar" o Bean e resolve o erro do Service
@@ -28,13 +28,16 @@ public class UserMapper {
         return user;
     }
 
-    public UserResponse toResponse(User user) {
+    public UserDTO toUserDTO(User user) {
         if (user == null) return null;
 
-        return new UserResponse(
+        String roleName = (user.getRole() != null) ? user.getRole().getName() : "UNKNOWN";
+
+        return new UserDTO(
                 user.getId(),
                 user.getFullName(),
-                user.getEmail()
+                user.getEmail(),
+                roleName
         );
     }
 }
