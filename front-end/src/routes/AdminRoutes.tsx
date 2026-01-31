@@ -1,6 +1,6 @@
 import type { RouteObject } from "react-router";
 
-export const adminRoutes: RouteObject[] = [
+export const AdminRoutes: RouteObject[] = [
   // Add rotas de admin
   // { path: "/admin", children: [{}] },
 ];

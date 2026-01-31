@@ -2,8 +2,9 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import { Login } from "../pages/auth/Login";
 import { Register } from "../pages/auth/Register";
 import { Welcome } from "../pages/Welcome";
-import { adminRoutes } from "./AdminRoutes";
+import { AdminRoutes } from "./AdminRoutes";
 import { PublicMainLayout } from "../components/public/PublicMainLayout";
+import { StudentRoutes } from "./studentRoutes";
 
 const router = createBrowserRouter([
   //Passa todas as rotas aq
@@ -23,9 +24,10 @@ const router = createBrowserRouter([
         element: <Register />,
       },
     ],
+    ...StudentRoutes,
+    // Rota de admin
+    ...AdminRoutes,
   },
-  // Rota de admin
-  ...adminRoutes,
   {
     // Not found se faz assim
     path: "*",

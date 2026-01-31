@@ -1,5 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-
+// Tive que comentar, estava muito confuso oq cada coisa fazia 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   isLoading?: boolean;
@@ -19,17 +19,20 @@ export function ButtonComponent({
 }: ButtonProps) {
   // 1. Base dos estilos
   const baseStyles =
-    "flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 duration-300";
+    "flex items-center justify-center rounded-md font-medium transition-colors focus:outline-none focus:ring-1 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 duration-300 mt-3";
 
   // 2. Mapeamento das variantes
   const variants = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500",
+    primary:
+      "bg-(--color-primary) text-white hover:bg-(--color-primary-hover) focus:ring-(--color-primary)/50",
     secondary:
-      "bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500",
+      "bg-(--color-secondary) text-white hover:opacity-90 focus:ring-(--color-secondary)/50",
     outline:
-      "border border-gray-300 bg-transparent hover:bg-gray-100 text-gray-700",
-    danger: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
-    ghost: "bg-transparent hover:bg-gray-100 text-gray-600",
+      "border border-(--color-border) bg-transparent hover:bg-(--color-bg-main) text-(--color-text-primary)",
+    danger:
+      "bg-(--color-error) text-white hover:opacity-90 focus:ring-(--color-error)/50",
+    ghost:
+      "bg-transparent hover:bg-(--color-primary)/10 text-(--color-text-secondary) hover:text-(--color-primary)",
   };
 
   // 3. Mapeamento dos tamanhos

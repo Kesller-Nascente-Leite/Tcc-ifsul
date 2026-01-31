@@ -24,6 +24,7 @@ export interface LoginResponse {
     email: string;
     role: string;
   };
+  message: string;
 }
 
 export const AuthApi = {

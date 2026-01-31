@@ -6,7 +6,7 @@ import {
   ChartBarIcon,
   CheckCircleIcon,
   CalendarIcon,
-} from "lucide-react"; // Lib de icones
+} from "lucide-react"; // Lib de icones, mt massa e muito util
 
 export function Welcome() {
   return (

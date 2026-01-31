@@ -3,8 +3,8 @@ import { FormComponent } from "../../components/FormComponent";
 import { InputComponent } from "../../components/InputComponent";
 import { ButtonComponent } from "../../components/ButtonComponent";
 import { useNavigate } from "react-router";
-import { AuthApi } from "../../api/auth.api";
 import axios from "axios";
+import { AuthService } from "../../services/auth.service";
 
 export function Register() {
   const navigate = useNavigate();
@@ -74,11 +74,11 @@ export function Register() {
         email: formData.email,
         password: formData.password,
       };
-      const response = await AuthApi.register(payload);
+      const responseData = await AuthService.register(payload);
 
       navigate("/login", {
         state: {
-          successMessage: response.data.message,
+          successMessage: responseData.message,
         },
       });
     } catch (err: unknown) {
@@ -115,6 +115,7 @@ export function Register() {
         )}
         <FormComponent onSubmit={handleSubmit}>
           <InputComponent
+            required
             type="text"
             labelText="Nome de Usuário:"
             placeholder="Ex: Fulano"
@@ -126,6 +127,7 @@ export function Register() {
           />
 
           <InputComponent
+            required
             type="email"
             labelText="E-mail"
             placeholder="Ex: fulaninho@teste.com"
@@ -137,6 +139,7 @@ export function Register() {
           />
           <div className="relative">
             <InputComponent
+              required
               type={showPassword ? "text" : "password"}
               labelText="Senha"
               placeholder="********"
@@ -159,7 +162,7 @@ export function Register() {
             type="submit"
             fullWidth
             isLoading={isLoading}
-            className="mt-3"
+            size="lg"
           >
             Cadastre-se
           </ButtonComponent>
