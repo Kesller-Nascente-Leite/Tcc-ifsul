@@ -17,6 +17,7 @@ public class RegisterController {
     private final AuthService authService;
 
     @PostMapping("/register")
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ApiResponse> register(@RequestBody @Valid RegisterRequest data) {
         ApiResponse response = authService.register(data);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);

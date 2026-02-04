@@ -4,8 +4,6 @@ import { Register } from "../pages/auth/Register";
 import { Welcome } from "../pages/Welcome";
 import { PublicMainLayout } from "../components/public/PublicMainLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
-
-// Supondo que AdminRoutes e StudentRoutes sejam arrays de rotas:
 import { AdminRoutes } from "./AdminRoutes";
 import { StudentRoutes } from "./studentRoutes";
 

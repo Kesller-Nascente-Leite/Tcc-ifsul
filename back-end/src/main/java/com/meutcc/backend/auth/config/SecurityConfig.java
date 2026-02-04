@@ -3,7 +3,7 @@ package com.meutcc.backend.auth.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,10 +19,6 @@ import java.util.Arrays;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
-
-    private final AuthenticationProvider authenticationProvider;
-
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -48,10 +44,9 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .authenticationProvider(authenticationProvider)
-
                 //Autorizar requisições
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         //definindo quem pode acessar oq
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -60,8 +55,7 @@ public class SecurityConfig {
                         // linhas abaixo é para que todas as outras rotas terao a necessidade de estar logado
                         .anyRequest()
                         .authenticated())
-
-                .httpBasic(Customizer.withDefaults())// Todos requests precisao ser autenticadas aq para passar no projeto
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
     }
 }

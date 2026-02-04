@@ -1,30 +1,30 @@
 package com.meutcc.backend.common.config;
 
+
 import com.meutcc.backend.user.RoleRepository;
 import com.meutcc.backend.user.Roles;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
-public class RoleSeeder implements CommandLineRunner {
+@AllArgsConstructor
+public class RoleSeeder implements ApplicationRunner {
 
-    private final RoleRepository roleRepository;
+    private RoleRepository roleRepository;
 
-    @Override
-    public void run(String... args) throws Exception {
-        List<String> roleNames = List.of("Admin", "Professor", "Aluno");
-
-        roleNames.forEach(roleName -> {
-                    if (roleRepository.findByName(roleName).isEmpty()) {
-                        Roles newRole = new Roles();
-                        newRole.setName(roleName);
-                        roleRepository.save(newRole);
-                    }
-                }
-        );
+    public void run(ApplicationArguments args) {
+        if (roleRepository.count() == 0) {
+            roleRepository.saveAll(List.of(
+                    new Roles((byte) 1, "ADMIN"),
+                    new Roles((byte) 2, "PROFESSOR"),
+                    new Roles((byte) 3, "ESTUDANTE")
+            ));
+        }
     }
 }
+
