@@ -6,7 +6,7 @@ export const StudentRoutes: RouteObject[] = [
     path: "/student",
     children: [
       {
-        path: "/dashboard",
+        path: "dashboard",
         element: <StudentDashboard />,
       },
     ],

@@ -1,11 +1,12 @@
 package com.meutcc.backend.auth.service;
 
-import com.meutcc.backend.auth.dto.ApiResponse;
-import com.meutcc.backend.auth.dto.RegisterRequest;
+import com.meutcc.backend.auth.dto.*;
 import com.meutcc.backend.auth.mapper.UserMapper;
 import com.meutcc.backend.common.exceptions.UserAlreadyExistException;
 import com.meutcc.backend.user.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -24,6 +25,8 @@ public class AuthService implements UserDetailsService {
     private final UserMapper mapper;
     private final StudentRepository studentRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     public ApiResponse register(RegisterRequest dto) {
 
@@ -46,6 +49,32 @@ public class AuthService implements UserDetailsService {
         return new ApiResponse("Usuário cadastrado com sucesso");
     }
 
+    public LoginResponse login(LoginRequest dto) {
+        authenticationManager.authenticate(
+                //isso valida as crendenciais
+                new UsernamePasswordAuthenticationToken(dto.email(), dto.password())
+        );
+        User user = userRepository.findByEmail(dto.email())
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
+
+        String accessToken = jwtService.generateToken(user);
+
+        UserDTO userDTO = new UserDTO(
+                user.getId(),
+                user.getFullName(),
+                user.getEmail(),
+                user.getRole().getName()
+        );
+
+        return new LoginResponse(
+                accessToken,
+                null,
+                userDTO,
+                "Login realizado com sucesso"
+
+        );
+    }
+
     /*
         public LoginResponse login(LoginRequest dto) {
             loadUserByUsername(dto.email());
@@ -56,6 +85,7 @@ public class AuthService implements UserDetailsService {
             throw new UserAlreadyExistException("Email já cadastrado");
         }
     }
+
 
     @Override
     //Configurado no SecurityConfig para ser email no loadUserByUsername em vez de username
