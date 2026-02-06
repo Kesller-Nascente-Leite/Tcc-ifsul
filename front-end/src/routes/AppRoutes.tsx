@@ -5,17 +5,23 @@ import { Welcome } from "../pages/Welcome";
 import { PublicMainLayout } from "../components/public/PublicMainLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AdminRoutes } from "./AdminRoutes";
-import { StudentRoutes } from "./studentRoutes";
 import { ROLES } from "../constants/ROLES";
 import Unauthorized from "../pages/Unauthorized";
+import { StudentRoutes } from "./StudentRoutes";
+import { GuestRoutes } from "./GuestRoutes";
 
 const router = createBrowserRouter([
   {
     element: <PublicMainLayout />,
     children: [
       { path: "/", element: <Welcome /> },
-      { path: "/login", element: <Login /> },
-      { path: "/register", element: <Register /> },
+      {
+        element: <GuestRoutes />,
+        children: [
+          { path: "/login", element: <Login /> },
+          { path: "/register", element: <Register /> },
+        ],
+      },
     ],
   },
   {
