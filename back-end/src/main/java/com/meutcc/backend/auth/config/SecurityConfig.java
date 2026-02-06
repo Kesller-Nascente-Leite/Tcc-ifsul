@@ -1,5 +1,6 @@
 package com.meutcc.backend.auth.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,7 +48,6 @@ public class SecurityConfig {
                 //Autorizar requisições
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         //definindo quem pode acessar oq
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
@@ -56,6 +56,17 @@ public class SecurityConfig {
                         // linhas abaixo é para que todas as outras rotas terao a necessidade de estar logado
                         .anyRequest()
                         .authenticated())
+
+                .logout(logout -> logout
+                        .logoutUrl("/api/auth/logout") // Customizes the logout URL
+                        .invalidateHttpSession(true)      // Invalidates the HTTP session
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")      // Deletes specified cookies
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setStatus(HttpServletResponse.SC_OK);
+                        })
+                        .permitAll()                      // Allows all users to access the logout page/endpoint
+                )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
                 .build();
     }

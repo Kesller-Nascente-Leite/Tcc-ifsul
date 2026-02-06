@@ -15,4 +15,11 @@ export const AuthService = {
     localStorage.setItem("user", JSON.stringify(response.data.user));
     return response.data;
   },
+
+  async logout() {
+    const respose = await AuthApi.logout();
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("user");
+    return respose.data;
+  },
 };

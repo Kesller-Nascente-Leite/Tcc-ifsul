@@ -26,12 +26,12 @@ export function Register() {
   //estado de carregamento, muito massa
   const [isLoading, setIsLoading] = useState(false);
 
-  const [generalErro, setGeneralErro] = useState("");
+  const [generalError, setGeneralError] = useState("");
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>, field: string) => {
     setFormData({ ...formData, [field]: e.target.value });
     // limpa o erro quando o usuario digitar algo
-    if (generalErro) setGeneralErro("");
+    if (generalError) setGeneralError("");
   };
 
   const toggleShowPassword = () => {
@@ -65,7 +65,7 @@ export function Register() {
     if (!validate()) return;
 
     setIsLoading(true);
-    setGeneralErro("");
+    setGeneralError("");
 
     try {
       //primeiro prepara o objeto como o java esta esperando
@@ -89,10 +89,10 @@ export function Register() {
         // Agora o TypeScript sabe que 'err' tem a propriedade 'response'
         const message =
           err.response?.data?.message || "Erro ao cadastrar usuário.";
-        setGeneralErro(message);
+        setGeneralError(message);
       } else {
         // Para erros que não são do Axios (ex: erro de código)
-        setGeneralErro("Ocorreu um erro inesperado.");
+        setGeneralError("Ocorreu um erro inesperado.");
       }
     } finally {
       setIsLoading(false);
@@ -108,9 +108,9 @@ export function Register() {
             Comece a organizar seus estudos hoje.
           </p>
         </div>
-        {generalErro && (
+        {generalError && (
           <div className="mb-4 p-3 text-sm text-red-600 bg-red-100 border border-red-200 rounded-md">
-            {generalErro}
+            {generalError}
           </div>
         )}
         <FormComponent onSubmit={handleSubmit}>

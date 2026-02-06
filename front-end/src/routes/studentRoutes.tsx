@@ -1,5 +1,5 @@
 import type { RouteObject } from "react-router";
-import { StudentDashboard } from "../pages/students/StudentDashboard";
+import { StudentDashboard } from '../pages/students/StudentDashboard';
 
 export const StudentRoutes: RouteObject[] = [
   {
