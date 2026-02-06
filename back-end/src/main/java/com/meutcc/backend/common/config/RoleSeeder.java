@@ -21,8 +21,8 @@ public class RoleSeeder implements ApplicationRunner {
         if (roleRepository.count() == 0) {
             roleRepository.saveAll(List.of(
                     new Roles((byte) 1, "ADMIN"),
-                    new Roles((byte) 2, "PROFESSOR"),
-                    new Roles((byte) 3, "ESTUDANTE")
+                    new Roles((byte) 2, "TEACHER"),
+                    new Roles((byte) 3, "STUDENT")
             ));
         }
     }

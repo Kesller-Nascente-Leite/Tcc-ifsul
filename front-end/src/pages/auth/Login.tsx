@@ -1,11 +1,11 @@
 import { Link, useNavigate } from "react-router";
 import { ArrowRight, MessageSquareWarning } from "lucide-react";
 import Logo from "../../assets/Logo.png";
-import { FormComponent } from "../../components/FormComponent";
-import { InputComponent } from "../../components/InputComponent";
-import { ButtonComponent } from "../../components/ButtonComponent";
+import { FormComponent } from "../../components/partials/FormComponent";
+import { InputComponent } from "../../components/partials/InputComponent";
+import { ButtonComponent } from "../../components/partials/ButtonComponent";
 import type React from "react";
-import { useState, type ChangeEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import axios from "axios";
 import { AuthService } from "../../services/auth.service";
 
@@ -50,7 +50,7 @@ export function Login() {
     return isValid;
   };
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
     setIsLoading(true);
@@ -64,11 +64,16 @@ export function Login() {
 
       const responseData = await AuthService.login(payload);
 
-      navigate("/student/dashboard", {
-        state: {
-          successMessage: responseData.message,
-        },
-      });
+      const userRole = responseData.user.role;
+
+      if (userRole === "ADMIN") {
+        navigate("/admin/dashboard");
+      } else if (userRole === "TEACHER") {
+        navigate("/professor/dashboard");
+      }
+      else{
+        navigate("/student/dashboard")
+      }
     } catch (err: unknown) {
       console.error(err);
 

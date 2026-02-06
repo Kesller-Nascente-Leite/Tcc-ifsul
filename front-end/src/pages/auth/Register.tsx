@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
-import { FormComponent } from "../../components/FormComponent";
-import { InputComponent } from "../../components/InputComponent";
-import { ButtonComponent } from "../../components/ButtonComponent";
+import { FormComponent } from "../../components/partials/FormComponent";
+import { InputComponent } from "../../components/partials/InputComponent";
+import { ButtonComponent } from "../../components/partials/ButtonComponent";
 import { useNavigate } from "react-router";
 import axios from "axios";
 import { AuthService } from "../../services/auth.service";

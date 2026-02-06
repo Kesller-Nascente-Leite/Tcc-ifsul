@@ -6,9 +6,10 @@ import { PublicMainLayout } from "../components/public/PublicMainLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AdminRoutes } from "./AdminRoutes";
 import { StudentRoutes } from "./studentRoutes";
+import { ROLES } from "../constants/ROLES";
+import Unauthorized from "../pages/Unauthorized";
 
 const router = createBrowserRouter([
-
   {
     element: <PublicMainLayout />,
     children: [
@@ -18,17 +19,21 @@ const router = createBrowserRouter([
     ],
   },
   {
-    element: <ProtectedRoute allowedRoles={["ESTUDANTE"]} />,
-    children: [...StudentRoutes], 
+    element: <ProtectedRoute allowedRoles={[ROLES.STUDENT]} />,
+    children: [...StudentRoutes],
   },
   {
-    element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
+    element: <ProtectedRoute allowedRoles={[ROLES.ADMIN]} />,
     children: [...AdminRoutes],
   },
 
   {
     path: "*",
     element: <h1>404 - Página não encontrada</h1>,
+  },
+  {
+    path: "/unauthorized",
+    element: <Unauthorized />,
   },
 ]);
 

@@ -12,6 +12,7 @@ export const AuthService = {
   async login(data: LoginRequest) {
     const response = await AuthApi.login(data);
     localStorage.setItem("access_token", response.data.accessToken);
+    localStorage.setItem("user", JSON.stringify(response.data.user));
     return response.data;
   },
 };

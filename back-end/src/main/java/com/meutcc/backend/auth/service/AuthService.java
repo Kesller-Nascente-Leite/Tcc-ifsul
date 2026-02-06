@@ -32,7 +32,7 @@ public class AuthService {
 
         User user = mapper.toEntity(dto);
 
-        Roles StudentRole = roleRepository.findById(RoleIds.ESTUDANTE)
+        Roles StudentRole = roleRepository.findById(RoleIds.STUDENT)
                 .orElseThrow(() -> new IllegalStateException("Role não encontrado"));
 
         user.setPassword(passwordEncoder.encode(dto.password()));

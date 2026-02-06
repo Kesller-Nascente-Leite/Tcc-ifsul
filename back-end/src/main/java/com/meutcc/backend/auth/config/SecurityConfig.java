@@ -46,12 +46,13 @@ public class SecurityConfig {
 
                 //Autorizar requisições
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         //definindo quem pode acessar oq
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/teacher/**").hasRole("PROFESSOR")
-                        .requestMatchers("/api/student/**").hasRole("ESTUDANTE")
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/teacher/**").hasAuthority("TEACHER")
+                        .requestMatchers("/api/student/**").hasAuthority("STUDENT")
                         // linhas abaixo é para que todas as outras rotas terao a necessidade de estar logado
                         .anyRequest()
                         .authenticated())
