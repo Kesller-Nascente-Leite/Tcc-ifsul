@@ -2,7 +2,7 @@ import { createBrowserRouter, RouterProvider } from "react-router";
 import { Login } from "../pages/auth/Login";
 import { Register } from "../pages/auth/Register";
 import { Welcome } from "../pages/Welcome";
-import { PublicMainLayout } from "../components/partials/public/PublicMainLayout";
+import { PublicMainLayout } from "../components/layout/public/PublicMainLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AdminRoutes } from "./AdminRoutes";
 import { ROLES } from "../constants/ROLES";
