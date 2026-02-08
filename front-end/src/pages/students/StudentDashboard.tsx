@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { User } from "../../types/User";
-import { ButtonComponent } from "../../components/partials/ButtonComponent";
+import { ButtonComponent } from "../../components/ButtonComponent";
 import { useNavigate } from "react-router";
 import { AuthService } from "../../services/auth.service";
 import axios from "axios";

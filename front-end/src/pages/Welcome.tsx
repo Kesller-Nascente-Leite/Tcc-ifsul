@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { BenefitCard } from "../components/partials/BenefitCard";
+import { BenefitCard } from "../components/BenefitCard";
 
 import {
   BookOpenIcon,

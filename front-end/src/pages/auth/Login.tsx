@@ -1,9 +1,9 @@
 import { Link, useNavigate } from "react-router";
 import { ArrowRight, MessageSquareWarning } from "lucide-react";
 import Logo from "../../assets/Logo.png";
-import { FormComponent } from "../../components/partials/FormComponent";
-import { InputComponent } from "../../components/partials/InputComponent";
-import { ButtonComponent } from "../../components/partials/ButtonComponent";
+import { FormComponent } from "../../components/FormComponent";
+import { InputComponent } from "../../components/InputComponent";
+import { ButtonComponent } from "../../components/ButtonComponent";
 import type React from "react";
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import axios from "axios";
