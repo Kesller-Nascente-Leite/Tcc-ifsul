@@ -18,13 +18,16 @@ export interface LoginRequest {
 export interface LoginResponse {
   accessToken: string;
   refreshToken?: string;
-  user: {
-    id: number;
-    fullName: string;
-    email: string;
-    role: string;
-  };
+  user: AuthUser;
   message: string;
+}
+
+export interface AuthUser {
+  id: number;
+  fullName: string;
+  email: string;
+  role: string;
+  avatarUrl?: string | null;
 }
 
 export const AuthApi = {
@@ -37,6 +40,6 @@ export const AuthApi = {
   },
 
   logout: () => {
-    return api.post("/auth/logout")
-  }
+    return api.post("/auth/logout");
+  },
 };

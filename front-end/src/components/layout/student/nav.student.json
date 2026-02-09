@@ -1,0 +1,35 @@
+{
+  "menuItems": [
+    {
+      "id": 1,
+      "label": "Visão Geral",
+      "path": "/student/dashboard",
+      "icon": "LayoutDashboard"
+    },
+    {
+      "id": 2,
+      "label": "Minhas Matérias",
+      "path": "/student/subjects",
+      "icon": "BookOpen"
+    },
+    {
+      "id": 3,
+      "label": "Tarefas & Prazos",
+      "path": "/student/tasks",
+      "icon": "CheckSquare"
+    },
+    {
+      "id": 4,
+      "label": "Cronograma",
+      "path": "/student/schedule",
+      "icon": "Calendar"
+    },
+    { "id": 5, "label": "Pomodoro", "path": "/student/focus", "icon": "Timer" },
+    {
+      "id": 6,
+      "label": "Desempenho",
+      "path": "/student/analytics",
+      "icon": "BarChart2"
+    }
+  ]
+}
