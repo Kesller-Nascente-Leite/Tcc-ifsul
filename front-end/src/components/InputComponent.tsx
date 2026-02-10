@@ -19,7 +19,7 @@ export function InputComponent({
       {labelText && (
         <label
           htmlFor={inputId}
-          className="text-sm font-medium text-(--color-text-primary)"
+          className="text-sm font-medium text-text-primary"
         >
           {labelText}
         </label>
@@ -30,11 +30,11 @@ export function InputComponent({
         ref={ref}
         data-error={!!error}
         className={`
-          bg-(--color-surface)
-          text-(--color-text-primary)
-          placeholder:text-(--color-text-secondary)
+          bg-surface
+          text-text-primary
+          placeholder:text-text-secondary
           border 
-          border-(--color-border)
+          border-border
           rounded-lg
           p-2
           text-sm
@@ -42,23 +42,19 @@ export function InputComponent({
           transition-all
           duration-300
 
-          focus:border-(--color-primary)
+          focus:border-primary
           focus:ring-1
-          focus:ring-(--color-primary)/30
+          focus:ring-primary/30
 
-          data-[error=true]:border-(--color-error)
-          data-[error=true]:focus:ring-(--color-error)/30
+          data-[error=true]:border-error
+          data-[error=true]:focus:ring-error/30
 
           ${className || ""}
         `}
         {...props}
       />
 
-      {error && (
-        <span className="text-xs text-(--color-error) font-medium">
-          {error}
-        </span>
-      )}
+      {error && <span className="text-xs text-error font-medium">{error}</span>}
     </div>
   );
 }

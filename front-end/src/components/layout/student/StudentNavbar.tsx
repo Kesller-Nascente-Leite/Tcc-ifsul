@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Menu, X, Bell, Search, LogOut} from "lucide-react";
+import { Menu, X, Bell, Search, LogOut } from "lucide-react";
 import { useNavigate } from "react-router";
-import Logo from "../../../assets/Logo.png";
 import { AuthApi, type AuthUser } from "../../../api/auth.api";
 
 interface StudentNavbarProps {
@@ -57,67 +56,58 @@ export default function StudentNavbar({
 
   return (
     <nav
-      className="sticky top-0 z-40 w-full bg-(--color-surface)/80 backdrop-blur-md border-b border-(--color-border) transition-all duration-300"
+      className="sticky top-0 z-40 w-full bg-surface/80 backdrop-blur-md border-b border-border transition-all duration-300"
       role="navigation"
     >
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center gap-4">
             <button
-              className="md:hidden p-2 -ml-2 text-(--color-text-secondary) hover:text-(--color-primary) hover:bg-(--color-primary)/5 rounded-lg transition-colors focus:outline-hidden"
+              className="md:hidden p-2 -ml-2 text-text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition-colors focus:outline-hidden"
               onClick={onMenuClick}
               aria-label={isSidebarOpen ? "Fechar menu" : "Abrir menu"}
             >
               {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
-
-            <div className="flex items-center gap-2">
-              <img src={Logo} className="w-8 h-8 object-contain" alt="Logo" />
-              <span className="hidden md:block font-bold text-xl tracking-tight text-(--color-text-primary)">
-                Estuda Fácil
-              </span>
-            </div>
           </div>
 
           <div className="hidden md:flex flex-1 max-w-lg mx-8 relative group">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search
                 size={18}
-                className="text-(--color-text-secondary) group-focus-within:text-(--color-primary) transition-colors duration-200"
+                className="text-text-secondary group-focus-within:text-primary transition-colors duration-200"
               />
             </div>
             <input
               type="text"
-              className="block w-full pl-10 pr-4 py-2 bg-(--color-bg-main) border border-transparent focus:bg-(--color-surface) rounded-full text-sm text-(--color-text-primary) placeholder-(--color-text-secondary) focus:outline-hidden focus:ring-2 focus:ring-(--color-primary)/20 focus:border-(--color-primary) transition-all duration-200 shadow-xs"
+              className="block w-full pl-10 pr-4 py-2 bg-bg-main border border-transparent focus:bg-surface rounded-full text-sm text-text-primary placeholder-text-secondary focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 shadow-xs"
               placeholder="Buscar matérias, anotações..."
             />
           </div>
 
           <div className="flex items-center gap-3 sm:gap-5">
-            <button className="relative p-2 text-(--color-text-secondary) hover:text-(--color-text-primary) hover:bg-(--color-bg-main) rounded-full transition-all duration-200">
+            <button className="relative p-2 text-text-secondary hover:text-text-primary hover:bg-bg-main rounded-full transition-all duration-200">
               <Bell size={20} />
               <span className="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-(--color-surface)"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-surface"></span>
               </span>
             </button>
 
-            <div className="h-6 w-px bg-(--color-border)/60 hidden sm:block"></div>
+            <div className="h-6 w-px bg-border/60 hidden sm:block"></div>
 
             <div className="flex items-center gap-3 pl-1">
               <div className="hidden md:flex flex-col items-end">
-                <p className="text-sm font-semibold text-(--color-text-primary) leading-none">
+                <p className="text-sm font-semibold text-text-primary leading-none">
                   {user?.fullName || "Estudante"}
                 </p>
-                <p className="text-xs text-(--color-text-secondary) mt-1">
-                  Online agora
-                </p>
+                <p className="text-xs text-text-secondary mt-1">Online agora</p>
               </div>
 
               <div className="relative group cursor-pointer flex items-center gap-2">
                 <div className="relative">
-                  <div className="h-10 w-10 rounded-full bg-linear-to-br from-(--color-primary) to-purple-600 p-[2px] shadow-sm">
-                    <div className="h-full w-full rounded-full bg-(--color-surface) flex items-center justify-center overflow-hidden">
+                  <div className="h-10 w-10 rounded-full bg-linear-to-br from-primary to-purple-600 p-0.5 shadow-sm">
+                    <div className="h-full w-full rounded-full bg-surface flex items-center justify-center overflow-hidden">
                       {!imageError && user?.avatarUrl ? (
                         <img
                           src={user.avatarUrl}
@@ -126,20 +116,20 @@ export default function StudentNavbar({
                           onError={() => setImageError(true)}
                         />
                       ) : (
-                        <span className="text-(--color-primary) font-bold text-sm select-none">
+                        <span className="text-primary font-bold text-sm select-none">
                           {user?.fullName ? getInitials(user.fullName) : "EF"}
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-(--color-surface)"></span>
+                  <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 ring-2 ring-surface"></span>
                 </div>
 
                 <button
                   onClick={handleLogout}
                   disabled={isLoading}
-                  className="p-2 text-(--color-text-secondary) hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center"
+                  className="p-2 text-text-secondary hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center"
                   title="Sair da conta"
                 >
                   <LogOut size={18} />

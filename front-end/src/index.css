@@ -1,27 +1,32 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: var(--color-primary);
+  --color-primary-hover: var(--color-primary-hover);
+  --color-bg-main: var(--color-bg-main);
+  --color-surface: var(--color-surface);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-border: var(--color-border);
+  --color-error: var(--color-error);
+}
+
 @layer base {
   :root {
+    /* Cores do Modo Claro */
     --color-primary: #2b6cb0;
     --color-primary-hover: #1f5294;
-
-    --color-secondary: #2c7a7b;
-
-    --color-accent: #ed8936;
-    --color-accent-hover: #dd6b20;
-
-    --color-success: #38a169;
-    --color-warning: #d69e2e;
-    --color-error: #e53e3e;
-
+    --color-bg-main: #f7fafc;
+    --color-surface: #ffffff;
     --color-text-primary: #1a202c;
     --color-text-secondary: #718096;
     --color-border: #cbd5e0;
-
-    --color-bg-main: #f7fafc;
-    --color-surface: #ffffff;
+    --color-error: #e53e3e;
   }
 
+  /* Apenas esta classe deve controlar o modo escuro. 
+     Removi o @media (prefers-color-scheme) daqui para não conflitar.
+  */
   .dark {
     --color-bg-main: #1a202c;
     --color-surface: #2d3748;
@@ -31,6 +36,10 @@
   }
 
   body {
-    @apply antialiased bg-[var(--color-bg-main)] text-[var(--color-text-primary)];
+    background-color: var(--color-bg-main);
+    color: var(--color-text-primary);
+    transition:
+      background-color 0.3s,
+      color 0.3s;
   }
 }

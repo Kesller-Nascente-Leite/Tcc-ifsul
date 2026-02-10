@@ -28,12 +28,12 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "role_id")
     private Roles role;
-
-    @Column(nullable = false)
-    private boolean active = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -65,8 +65,4 @@ public class User extends BaseEntity implements UserDetails {
         return true;
     }
 
-    @Override
-    public boolean isEnabled() {
-        return this.active;
-    }
 }
