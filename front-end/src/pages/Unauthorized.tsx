@@ -20,14 +20,14 @@ export default function Unauthorized() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <button
             onClick={() => navigate(-1)}
-            className="px-6 py-2.5 rounded-lg border border-[--color-border] text-[--color-text-primary] hover:bg-gray-100 dark:hover:bg-gray-200 transition-colors font-medium cursor-pointer duration-300"
+            className="px-6 py-2.5 rounded-lg border border-[--color-border] text-[--color-text-primary] hover:bg-[--color-bg-main] transition-colors font-medium cursor-pointer duration-300"
           >
             Voltar
           </button>
 
           <button
             onClick={() => navigate("/")}
-            className="px-6 py-2.5 rounded-lg border border-[--color-border] bg-[--color-primary] text-[--color-text-primary] hover:bg-[--color-primary] transition-colors font-medium cursor-pointer shadow-md duration-300"
+            className="px-6 py-2.5 rounded-lg border border-[--color-border] bg-[--color-primary] hover:bg-[--color-primary-hover] text-white transition-colors font-medium cursor-pointer shadow-md duration-300"
           >
             Ir para o Início
           </button>

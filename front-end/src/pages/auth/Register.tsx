@@ -100,16 +100,16 @@ export function Register() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md space-y-6 rounded-lg border bg-white p-8 shadow-sm">
+    <main className="flex min-h-screen items-center justify-center bg-(--color-bg-main) p-4">
+      <div className="w-full max-w-md space-y-6 rounded-lg border bg-(--color-surface) p-8 shadow-sm border-(--color-border)">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Criar conta</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-(--color-text-primary)">Criar conta</h1>
+          <p className="text-sm text-(--color-text-secondary)">
             Comece a organizar seus estudos hoje.
           </p>
         </div>
         {generalError && (
-          <div className="mb-4 p-3 text-sm text-red-600 bg-red-100 border border-red-200 rounded-md">
+          <div className="mb-4 p-3 text-sm text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md">
             {generalError}
           </div>
         )}
@@ -151,7 +151,7 @@ export function Register() {
             />
             <button
               type="button"
-              className="text-xs text-blue-600 hover:text-blue-800 mt-1"
+              className="text-xs text-(--color-primary) hover:text-(--color-primary-hover) mt-1"
               onClick={toggleShowPassword}
             >
               {showPassword ? "Esconder senha" : "Mostrar senha"}

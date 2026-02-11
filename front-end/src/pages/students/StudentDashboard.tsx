@@ -46,14 +46,14 @@ export function StudentDashboard() {
   return (
     <div>
       {generalError && (
-        <div className="mb-4 p-3 text-sm text-red-600 bg-red-100 border border-red-200 rounded-md">
+        <div className="mb-4 p-3 text-sm text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md">
           {generalError}
         </div>
       )}
 
-      <h1>
+      <h1 className="text-2xl font-bold text-(--color-text-primary)">
         Seja bem vindo ao dashboard dos estudantes{" "}
-        <strong>{user ? user.fullName : "Carregando..."}</strong>
+        <strong className="text-(--color-primary)">{user ? user.fullName : "Carregando..."}</strong>
       </h1>
 
       <ButtonComponent

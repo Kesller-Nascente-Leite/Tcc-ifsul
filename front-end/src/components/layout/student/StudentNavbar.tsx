@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
-import { Menu, X, Bell, Search, LogOut } from "lucide-react";
+import { Menu, X, Bell, Search, LogOut, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router";
 import { AuthApi, type AuthUser } from "../../../api/auth.api";
+import { useTheme } from "../../../context/ThemeContext";
+import { InputComponent } from "../../InputComponent";
 
 interface StudentNavbarProps {
   onMenuClick: () => void;
@@ -13,6 +15,7 @@ export default function StudentNavbar({
   isSidebarOpen,
 }: StudentNavbarProps) {
   const navigate = useNavigate();
+  const { isDark, toggleTheme } = useTheme();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -78,8 +81,9 @@ export default function StudentNavbar({
                 className="text-text-secondary group-focus-within:text-primary transition-colors duration-200"
               />
             </div>
-            <input
+            <InputComponent
               type="text"
+              autoComplete="off"
               className="block w-full pl-10 pr-4 py-2 bg-bg-main border border-transparent focus:bg-surface rounded-full text-sm text-text-primary placeholder-text-secondary focus:outline-hidden focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200 shadow-xs"
               placeholder="Buscar matérias, anotações..."
             />
@@ -92,6 +96,15 @@ export default function StudentNavbar({
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500 border-2 border-surface"></span>
               </span>
+            </button>
+
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-text-secondary hover:text-text-primary hover:bg-bg-main rounded-full transition-all duration-200"
+              aria-label={isDark ? "Modo claro" : "Modo escuro"}
+              title={isDark ? "Modo claro" : "Modo escuro"}
+            >
+              {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
 
             <div className="h-6 w-px bg-border/60 hidden sm:block"></div>
@@ -129,7 +142,7 @@ export default function StudentNavbar({
                 <button
                   onClick={handleLogout}
                   disabled={isLoading}
-                  className="p-2 text-text-secondary hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center"
+                  className="p-2 text-text-secondary hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 rounded-lg transition-colors flex items-center justify-center"
                   title="Sair da conta"
                 >
                   <LogOut size={18} />

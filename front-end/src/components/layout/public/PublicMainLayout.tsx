@@ -8,7 +8,7 @@ export function PublicMainLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-(--color-bg-main)">
+    <div className="flex min-h-screen bg-bg-main">
       <PublicSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300">

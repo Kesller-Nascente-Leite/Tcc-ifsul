@@ -7,7 +7,7 @@ export function StudentLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-(--color-bg-main)">
+    <div className="flex min-h-screen bg-bg-main">
       <StudentSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
       <div className="flex-1 flex flex-col md:pl-64 transition-all duration-300 min-w-0">
@@ -22,7 +22,7 @@ export function StudentLayout() {
           </div>
         </main>
 
-        <footer className="py-4 px-8 text-center md:text-left text-xs text-(--color-text-secondary) border-t border-(--color-border)">
+        <footer className="py-4 px-8 text-center md:text-left text-xs text-text-secondary border-t border-border">
           <p>© {new Date().getFullYear()} Estuda Fácil - Painel do Estudante</p>
         </footer>
       </div>

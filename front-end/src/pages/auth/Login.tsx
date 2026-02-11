@@ -5,7 +5,7 @@ import { FormComponent } from "../../components/FormComponent";
 import { InputComponent } from "../../components/InputComponent";
 import { ButtonComponent } from "../../components/ButtonComponent";
 import type React from "react";
-import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useState, type ChangeEvent, type FormEvent as FormEventType } from "react";
 import axios from "axios";
 import { AuthService } from "../../services/auth.service";
 
@@ -50,7 +50,7 @@ export function Login() {
     return isValid;
   };
 
-  const handleLoginSubmit = async (e: FormEvent) => {
+  const handleLoginSubmit = async (e: FormEventType) => {
     e.preventDefault();
     if (!validate()) return;
     setIsLoading(true);
@@ -94,22 +94,22 @@ export function Login() {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-(--color-surface) rounded-2xl shadow-xl border border-(--color-border) overflow-hidden">
+      <div className="w-full max-w-md bg-surface rounded-2xl shadow-xl border border-border overflow-hidden">
         <div className="p-8 pb-4 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-(--color-primary)/10 text-(--color-primary) mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-4">
             <img src={Logo} className="max-w-28 h-auto" />
           </div>
-          <h2 className="text-2xl font-bold text-(--color-text-primary)">
+          <h2 className="text-2xl font-bold text-text-primary">
             Bem-vindo de volta
           </h2>
-          <p className="text-(--color-text-secondary) text-sm mt-2">
+          <p className="text-text-secondary text-sm mt-2">
             Acesse sua conta para continuar seus estudos.
           </p>
         </div>
 
         <div className="p-8 pt-0">
           {generalErro && (
-            <div className="p-3 mt-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 animate-in slide-in-from-top-2">
+            <div className="p-3 mt-3 text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-2 animate-in slide-in-from-top-2">
               <span>
                 <MessageSquareWarning /> {generalErro}
               </span>
@@ -142,7 +142,7 @@ export function Login() {
                 <div className="flex justify-end">
                   <a
                     href="#"
-                    className="text-xs text-(--color-primary) hover:underline font-medium"
+                    className="text-xs text-primary hover:underline font-medium"
                   >
                     Esqueceu a senha?
                   </a>
@@ -162,12 +162,12 @@ export function Login() {
             </div>
           </FormComponent>
 
-          <div className="mt-8 pt-6 border-t border-(--color-border) text-center">
-            <p className="text-sm text-(--color-text-secondary)">
+          <div className="mt-8 pt-6 border-t border-border text-center">
+            <p className="text-sm text-text-secondary">
               Ainda não tem uma conta?{" "}
               <Link
                 to="/register"
-                className="text-(--color-primary) font-bold hover:text-(--color-primary-hover) inline-flex items-center gap-1 transition-colors"
+                className="text-primary font-bold hover:text-primary-hover inline-flex items-center gap-1 transition-colors"
               >
                 Cadastre-se agora
                 <ArrowRight size={14} />

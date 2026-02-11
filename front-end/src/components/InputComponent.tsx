@@ -28,6 +28,7 @@ export function InputComponent({
       <input
         id={inputId}
         ref={ref}
+
         data-error={!!error}
         className={`
           bg-surface

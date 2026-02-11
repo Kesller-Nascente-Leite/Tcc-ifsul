@@ -40,7 +40,7 @@ export function StudentSidebar({ isOpen, setIsOpen }: StudentSidebarProps) {
     <div>
       {isOpen && (
         <div
-          className=" fixed inset-0 bg-black/50 backdrop-blur-xs z-40 md:hidden"
+          className=" fixed inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-xs z-40 md:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
