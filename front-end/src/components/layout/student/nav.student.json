@@ -10,6 +10,7 @@
       "id": 2,
       "label": "Minhas Matérias",
       "path": "/student/subjects",
+      "cta": "Entrar",
       "icon": "BookOpen"
     },
     {

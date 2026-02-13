@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect } from "react";
 import {
   type LucideIcon,
@@ -61,31 +62,42 @@ export function StudentSidebar({ isOpen, setIsOpen }: StudentSidebarProps) {
             Menu Principal
           </p>
 
-          {navData.menuItems.map((item) => {
+          {navData.menuItems.map((item: any) => {
             const IconComponent = iconMap[item.icon] || LayoutDashboard;
-            const isActive = window.location.pathname === item.path;
 
             return (
-              <a
+              <NavLink
                 key={item.id}
-                href={item.path}
-                className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group
+                to={item.path}
+                onClick={() => setIsOpen(false)}
+                className={({
+                  isActive,
+                }) => `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group
                   ${
                     isActive
                       ? "bg-primary/10 text-primary"
                       : "text-text-secondary hover:bg-bg-main hover:text-text-primary"
                   }`}
               >
-                <IconComponent
-                  size={20}
-                  className={
-                    isActive
-                      ? "text-primary"
-                      : "text-text-secondary group-hover:text-primary"
-                  }
-                />
-                {item.label}
-              </a>
+                {({ isActive }) => (
+                  <>
+                    <IconComponent
+                      size={20}
+                      className={
+                        isActive
+                          ? "text-primary"
+                          : "text-text-secondary group-hover:text-primary"
+                      }
+                    />
+                    <span>{item.label}</span>
+                    {item.cta && (
+                      <span className="ml-auto text-xs font-semibold text-primary">
+                        {item.cta}
+                      </span>
+                    )}
+                  </>
+                )}
+              </NavLink>
             );
           })}
 
@@ -96,17 +108,30 @@ export function StudentSidebar({ isOpen, setIsOpen }: StudentSidebarProps) {
             <NavLink
               to="/student/settings"
               onClick={() => setIsOpen(false)}
-              className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-main hover:text-text-primary rounded-lg transition-colors"
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-text-secondary hover:bg-bg-main hover:text-text-primary"
+                }`
+              }
             >
               <Settings size={20} />
               Configurações
             </NavLink>
-            <a
-              href="/help"
-              className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-main hover:text-text-primary rounded-lg transition-colors"
+            <NavLink
+              to="/help"
+              onClick={() => setIsOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-text-secondary hover:bg-bg-main hover:text-text-primary"
+                }`
+              }
             >
               <HelpCircle size={20} /> Ajuda
-            </a>
+            </NavLink>
           </div>
         </div>
       </aside>
