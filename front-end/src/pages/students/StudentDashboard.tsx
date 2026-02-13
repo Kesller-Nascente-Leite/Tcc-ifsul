@@ -51,9 +51,11 @@ export function StudentDashboard() {
         </div>
       )}
 
-      <h1 className="text-2xl font-bold text-(--color-text-primary)">
+      <h1 className="text-2xl font-bold text-text-primary">
         Seja bem vindo ao dashboard dos estudantes{" "}
-        <strong className="text-(--color-primary)">{user ? user.fullName : "Carregando..."}</strong>
+        <strong className="text-primary">
+          {user ? user.fullName : "Carregando..."}
+        </strong>
       </h1>
 
       <ButtonComponent

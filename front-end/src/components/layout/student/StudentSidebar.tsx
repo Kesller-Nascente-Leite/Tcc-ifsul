@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import navData from "./nav.student.json";
 import Logo from "../../../assets/Logo.png";
-import { Link } from "react-router";
+import { NavLink } from "react-router";
 
 const iconMap: Record<string, LucideIcon> = {
   LayoutDashboard,
@@ -93,14 +93,14 @@ export function StudentSidebar({ isOpen, setIsOpen }: StudentSidebarProps) {
             <p className="px-2 mb-2 text-xs font-bold text-text-secondary uppercase tracking-wider">
               Sistema
             </p>
-            <a
-              href="/student/settings"
+            <NavLink
+              to="/student/settings"
+              onClick={() => setIsOpen(false)}
               className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-main hover:text-text-primary rounded-lg transition-colors"
             >
               <Settings size={20} />
-
-              <Link to={"/student/settings"}>Configurações</Link>
-            </a>
+              Configurações
+            </NavLink>
             <a
               href="/help"
               className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-text-secondary hover:bg-bg-main hover:text-text-primary rounded-lg transition-colors"

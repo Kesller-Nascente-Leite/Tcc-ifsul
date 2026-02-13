@@ -26,9 +26,6 @@
     --color-error: #e53e3e;
   }
 
-  /* Apenas esta classe deve controlar o modo escuro. 
-     Removi o @media (prefers-color-scheme) daqui para não conflitar.
-  */
   .dark {
     --color-bg-main: #1a202c;
     --color-surface: #2d3748;
@@ -43,5 +40,45 @@
     transition:
       background-color 0.3s,
       color 0.3s;
+  }
+
+  :root {
+    --accent-color: #2563eb;
+    --accent-rgb: 37, 99, 235;
+  }
+
+  [class*="bg-blue-"] {
+    background-image: none !important;
+    background-color: var(--accent-color) !important;
+  }
+
+  /* Text */
+  [class*="text-blue-"] {
+    color: var(--accent-color) !important;
+  }
+
+  /* Borders */
+  [class*="border-blue-"] {
+    border-color: var(--accent-color) !important;
+  }
+
+  /* Ring / focus outlines approximated */
+  [class*="ring-blue-"] {
+    box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.12) !important;
+  }
+
+  /* Shadows that include blue — approximate with accent tint */
+  [class*="shadow-blue-"] {
+    box-shadow: 0 10px 25px rgba(var(--accent-rgb), 0.18) !important;
+  }
+
+  /* Gradient helpers that reference from-blue / to-blue */
+  [class*="from-blue-"],
+  [class*="to-blue-"] {
+    background-image: linear-gradient(
+      180deg,
+      rgba(var(--accent-rgb), 0.12),
+      rgba(var(--accent-rgb), 0.06)
+    ) !important;
   }
 }
