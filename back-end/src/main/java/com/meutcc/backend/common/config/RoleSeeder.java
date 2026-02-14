@@ -8,11 +8,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.core.annotation.Order;
 
 import java.util.List;
 
 @Component
 @AllArgsConstructor
+@Order(1)
 public class RoleSeeder implements ApplicationRunner {
 
     private RoleRepository roleRepository;
@@ -27,4 +29,3 @@ public class RoleSeeder implements ApplicationRunner {
         }
     }
 }
-

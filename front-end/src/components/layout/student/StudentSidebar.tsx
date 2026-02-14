@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import {
   type LucideIcon,
   LayoutDashboard,
+  Book,
   BookOpen,
   CheckSquare,
   Calendar,
@@ -17,6 +18,7 @@ import { NavLink } from "react-router";
 
 const iconMap: Record<string, LucideIcon> = {
   LayoutDashboard,
+  Book,
   BookOpen,
   CheckSquare,
   Calendar,

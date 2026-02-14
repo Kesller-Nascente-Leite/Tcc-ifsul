@@ -69,7 +69,7 @@ export function Login() {
       if (userRole === "ADMIN") {
         navigate("/admin/dashboard");
       } else if (userRole === "TEACHER") {
-        navigate("/professor/dashboard");
+        navigate("/teacher/dashboard");
       }
       else{
         navigate("/student/dashboard")

@@ -1,0 +1,40 @@
+{
+  "menuItems": [
+    {
+      "id": 1,
+      "label": "Visão Geral",
+      "path": "/teacher/dashboard",
+      "icon": "LayoutDashboard"
+    },
+    {
+      "id": 2,
+      "label": "Minhas Turmas",
+      "path": "/teacher/classes",
+      "icon": "BookOpen"
+    },
+    {
+      "id": 6,
+      "label": "Matérias",
+      "path": "/teacher/subjects",
+      "icon": "Book"
+    },
+    {
+      "id": 3,
+      "label": "Atribuições",
+      "path": "/teacher/assignments",
+      "icon": "CheckSquare"
+    },
+    {
+      "id": 4,
+      "label": "Cronograma",
+      "path": "/teacher/schedule",
+      "icon": "Calendar"
+    },
+    {
+      "id": 5,
+      "label": "Desempenho",
+      "path": "/teacher/analytics",
+      "icon": "BarChart2"
+    }
+  ]
+}

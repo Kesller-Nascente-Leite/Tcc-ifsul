@@ -91,7 +91,7 @@ export function Register() {
           err.response?.data?.message || "Erro ao cadastrar usuário.";
         setGeneralError(message);
       } else {
-        // Para erros que não são do Axios (ex: erro de código)
+        // Para errosF que não são do Axios (ex: erro de código)
         setGeneralError("Ocorreu um erro inesperado.");
       }
     } finally {
@@ -100,11 +100,11 @@ export function Register() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-(--color-bg-main) p-4">
-      <div className="w-full max-w-md space-y-6 rounded-lg border bg-(--color-surface) p-8 shadow-sm border-(--color-border)">
+    <main className="flex min-h-screen items-center justify-center bg-bg-main p-4">
+      <div className="w-full max-w-md space-y-6 rounded-lg border bg-surface p-8 shadow-sm border-border">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-(--color-text-primary)">Criar conta</h1>
-          <p className="text-sm text-(--color-text-secondary)">
+          <h1 className="text-2xl font-bold text-text-primary">Criar conta</h1>
+          <p className="text-sm text-text-secondary">
             Comece a organizar seus estudos hoje.
           </p>
         </div>
@@ -151,7 +151,7 @@ export function Register() {
             />
             <button
               type="button"
-              className="text-xs text-(--color-primary) hover:text-(--color-primary-hover) mt-1"
+              className="text-xs text-primary hover:text-primary-hover mt-1"
               onClick={toggleShowPassword}
             >
               {showPassword ? "Esconder senha" : "Mostrar senha"}
