@@ -3,6 +3,7 @@ import { Navigate } from "react-router";
 import { StudentDashboard } from "../pages/students/StudentDashboard";
 import { StudentLayout } from "../components/layout/student/StudentLayout";
 import Settings from "../pages/Settings.";
+import { AvailableCourses } from "../pages/students/AvailableCourses";
 
 export const StudentRoutes: RouteObject[] = [
   {
@@ -20,6 +21,10 @@ export const StudentRoutes: RouteObject[] = [
       {
         path: "settings",
         element: <Settings />,
+      },
+      {
+        path: "available-courses",
+        element: <AvailableCourses />,
       },
     ],
   },

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ButtonComponent } from "../../components/ButtonComponent";
 import { InputComponent } from "../../components/InputComponent";
+import { SubjectApi } from "../../api/subject.api";
 
 type ModuleItem = {
   id: string;
@@ -9,13 +10,11 @@ type ModuleItem = {
 };
 
 type SubjectItem = {
-  id: string;
+  id: string | number;
   title: string;
   description?: string;
   modules: ModuleItem[];
 };
-
-const STORAGE_KEY = "teacher_subjects";
 
 function uid() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -24,26 +23,27 @@ function uid() {
 export function TeacherSubjects() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [color, setColor] = useState("#3B82F6");
   const [moduleTitle, setModuleTitle] = useState("");
   const [moduleDesc, setModuleDesc] = useState("");
   const [modules, setModules] = useState<ModuleItem[]>([]);
   const [subjects, setSubjects] = useState<SubjectItem[]>([]);
 
   useEffect(() => {
-    const savedRaw = localStorage.getItem(STORAGE_KEY);
-    if (savedRaw) {
-      try {
-        const parseRaw = JSON.parse(savedRaw);
-        setSubjects(parseRaw);
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    SubjectApi.list()
+      .then((res) => {
+        const list = res.data || [];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const mapped: SubjectItem[] = list.map((s: any) => ({
+          id: s.id,
+          title: s.name ?? "",
+          description: s.description ?? "",
+          modules: [],
+        }));
+        setSubjects(mapped);
+      })
+      .catch((err) => console.error("Failed to load subjects", err));
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(subjects));
-  }, [subjects]);
 
   const addModule = () => {
     if (!moduleTitle.trim()) return;
@@ -59,21 +59,40 @@ export function TeacherSubjects() {
     setModules((s) => s.filter((m) => m.id !== id));
 
   const saveSubject = () => {
-    if (!title.trim()) return;
-    const newSubject: SubjectItem = {
-      id: uid(),
-      title: title.trim(),
+    if (!title.trim() || !color.trim()) return;
+    const payload = {
+      name: title.trim(),
       description: description.trim(),
-      modules,
+      color: color.trim(),
     };
-    setSubjects((s) => [newSubject, ...s]);
-    setTitle("");
-    setDescription("");
-    setModules([]);
+    SubjectApi.create(payload)
+      .then((res) => {
+        const created = res.data;
+        const newSubject: SubjectItem = {
+          id: created.id ?? uid(),
+          title: created.name ?? title.trim(),
+          description: created.description ?? description.trim(),
+          modules,
+        };
+        setSubjects((s) => [newSubject, ...s]);
+        setTitle("");
+        setDescription("");
+        setColor("#3B82F6");
+        setModules([]);
+      })
+      .catch((err) => console.error("Failed to create subject", err));
   };
 
-  const deleteSubject = (id: string) =>
-    setSubjects((s) => s.filter((it) => it.id !== id));
+  const deleteSubject = (id: string | number) => {
+    // attempt server delete when possible
+    if (typeof id === "number") {
+      SubjectApi.remove(id)
+        .then(() => setSubjects((s) => s.filter((it) => it.id !== id)))
+        .catch((err) => console.error("Failed to delete subject", err));
+    } else {
+      setSubjects((s) => s.filter((it) => it.id !== id));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -107,6 +126,23 @@ export function TeacherSubjects() {
               setDescription((e.target as HTMLInputElement).value)
             }
           />
+
+          <label className="block text-sm text-text-secondary mt-3 mb-1">
+            Cor
+          </label>
+          <div className="flex gap-2">
+            <input
+              type="color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              className="w-12 h-10 rounded cursor-pointer border border-border"
+            />
+            <InputComponent
+              value={color}
+              onChange={(e) => setColor((e.target as HTMLInputElement).value)}
+              placeholder="#3B82F6"
+            />
+          </div>
 
           <div className="mt-4">
             <h4 className="font-semibold">Módulos</h4>

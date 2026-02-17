@@ -9,7 +9,7 @@
     {
       "id":2,
       "label":"Buscar por materias",
-      "path":"/student/materials" ,
+      "path":"/student/available-courses" ,
       "icon": "Book"
     },
     {
