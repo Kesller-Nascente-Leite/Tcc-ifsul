@@ -11,8 +11,7 @@ import {
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ButtonComponent";
 import { useTheme } from "../../context/ThemeContext";
-import { CourseApi, type CourseDTO } from "../../api/course.api";
-
+import { CourseStudentApi, type CourseDTO } from "../../api/courseStudent.api";
 
 interface CourseCardProps {
   course: CourseDTO;
@@ -108,7 +107,7 @@ export function AvailableCourses() {
   const loadCourses = async () => {
     try {
       setIsLoading(true);
-      const response = await CourseApi.listAllCourse();
+      const response = await CourseStudentApi.listAllCourse();
       setCourses(response.data);
       setFilteredCourses(response.data);
     } catch (error) {
@@ -123,31 +122,31 @@ export function AvailableCourses() {
   };
 
   // Filtrar cursos por busca e status
-  // useEffect(() => {
-  //   let result = [...courses];
+  useEffect(() => {
+    let result = [...courses];
 
-  //   // Filtro de busca
-  //   if (searchTerm) {
-  //     result = result.filter(
-  //       (course) =>
-  //         course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //         course.teacherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-  //         course.description?.toLowerCase().includes(searchTerm.toLowerCase()),
-  //     );
-  //   }
+    // Filtro de busca
+    if (searchTerm) {
+      result = result.filter(
+        (course) =>
+          course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          course.teacherName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          course.description?.toLowerCase().includes(searchTerm.toLowerCase()),
+      );
+    }
 
-  //   // Filtro de publicação
-  //   if (filterPublished === "published") {
-  //     result = result.filter((course) => course.published);
-  //   }
+    // Filtro de publicação
+    if (filterPublished === "published") {
+      result = result.filter((course) => course.published);
+    }
 
-  //   setFilteredCourses(result);
-  // }, [searchTerm, filterPublished, courses]);
+    setFilteredCourses(result);
+  }, [searchTerm, filterPublished, courses]);
 
   const handleEnroll = async (courseId: number) => {
     try {
       setEnrollingCourseId(courseId);
-      await CourseApi.enroll(courseId);
+      await CourseStudentApi.enroll(courseId);
 
       setNotification({
         type: "success",

@@ -25,6 +25,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+  
   {
     element: <ProtectedRoute allowedRoles={[ROLES.STUDENT]} />,
     children: [...StudentRoutes],
@@ -37,6 +38,7 @@ const router = createBrowserRouter([
     element: <ProtectedRoute allowedRoles={[ROLES.ADMIN]} />,
     children: [...AdminRoutes],
   },
+
 
   {
     path: "*",

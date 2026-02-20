@@ -47,7 +47,7 @@ const DEFAULT_NOTIFICATIONS: NotificationData = {
 
 export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [profileData, setProfileDataState] = useState<ProfileData>(() => {
-    const saved = localStorage.getItem("userProfile");
+    const saved = localStorage.getItem("user");
     return saved ? JSON.parse(saved) : DEFAULT_PROFILE;
   });
 
@@ -64,7 +64,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   ) => {
     setProfileDataState((prev) => {
       const newData = typeof data === "function" ? data(prev) : data;
-      localStorage.setItem("userProfile", JSON.stringify(newData));
+      localStorage.setItem("user", JSON.stringify(newData));
       return newData;
     });
   };

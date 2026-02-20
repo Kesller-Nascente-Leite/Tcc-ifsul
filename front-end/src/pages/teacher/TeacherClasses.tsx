@@ -2,12 +2,15 @@
 import { useEffect, useState } from "react";
 import { ButtonComponent } from "../../components/ButtonComponent";
 import { InputComponent } from "../../components/InputComponent";
-import { CourseApi } from "../../api/course.api";
+import { CourseTeacherApi } from "../../api/courseTeacher.api";
 
 type ClassItem = {
   id: string | number;
   title: string;
+  published?: boolean;
   description?: string;
+  teacherId?: number;
+  teacherName?: string;
 };
 
 function uid() {
@@ -20,7 +23,7 @@ export function TeacherClasses() {
   const [classes, setClasses] = useState<ClassItem[]>([]);
 
   useEffect(() => {
-    CourseApi.list()
+    CourseTeacherApi.listAllTeacherCourses()
       .then((res) => {
         const list = res.data || [];
         const mapped: ClassItem[] = list.map((c: any) => ({
@@ -56,26 +59,30 @@ export function TeacherClasses() {
       description: description.trim(),
       published: false,
       teacherId: teacherId,
+      teacherName: userRaw ? JSON.parse(userRaw).name : "",
     };
 
-    CourseApi.create(payload)
+    CourseTeacherApi.create(payload)
       .then((res) => {
         const created = res.data;
         const newClass: ClassItem = {
           id: created.id ?? uid(),
           title: created.title ?? title.trim(),
+          published: created.published ?? false,
+          teacherId: created.teacherId ?? teacherId,
+          teacherName: created.teacherName ?? "",
           description: created.description ?? description.trim(),
         };
         setClasses((s) => [newClass, ...s]);
         setTitle("");
         setDescription("");
       })
-      .catch((err) => console.error("Failed to create course", err));
+      .catch((err: any) => console.error("Failed to create course", err));
   };
 
   const deleteClass = (id: string | number) => {
     if (typeof id === "number") {
-      CourseApi.remove(id)
+      CourseTeacherApi.remove(id)
         .then(() => setClasses((s) => s.filter((c) => c.id !== id)))
         .catch((err) => console.error("Failed to delete course", err));
     } else {
@@ -119,9 +126,7 @@ export function TeacherClasses() {
           />
 
           <div className="mt-6">
-            <ButtonComponent onClick={saveClass}>
-              Salvar Turma
-            </ButtonComponent>
+            <ButtonComponent onClick={saveClass}>Salvar Turma</ButtonComponent>
           </div>
         </div>
 
