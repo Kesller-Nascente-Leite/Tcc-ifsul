@@ -8,7 +8,7 @@
     },
     {
       "id":2,
-      "label":"Buscar por materias",
+      "label":"Buscar por Cursos",
       "path":"/student/available-courses" ,
       "icon": "Book"
     },

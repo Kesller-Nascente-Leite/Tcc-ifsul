@@ -3,8 +3,9 @@ import { Navigate } from "react-router";
 import Settings from "../pages/Settings.";
 import { TeacherDashboard } from "../pages/teacher/TeacherDashboard";
 import { TeacherSubjects } from "../pages/teacher/TeacherSubjects";
-import { TeacherClasses } from "../pages/teacher/TeacherClasses";
+import { CreateCourse } from "../pages/teacher/CreateCourses";
 import { TeacherLayout } from "../components/layout/teacher/TeacherLayout";
+import { EditCourses } from "../pages/teacher/EditCourses";
 
 export const TeacherRoutes: RouteObject[] = [
   {
@@ -20,8 +21,8 @@ export const TeacherRoutes: RouteObject[] = [
         element: <TeacherDashboard />,
       },
       {
-        path: "classes",
-        element: <TeacherClasses />,
+        path: "create-course",
+        element: <CreateCourse />,
       },
       {
         path: "subjects",
@@ -31,6 +32,10 @@ export const TeacherRoutes: RouteObject[] = [
         path: "settings",
         element: <Settings />,
       },
+      {
+        path:"courses/:id/edit",
+        element: <EditCourses />
+      }
     ],
   },
 ];

@@ -11,18 +11,21 @@ export interface CourseDTO {
 }
 
 export const CourseTeacherApi = {
-  listAllTeacherCourses: (params?: any) =>
-    api.get<CourseDTO[]>("/teacher/courses", { params }),
+  // verifica se existe o curso com o id fornecido
+  getById: (id: number) => api.get<CourseDTO>(`/courses/teacher/${id}`),
 
-  get: (id: number) => api.get<CourseDTO>(`/teacher/courses/${id}`),
+  listAllTeacherCourses: (params?: any) =>
+    api.get<CourseDTO[]>("/courses/teacher/list-all-teacher-courses", { params }),
+
+  get: (id: number) => api.get<CourseDTO>(`/courses/teacher/${id}`),
 
   create: (payload: CourseDTO) =>
-    api.post<CourseDTO>("/teacher/courses", payload),
+    api.post<CourseDTO>("/courses/teacher/create", payload),
 
   update: (id: number, payload: CourseDTO) =>
-    api.put<CourseDTO>(`/teacher/courses/${id}`, payload),
+    api.put<CourseDTO>(`/courses/teacher/${id}`, payload),
 
-  remove: (id: number) => api.delete(`/teacher/courses/${id}`),
+  remove: (id: number) => api.delete(`/courses/teacher/${id}`),
 
-  togglePublish: (id: number) => api.patch(`/courses/${id}/publish`),
+  togglePublish: (id: number) => api.patch(`/courses/teacher/${id}/publish`),
 };

@@ -9,7 +9,7 @@
     {
       "id": 2,
       "label": "Minhas Turmas",
-      "path": "/teacher/classes",
+      "path": "/teacher/create-course",
       "icon": "BookOpen"
     },
     {
