@@ -1,4 +1,6 @@
 package com.meutcc.backend.content.courses;
 
-public record CourseResponse() {
+public record CourseResponse(
+        String message
+) {
 }

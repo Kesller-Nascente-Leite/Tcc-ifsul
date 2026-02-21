@@ -1,7 +1,7 @@
 package com.meutcc.backend.common.exceptions;
 
-public class CourseNotFound extends RuntimeException {
-  public CourseNotFound(String message) {
-    super(message);
-  }
+public class CourseNotFoundException extends RuntimeException {
+    public CourseNotFoundException(String message) {
+        super(message);
+    }
 }

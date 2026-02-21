@@ -1,47 +1,48 @@
 package com.meutcc.backend.auth.service;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import com.meutcc.backend.user.User;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import javax.crypto.SecretKey;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
-@Configuration
-public class JwtConfig {
+@Service
+public class JwtService {
 
-    @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
-        converter.setJwtGrantedAuthoritiesConverter(new CustomAuthoritiesConverter());
-        return converter;
+    @Value("${api.security.token.secret}")
+    private String base64Secret;
+
+    @Value("${api.security.token.expiration}")
+    private long jwtExpiration;
+
+    private SecretKey getSigningKey() {
+        byte[] keyBytes = java.util.Base64.getDecoder().decode(base64Secret);
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    static class CustomAuthoritiesConverter implements Converter<Jwt, Collection<GrantedAuthority>> {
-        @Override
-        public Collection<GrantedAuthority> convert(Jwt jwt) {
-            Collection<GrantedAuthority> authorities = new ArrayList<>();
+    public String generateToken(Map<String, Object> extraClaims, String subject) {
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(subject)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
 
-            // Tenta ler de "authorities" primeiro
-            Object authoritiesClaim = jwt.getClaim("authorities");
-            if (authoritiesClaim instanceof Collection<?>) {
-                for (Object auth : (Collection<?>) authoritiesClaim) {
-                    authorities.add(new SimpleGrantedAuthority(auth.toString()));
-                }
-                return authorities;
-            }
-
-            // Fallback para "role"
-            String role = jwt.getClaim("role");
-            if (role != null) {
-                authorities.add(new SimpleGrantedAuthority(role));
-            }
-
-            return authorities;
-        }
+    public String generateTokenForUser(User user) {
+        Map<String, Object> claims = Map.of(
+                "userId", user.getId(),
+                "authorities", List.of(user.getRole().getName()),
+                "fullName", user.getFullName(),
+                "email", user.getEmail()
+        );
+        return generateToken(claims, user.getEmail());
     }
 }
