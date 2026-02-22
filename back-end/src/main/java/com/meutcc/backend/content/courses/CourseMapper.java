@@ -28,19 +28,17 @@ public class CourseMapper {
         course.setTitle(dto.title());
         course.setDescription(dto.description());
         course.setPublished(dto.published());
-        // Teacher NÃO é setado aqui
 
         return course;
     }
 
-    // ← CORRIGIR ESTE MÉTODO
     public static Course toEntity(CourseDTO dto, Teacher teacher) {
         if (dto == null) {
             return null;
         }
 
         Course course = toEntity(dto);
-        course.setTeacher(teacher);  // ← CORRETO: só setar o teacher recebido
+        course.setTeacher(teacher);
 
         return course;
     }
