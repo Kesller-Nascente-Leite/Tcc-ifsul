@@ -8,6 +8,8 @@ import {
   CheckCircle,
   XCircle,
   Eye,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ButtonComponent";
 import { InputComponent } from "../../components/InputComponent";
@@ -36,6 +38,10 @@ export function CreateCourse() {
     type: "success" | "error";
     message: string;
   } | null>(null);
+
+  //  estado da paginação
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5; // Quantidade de cursos por página
 
   // Carregar cursos existentes
   useEffect(() => {
@@ -72,7 +78,6 @@ export function CreateCourse() {
       return;
     }
 
-    // Obter dados do professor do localStorage
     const userRaw = localStorage.getItem("user");
     let teacherId: number | undefined;
     let teacherName = "";
@@ -110,8 +115,11 @@ export function CreateCourse() {
       setCourses((prev) => [created, ...prev]);
       setTitle("");
       setDescription("");
+      
+      // Volta para a página 1 para o professor ver o curso que acabou de criar
+      setCurrentPage(1); 
       showNotification("success", "Curso criado com sucesso!");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao criar curso:", error);
       showNotification(
@@ -148,7 +156,6 @@ export function CreateCourse() {
       };
 
       await CourseTeacherApi.update(course.id, updated);
-
       setCourses((prev) => prev.map((c) => (c.id === course.id ? updated : c)));
 
       showNotification(
@@ -160,6 +167,21 @@ export function CreateCourse() {
       showNotification("error", "Erro ao atualizar status de publicação");
     }
   };
+
+  const totalPages = Math.ceil(courses.length / ITEMS_PER_PAGE);
+  const indexOfLastCourse = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstCourse = indexOfLastCourse - ITEMS_PER_PAGE;
+  
+  // "Fatia" o array original para pegar apenas os 5 da página atual
+  const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
+
+  // Efeito para garantir que a página atual não fique num "limbo" se o usuário deletar o último item da última página
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) {
+      setCurrentPage(totalPages);
+    }
+  }, [courses.length, currentPage, totalPages]);
+
 
   return (
     <div className="space-y-6">
@@ -211,7 +233,7 @@ export function CreateCourse() {
       {/* Grid Principal */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Formulário de criação */}
-        <div className="lg:col-span-1 p-6 rounded-2xl border bg-surface border-border">
+        <div className="lg:col-span-1 p-6 rounded-2xl border bg-surface border-border h-fit">
           <div className="flex items-center gap-3 mb-4">
             <div
               className="p-2 rounded-lg"
@@ -265,16 +287,16 @@ export function CreateCourse() {
         </div>
 
         {/* Lista de cursos */}
-        <div className="lg:col-span-2 p-6 rounded-2xl border bg-surface border-border">
+        <div className="lg:col-span-2 p-6 rounded-2xl border bg-surface border-border flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-lg">Cursos Criados</h3>
             <div className="text-sm text-text-secondary">
-              {courses.length} curso(s)
+              {courses.length} curso(s) no total
             </div>
           </div>
 
           {isLoading ? (
-            <div className="flex items-center justify-center py-12">
+            <div className="flex items-center justify-center py-12 flex-1">
               <div className="flex items-center gap-3 text-text-secondary">
                 <div
                   className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"
@@ -284,7 +306,7 @@ export function CreateCourse() {
               </div>
             </div>
           ) : courses.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-12 flex-1 flex flex-col justify-center">
               <BookOpen
                 size={48}
                 className="mx-auto mb-4 text-text-secondary opacity-50"
@@ -295,81 +317,107 @@ export function CreateCourse() {
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {courses.map((course) => (
-                <div
-                  key={course.id}
-                  className="p-5 rounded-xl border bg-slate-50 dark:bg-slate-900/20 border-border hover:shadow-md transition-all"
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="font-bold text-lg text-text-primary">
-                          {course.title}
-                        </h4>
-                        {course.published ? (
-                          <span className="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 flex items-center gap-1">
-                            <CheckCircle size={12} />
-                            Publicado
-                          </span>
-                        ) : (
-                          <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300">
-                            Rascunho
-                          </span>
-                        )}
+            <div className="flex flex-col flex-1 justify-between">
+              <div className="space-y-3">
+                {/* AQUI ESTÁ A MUDANÇA: Usando currentCourses ao invés de courses */}
+                {currentCourses.map((course) => (
+                  <div
+                    key={course.id}
+                    className="p-5 rounded-xl border bg-slate-50 dark:bg-slate-900/20 border-border hover:shadow-md transition-all"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h4 className="font-bold text-lg text-text-primary">
+                            {course.title}
+                          </h4>
+                          {course.published ? (
+                            <span className="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 flex items-center gap-1">
+                              <CheckCircle size={12} />
+                              Publicado
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300">
+                              Rascunho
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-text-secondary line-clamp-2">
+                          {course.description}
+                        </p>
                       </div>
-                      <p className="text-sm text-text-secondary line-clamp-2">
-                        {course.description}
-                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-border">
+                      <div className="flex items-center gap-2">
+                        <ButtonComponent
+                          size="sm"
+                          onClick={() => navigate(`/teacher/subjects?course=${course.id}`)}
+                        >
+                          <Eye size={16} />
+                          Ver Matérias
+                        </ButtonComponent>
+
+                        <button
+                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
+                          onClick={() => navigate(`/teacher/courses/${course.id}/edit`)}
+                        >
+                          <Edit2 size={16} />
+                          Editar
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+                            course.published
+                              ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200"
+                              : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-200"
+                          }`}
+                          onClick={() => togglePublish(course)}
+                        >
+                          {course.published ? "Despublicar" : "Publicar"}
+                        </button>
+
+                        <button
+                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                          onClick={() => course.id && deleteCourse(course.id)}
+                        >
+                          <Trash2 size={16} />
+                          Excluir
+                        </button>
+                      </div>
                     </div>
                   </div>
+                ))}
+              </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-border">
-                    <div className="flex items-center gap-2">
-                      <ButtonComponent
-                        size="sm"
-                        onClick={() =>
-                          navigate(`/teacher/subjects?course=${course.id}`)
-                        }
-                      >
-                        <Eye size={16} />
-                        Ver Matérias
-                      </ButtonComponent>
-
-                      <button
-                        className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
-                        onClick={() => {
-                          navigate(`/teacher/courses/${course.id}/edit`);
-                        }}
-                      >
-                        <Edit2 size={16} />
-                        Editar
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        className={`px-3 py-2 text-sm rounded-lg transition-colors ${
-                          course.published
-                            ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200"
-                            : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-200"
-                        }`}
-                        onClick={() => togglePublish(course)}
-                      >
-                        {course.published ? "Despublicar" : "Publicar"}
-                      </button>
-
-                      <button
-                        className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-                        onClick={() => course.id && deleteCourse(course.id)}
-                      >
-                        <Trash2 size={16} />
-                        Excluir
-                      </button>
-                    </div>
+              {/* CONTROLES DE PAGINAÇÃO */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 mt-4 border-t border-border">
+                  <span className="text-sm text-text-secondary font-medium">
+                    Página {currentPage} de {totalPages}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                      className="p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
+                      title="Página Anterior"
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                      className="p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
+                      title="Próxima Página"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
           )}
         </div>

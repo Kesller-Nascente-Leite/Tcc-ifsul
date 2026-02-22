@@ -18,7 +18,7 @@ type CourseItem = {
 export function EditCourses() {
   const { accentColor } = useTheme();
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>(); // Pega o ID da URL
+  const { id } = useParams<{ id: string }>(); // parametro da url
 
   const [course, setCourse] = useState<CourseItem | null>(null);
   const [title, setTitle] = useState("");
@@ -35,18 +35,33 @@ export function EditCourses() {
     if (id) {
       loadCourse(Number(id));
     } else {
-      showNotification("error", "ID do curso não fornecido");
-      navigate("/teacher/courses");
+      navigate("/teacher/create-course");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, navigate]);
 
   const loadCourse = async (courseId: number) => {
     try {
       setIsLoading(true);
-      // Assumindo que você tem um método getById ou similar na sua API
       const response = await CourseTeacherApi.getById(courseId);
       const loadedCourse = response.data;
+
+      const userRaw = localStorage.getItem("user");
+      const user = userRaw ? JSON.parse(userRaw) : null;
+
+      if (
+        !loadedCourse ||
+        (user && loadedCourse.teacherId !== user.id) ||
+        loadedCourse.teacherId !== user.id ||
+        loadedCourse === null
+      ) {
+        showNotification(
+          "error",
+          "Você não tem permissão para editar este curso",
+        );
+        setTimeout(() => navigate("/teacher/create-course"), 2000);
+        return;
+      }
 
       setCourse(loadedCourse);
       setTitle(loadedCourse.title);
@@ -54,6 +69,7 @@ export function EditCourses() {
     } catch (error) {
       console.error("Erro ao carregar curso:", error);
       showNotification("error", "Erro ao carregar dados do curso");
+      setTimeout(() => navigate("/teacher/create-course"), 2000);
     } finally {
       setIsLoading(false);
     }
@@ -81,9 +97,7 @@ export function EditCourses() {
     try {
       setIsSaving(true);
       await CourseTeacherApi.update(Number(id), updatedPayload);
-
       showNotification("success", "Curso atualizado com sucesso!");
-
       setTimeout(() => navigate("/teacher/create-course"), 1500);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -113,11 +127,10 @@ export function EditCourses() {
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
-      {/* Header */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate("/teacher/courses")}
+            onClick={() => navigate("/teacher/create-course")}
             className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-text-secondary"
           >
             <ArrowLeft size={24} />
@@ -133,7 +146,6 @@ export function EditCourses() {
         </div>
       </header>
 
-      {/* Notificação */}
       {notification && (
         <div
           className={`p-4 rounded-xl border flex items-center gap-3 ${
@@ -143,26 +155,14 @@ export function EditCourses() {
           }`}
         >
           {notification.type === "success" ? (
-            <CheckCircle
-              size={20}
-              className="text-green-600 dark:text-green-400"
-            />
+            <CheckCircle size={20} className="text-green-600" />
           ) : (
-            <XCircle size={20} className="text-red-600 dark:text-red-400" />
+            <XCircle size={20} className="text-red-600" />
           )}
-          <p
-            className={`text-sm font-medium ${
-              notification.type === "success"
-                ? "text-green-800 dark:text-green-200"
-                : "text-red-800 dark:text-red-200"
-            }`}
-          >
-            {notification.message}
-          </p>
+          <p className="text-sm font-medium">{notification.message}</p>
         </div>
       )}
 
-      {/* Formulário de Edição */}
       <section className="p-6 rounded-2xl border bg-surface border-border">
         <div className="flex items-center gap-3 mb-6">
           <div
@@ -182,7 +182,6 @@ export function EditCourses() {
             <InputComponent
               value={title}
               onChange={(e) => setTitle((e.target as HTMLInputElement).value)}
-              placeholder="Ex: Programação Web com React"
               disabled={isSaving}
             />
           </div>
@@ -194,18 +193,16 @@ export function EditCourses() {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Descreva o conteúdo e objetivos do curso..."
               disabled={isSaving}
               rows={5}
-              className="w-full px-4 py-3 rounded-lg border bg-background border-border text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+              className="w-full px-4 py-3 rounded-lg border bg-background border-border text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
             />
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
             <button
-              onClick={() => navigate("/teacher/courses")}
-              disabled={isSaving}
-              className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-text-secondary"
+              onClick={() => navigate("/teacher/create-course")}
+              className="px-4 py-2 text-sm text-text-secondary"
             >
               Cancelar
             </button>
@@ -213,8 +210,6 @@ export function EditCourses() {
               onClick={updateCourse}
               disabled={
                 isSaving ||
-                !title.trim() ||
-                !description.trim() ||
                 (title === course?.title && description === course?.description)
               }
             >

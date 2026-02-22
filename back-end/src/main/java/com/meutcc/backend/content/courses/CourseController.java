@@ -17,11 +17,13 @@ public class CourseController {
     private final CourseService courseService;
 
     @GetMapping("/student")
+    @ResponseStatus(HttpStatus.OK)
     public List<Course> listMyCourses() {
         return Collections.emptyList();
     }
 
     @GetMapping("/student/all")
+    @ResponseStatus(HttpStatus.OK)
     public List<CourseDTO> listAllCourses() throws CourseNotFoundException {
         return courseService.findAllCourses();
     }
@@ -33,13 +35,14 @@ public class CourseController {
     }
 
     @GetMapping("/teacher/list-all-teacher-courses")
+    @ResponseStatus(HttpStatus.OK)
     public List<CourseDTO> listAllTeacherCourses() throws CourseNotFoundException {
         return courseService.findAllTeacherCourses();
     }
 
     @PostMapping("/teacher/create")
     @ResponseStatus(HttpStatus.CREATED)
-    public CourseResponse createCourse(@RequestBody @Valid CourseDTO courseDTO) {
+    public CourseDTO createCourse(@RequestBody @Valid CourseDTO courseDTO) {
         return courseService.createCourse(courseDTO);
     }
 

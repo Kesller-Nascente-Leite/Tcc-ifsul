@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -23,6 +25,7 @@ public class CourseService {
     private final TeacherRepository teacherRepository;
     private final UserRepository userRepository;
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     public List<CourseDTO> findAllCourses() {
         List<Course> courses = courseRepository.findAll();
         if (courses.isEmpty()) {
@@ -32,14 +35,16 @@ public class CourseService {
 
     }
 
-    public CourseResponse createCourse(@RequestBody CourseDTO courseDTO) {
+    @Transactional
+    public CourseDTO createCourse(@RequestBody CourseDTO courseDTO) {
         Teacher teacher = getAuthenticatedTeacher();
         Course course = CourseMapper.toEntity(courseDTO, teacher);
         Course savedCourse = courseRepository.save(course);
-        return new CourseResponse("Curso criado com sucesso!");
+        return CourseMapper.toDTO(savedCourse);
 
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     public List<CourseDTO> findAllTeacherCourses() {
         Teacher teacher = getAuthenticatedTeacher();
 
@@ -51,6 +56,7 @@ public class CourseService {
         return courses.stream().map(CourseMapper::toDTO).toList();
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     public CourseDTO checkIfTheCourseExistsByID(@PathVariable Long id) throws CourseNotFoundException {
         return courseRepository.findById(id)
                 .map(CourseMapper::toDTO)
@@ -71,6 +77,7 @@ public class CourseService {
         return new CourseResponse("Curso atualizado com sucesso!");
     }
 
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     private Teacher getAuthenticatedTeacher() throws CourseNotFoundException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
