@@ -4,6 +4,10 @@ import com.meutcc.backend.auth.dto.*;
 import com.meutcc.backend.auth.mapper.UserMapper;
 import com.meutcc.backend.common.exceptions.UserAlreadyExistException;
 import com.meutcc.backend.common.security.RoleIds;
+import com.meutcc.backend.role.RoleRepository;
+import com.meutcc.backend.role.Roles;
+import com.meutcc.backend.student.Student;
+import com.meutcc.backend.student.StudentRepository;
 import com.meutcc.backend.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,7 +37,7 @@ public class AuthService {
         User user = mapper.toEntity(dto);
 
         Roles StudentRole = roleRepository.findById(RoleIds.STUDENT)
-                .orElseThrow(() -> new IllegalStateException("Role não encontrado"));
+                .orElseThrow(() -> new IllegalStateException("role não encontrado"));
 
         user.setPassword(passwordEncoder.encode(dto.password()));
         user.setRole(StudentRole);

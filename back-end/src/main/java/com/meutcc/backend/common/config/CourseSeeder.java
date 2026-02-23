@@ -2,8 +2,8 @@ package com.meutcc.backend.common.config;
 
 import com.meutcc.backend.content.courses.Course;
 import com.meutcc.backend.content.courses.CourseRepository;
-import com.meutcc.backend.user.Teacher;
-import com.meutcc.backend.user.TeacherRepository;
+import com.meutcc.backend.teacher.Teacher;
+import com.meutcc.backend.teacher.TeacherRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

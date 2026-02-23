@@ -1,11 +1,11 @@
-package com.meutcc.backend.user;
+package com.meutcc.backend.student;
 
 import com.meutcc.backend.common.model.BaseEntity;
 import com.meutcc.backend.content.subject.Subject;
+import com.meutcc.backend.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;

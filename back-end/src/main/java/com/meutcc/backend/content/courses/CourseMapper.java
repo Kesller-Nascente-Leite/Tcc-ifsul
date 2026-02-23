@@ -1,6 +1,6 @@
 package com.meutcc.backend.content.courses;
 
-import com.meutcc.backend.user.Teacher;
+import com.meutcc.backend.teacher.Teacher;
 
 public class CourseMapper {
 

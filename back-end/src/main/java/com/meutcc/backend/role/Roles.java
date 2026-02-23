@@ -1,4 +1,4 @@
-package com.meutcc.backend.user;
+package com.meutcc.backend.role;
 
 import jakarta.persistence.*;
 import lombok.*;

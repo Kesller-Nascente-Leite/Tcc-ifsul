@@ -1,8 +1,8 @@
 package com.meutcc.backend.content.courses;
 
 import com.meutcc.backend.common.exceptions.CourseNotFoundException;
-import com.meutcc.backend.user.Teacher;
-import com.meutcc.backend.user.TeacherRepository;
+import com.meutcc.backend.teacher.Teacher;
+import com.meutcc.backend.teacher.TeacherRepository;
 import com.meutcc.backend.user.User;
 import com.meutcc.backend.user.UserRepository;
 import jakarta.validation.Valid;
@@ -26,13 +26,8 @@ public class CourseService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-    public List<CourseDTO> findAllCourses() {
-        List<Course> courses = courseRepository.findAll();
-        if (courses.isEmpty()) {
-            throw new CourseNotFoundException("Nenhuma curso encontrada.");
-        }
-        return courses.stream().map(CourseMapper::toDTO).toList();
-
+    public List<CourseDTO> findAllCourses() {   
+        return courseRepository.findAll().stream().map(CourseMapper::toDTO).toList();
     }
 
     @Transactional

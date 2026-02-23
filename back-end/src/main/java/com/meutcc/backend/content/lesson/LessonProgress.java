@@ -1,7 +1,7 @@
 package com.meutcc.backend.content.lesson;
 
 import com.meutcc.backend.common.model.BaseEntity;
-import com.meutcc.backend.user.Student;
+import com.meutcc.backend.student.Student;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;

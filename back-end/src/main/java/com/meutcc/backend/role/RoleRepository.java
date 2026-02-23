@@ -1,4 +1,4 @@
-package com.meutcc.backend.user;
+package com.meutcc.backend.role;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,6 +1,7 @@
 package com.meutcc.backend.user;
 
 import com.meutcc.backend.common.model.BaseEntity;
+import com.meutcc.backend.role.Roles;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -2,7 +2,7 @@ package com.meutcc.backend.content.courses;
 
 import com.meutcc.backend.common.model.BaseEntity;
 import com.meutcc.backend.content.module.Module;
-import com.meutcc.backend.user.Teacher;
+import com.meutcc.backend.teacher.Teacher;
 import jakarta.persistence.*;
 import lombok.*;
 
