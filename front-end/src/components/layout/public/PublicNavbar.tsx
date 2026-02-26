@@ -1,28 +1,17 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Menu, X, Moon, Sun } from "lucide-react";
-import navData from "./nav.public.json";
 import Logo from "../../../assets/Logo.png";
 import { useTheme } from "../../../context/ThemeContext";
-
-interface NavItem {
-  id: number;
-  label: string;
-  path: string;
-}
+import { NavLink } from "react-router";
 
 interface PublicNavbarProps {
   onMenuClick?: () => void;
 }
 
+
 export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [items, setItems] = useState<NavItem[]>([]);
   const { isDark, toggleTheme } = useTheme();
-
-  useEffect(() => {
-    setItems(navData.menuItems);
-  }, []);
 
   return (
     <nav
@@ -36,16 +25,8 @@ export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
             <span className="text-text-primary">Estuda Fácil</span>
           </div>
 
-          <div className="hidden md:flex gap-8 items-center">
-            {items.map((item) => (
-              <a
-                key={item.id}
-                href={item.path}
-                className="text-sm font-medium text-text-secondary hover:text-primary transition-colors"
-              >
-                {item.label}
-              </a>
-            ))}
+          {/* Desktop actions - botão levemente para esquerda */}
+          <div className="hidden md:flex items-center gap-3 mr-40">
             <button
               onClick={toggleTheme}
               className="p-2 text-text-secondary hover:bg-primary/10 rounded-lg transition-colors"
@@ -54,11 +35,13 @@ export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <button className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-primary-hover transition-all shadow-md shadow-primary/20">
+            {}
+            <NavLink to="/login" className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-primary-hover transition-all shadow-md shadow-primary/20 ml-1">
               Começar
-            </button>
+            </NavLink>
           </div>
 
+          {/* Mobile hamburger */}
           <button
             className="md:hidden p-2 text-text-secondary hover:bg-bg-main rounded-md transition-colors"
             onClick={() => {
@@ -83,16 +66,6 @@ export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
         id="mobile-menu"
       >
         <div className="px-4 pt-2 pb-6 space-y-1">
-          {items.map((item) => (
-            <a
-              key={item.id}
-              href={item.path}
-              onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 text-base font-medium text-text-secondary hover:bg-primary/10 hover:text-primary rounded-md transition-colors"
-            >
-              {item.label}
-            </a>
-          ))}
           <div className="pt-4 space-y-3">
             <button
               onClick={toggleTheme}

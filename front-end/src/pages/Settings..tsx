@@ -103,7 +103,7 @@ export default function Settings() {
         );
       }
     }
-  },[]);
+  }, []);
 
   const handleProfileChange = (field: string, value: unknown) => {
     setProfileData((prev) => ({ ...prev, [field]: value }));
@@ -415,12 +415,20 @@ export default function Settings() {
                   </div>
                   <div>
                     <h4
-                      className={`font-bold text-sm ${isDark ? "text-blue-100" : "text-blue-900"}`}
+                      className={
+                        isDark
+                          ? "font-bold text-sm text-blue-100"
+                          : "font-bold text-sm text-blue-900"
+                      }
                     >
                       Resumo Semanal
                     </h4>
                     <p
-                      className={`text-xs mt-1 ${isDark ? "text-blue-300" : "text-blue-700"}`}
+                      className={
+                        isDark
+                          ? "text-xs mt-1 text-blue-300"
+                          : "text-xs mt-1 text-blue-700"
+                      }
                     >
                       Receba um e-mail toda segunda-feira com seu progresso e
                       tarefas pendentes.

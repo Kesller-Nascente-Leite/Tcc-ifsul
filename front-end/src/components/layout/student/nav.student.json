@@ -7,9 +7,9 @@
       "icon": "LayoutDashboard"
     },
     {
-      "id":2,
-      "label":"Buscar por Cursos",
-      "path":"/student/available-courses" ,
+      "id": 2,
+      "label": "Buscar por Cursos",
+      "path": "/student/available-courses",
       "icon": "Book"
     },
     {
@@ -31,7 +31,12 @@
       "path": "/student/schedule",
       "icon": "Calendar"
     },
-    { "id": 6, "label": "Pomodoro", "path": "/student/focus", "icon": "Timer" },
+    {
+      "id": 6,
+      "label": "Pomodoro",
+      "path": "/student/focus",
+      "icon": "Timer"
+    },
     {
       "id": 7,
       "label": "Desempenho",

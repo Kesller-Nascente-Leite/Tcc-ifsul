@@ -5,9 +5,14 @@ import { FormComponent } from "../../components/FormComponent";
 import { InputComponent } from "../../components/InputComponent";
 import { ButtonComponent } from "../../components/ButtonComponent";
 import type React from "react";
-import { useState, type ChangeEvent, type FormEvent as FormEventType } from "react";
+import {
+  useState,
+  type ChangeEvent,
+  type FormEvent as FormEventType,
+} from "react";
 import axios from "axios";
 import { AuthService } from "../../services/auth.service";
+import { PasswordInput } from "../../components/PasswordInput";
 
 export function Login() {
   const navigate = useNavigate();
@@ -70,9 +75,8 @@ export function Login() {
         navigate("/admin/dashboard");
       } else if (userRole === "TEACHER") {
         navigate("/teacher/dashboard");
-      }
-      else{
-        navigate("/student/dashboard")
+      } else {
+        navigate("/student/dashboard");
       }
     } catch (err: unknown) {
       console.error(err);
@@ -129,11 +133,9 @@ export function Login() {
               />
 
               <div className="space-y-1">
-                <InputComponent
-                  labelText="Senha"
-                  type="password"
-                  placeholder="********"
-                  required
+                <PasswordInput
+                  label="Senha"
+                  value={formData.password}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     handleChange(e, "password");
                   }}

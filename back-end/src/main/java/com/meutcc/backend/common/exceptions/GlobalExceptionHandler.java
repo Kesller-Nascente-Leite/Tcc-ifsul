@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler extends RuntimeException {
 
     //Criar exceções e definir o codigo http que elas irão retornar
-    @ExceptionHandler(UserAlreadyExistException.class)
-    public ResponseEntity<String> handleUserExist(UserAlreadyExistException createUserException) {
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<String> handleUserExist(UserException createUserException) {
         //exemplo esse que retorna 409 Conflict com a mensagem "Email já cadastrado"
         return ResponseEntity.status(HttpStatus.CONFLICT).body(createUserException.getMessage());
     }

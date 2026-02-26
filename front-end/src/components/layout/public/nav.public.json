@@ -1,8 +1,13 @@
 {
   "menuItems": [
-    { "id": 1, "label": "Início", "path": "/" },
-    { "id": 2, "label": "Funcionalidades", "path": "#features" },
-    { "id": 3, "label": "Planos", "path": "#pricing" },
-    { "id": 4, "label": "Sobre", "path": "#about" }
-  ]
+    { "id": 1, "label": "Início", "path": "/", "icons": "House" },
+    { "id": 2, "label": "Funcionalidades", "path": "#features", "icons": "Boxes" },
+    { "id": 3, "label": "Planos", "path": "#pricing", "icons": "Banknote" },
+    { "id": 4, "label": "Sobre", "path": "#about", "icons": "CircleQuestionMark" }
+  ],
+  "contact": {
+    "email": "kesllerleite@gmail.com",
+    "phone": "(53) 98467-4303",
+    "label": "Contato"
+  }
 }

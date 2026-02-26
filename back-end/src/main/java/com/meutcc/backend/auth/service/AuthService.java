@@ -2,7 +2,7 @@ package com.meutcc.backend.auth.service;
 
 import com.meutcc.backend.auth.dto.*;
 import com.meutcc.backend.auth.mapper.UserMapper;
-import com.meutcc.backend.common.exceptions.UserAlreadyExistException;
+import com.meutcc.backend.common.exceptions.UserException;
 import com.meutcc.backend.common.security.RoleIds;
 import com.meutcc.backend.role.RoleRepository;
 import com.meutcc.backend.role.Roles;
@@ -80,7 +80,7 @@ public class AuthService {
 
     private void existsByEmail(String email) {
         if (userRepository.existsByEmail(email)) {
-            throw new UserAlreadyExistException("Email já cadastrado");
+            throw new UserException("Email já cadastrado");
         }
     }
 

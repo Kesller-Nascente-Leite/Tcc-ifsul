@@ -1,5 +1,5 @@
-import { GithubIcon, LinkedinIcon, Mail } from "lucide-react";
-import Logo from "../../assets/Logo.png";
+import { Phone, Mail } from "lucide-react";
+import Logo from "../../../assets/Logo.png";
 
 export default function SharedFooter() {
   const currentYear = new Date().getFullYear();
@@ -48,13 +48,13 @@ export default function SharedFooter() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <h4 className="font-bold text-text-primary text-sm">Conecte-se</h4>
+          <h4 className="font-bold text-text-primary text-sm">Contate-me</h4>
           <div className="flex gap-4">
             {/* Add os links depois */}
-            {[GithubIcon, LinkedinIcon, Mail].map((Icon, idx) => (
+            {[Phone, Mail].map((Icon, idx) => (
               <a
                 key={idx}
-                href="#"
+                href={idx === 0 ? "whatsapp:(53) 984674303" : "mailto:kesllerleite@gmail.com"}
                 className="p-2 bg-bg-main rounded-full text-text-secondary hover:text-white hover:bg-primary transition-all duration-300"
               >
                 <Icon size={20} />
