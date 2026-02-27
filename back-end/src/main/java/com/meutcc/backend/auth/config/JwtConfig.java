@@ -1,18 +1,43 @@
-package com.meutcc.backend.auth.service;
+package com.meutcc.backend.auth.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 
 @Configuration
 public class JwtConfig {
+    @Value("${api.security.token.secret}")
+    private String secret;
+
+    // Validar o token que vem no front
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        SecretKey secretKey = getSecretKey();
+        return NimbusJwtDecoder.withSecretKey(secretKey).build();
+    }
+
+    //  Gera um novo access token
+    @Bean
+    public JwtEncoder jwtEncoder() {
+        SecretKey secretKey = getSecretKey();
+        return NimbusJwtEncoder.withSecretKey(secretKey).build();
+    }
+
+    private SecretKey getSecretKey() {
+        byte[] keyBytes = Base64.getDecoder().decode(secret);
+        return new SecretKeySpec(keyBytes, "HmacSHA256");
+    }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
