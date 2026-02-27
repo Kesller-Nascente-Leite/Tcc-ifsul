@@ -1,15 +1,12 @@
 package com.meutcc.backend.auth.controller;
 
-import com.meutcc.backend.auth.dto.LoginResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public class AuthController {
     @GetMapping("/validate")
     public ResponseEntity<Map<String, String>> validate() {

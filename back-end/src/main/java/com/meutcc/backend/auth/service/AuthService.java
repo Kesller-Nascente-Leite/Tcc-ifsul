@@ -8,7 +8,8 @@ import com.meutcc.backend.role.RoleRepository;
 import com.meutcc.backend.role.Roles;
 import com.meutcc.backend.student.Student;
 import com.meutcc.backend.student.StudentRepository;
-import com.meutcc.backend.user.*;
+import com.meutcc.backend.user.User;
+import com.meutcc.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -77,11 +78,16 @@ public class AuthService {
 
         );
     }
+/*
+    public LoginResponse refresh(String refresh) {
 
+    }
+*/
     private void existsByEmail(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new UserAlreadyExistException("Email já cadastrado");
         }
     }
+
 
 }
