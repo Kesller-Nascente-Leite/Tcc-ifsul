@@ -22,7 +22,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationConverter jwtAuthenticationConverter;  // ← ADICIONAR
+    private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
