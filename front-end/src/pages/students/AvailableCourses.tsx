@@ -9,7 +9,7 @@ import {
   CheckCircle2,
   AlertCircle,
 } from "lucide-react";
-import { ButtonComponent } from "../../components/ButtonComponent";
+import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { useTheme } from "../../context/ThemeContext";
 import { CourseStudentApi, type CourseDTO } from "../../api/courseStudent.api";
 

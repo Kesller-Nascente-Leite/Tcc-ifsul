@@ -2,8 +2,9 @@
 import { useEffect } from "react";
 import {
   type LucideIcon,
-  LayoutDashboard,
+  Home,
   BookOpen,
+  Book,
   CheckSquare,
   Calendar,
   BarChart2,
@@ -15,8 +16,9 @@ import Logo from "../../../assets/Logo.png";
 import { NavLink } from "react-router";
 
 const iconMap: Record<string, LucideIcon> = {
-  LayoutDashboard,
+  Home,
   BookOpen,
+  Book,
   CheckSquare,
   Calendar,
   BarChart2,
@@ -53,7 +55,7 @@ export function TeacherSidebar({ isOpen, setIsOpen }: TeacherSidebarProps) {
           <p className="px-2 mb-2 text-xs font-bold text-text-secondary uppercase tracking-wider">Menu Principal</p>
 
           {navData.menuItems.map((item: any) => {
-            const IconComponent = iconMap[item.icon] || LayoutDashboard;
+            const IconComponent = iconMap[item.icon] || Home;
 
             return (
               <NavLink

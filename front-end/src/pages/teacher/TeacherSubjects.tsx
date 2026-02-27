@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { ButtonComponent } from "../../components/ButtonComponent";
-import { InputComponent } from "../../components/InputComponent";
+import { ButtonComponent } from "../../components/ui/ButtonComponent";
+import { InputComponent } from "../../components/ui/InputComponent";
 import { SubjectApi } from "../../api/subject.api";
 
 type ModuleItem = {

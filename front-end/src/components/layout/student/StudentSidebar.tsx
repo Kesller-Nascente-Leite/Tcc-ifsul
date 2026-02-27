@@ -2,7 +2,7 @@
 import { useEffect } from "react";
 import {
   type LucideIcon,
-  LayoutDashboard,
+  Home,
   Book,
   BookOpen,
   CheckSquare,
@@ -17,7 +17,7 @@ import Logo from "../../../assets/Logo.png";
 import { NavLink } from "react-router";
 
 const iconMap: Record<string, LucideIcon> = {
-  LayoutDashboard,
+  Home,
   Book,
   BookOpen,
   CheckSquare,
@@ -65,7 +65,7 @@ export function StudentSidebar({ isOpen, setIsOpen }: StudentSidebarProps) {
           </p>
 
           {navData.menuItems.map((item: any) => {
-            const IconComponent = iconMap[item.icon] || LayoutDashboard;
+            const IconComponent = iconMap[item.icon] || Home;
 
             return (
               <NavLink

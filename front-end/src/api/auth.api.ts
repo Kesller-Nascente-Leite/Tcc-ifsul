@@ -42,4 +42,9 @@ export const AuthApi = {
   logout: () => {
     return api.post("/auth/logout");
   },
+
+  validateToken: () => api.get("/auth/validate"),
+
+  refreshToken: (refreshToken: string) =>
+    api.post<LoginResponse>("/auth/refresh", { refreshToken }),
 };

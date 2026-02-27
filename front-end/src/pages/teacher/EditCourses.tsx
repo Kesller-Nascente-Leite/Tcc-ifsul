@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Save, ArrowLeft, CheckCircle, XCircle, BookOpen } from "lucide-react";
-import { ButtonComponent } from "../../components/ButtonComponent";
-import { InputComponent } from "../../components/InputComponent";
+import { ButtonComponent } from "../../components/ui/ButtonComponent";
+import { InputComponent } from "../../components/ui/InputComponent";
 import { CourseTeacherApi } from "../../api/courseTeacher.api";
 import { useTheme } from "../../context/ThemeContext";
 

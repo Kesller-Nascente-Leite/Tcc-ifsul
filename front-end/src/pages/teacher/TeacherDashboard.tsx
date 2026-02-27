@@ -11,7 +11,7 @@ import {
   Calendar,
   GraduationCap,
 } from "lucide-react";
-import { ButtonComponent } from "../../components/ButtonComponent";
+import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { useTheme } from "../../context/ThemeContext";
 
 function StatCard({

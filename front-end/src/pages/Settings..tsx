@@ -19,8 +19,8 @@ import {
 } from "lucide-react";
 import { useTheme } from "../context/ThemeContext";
 import { usePreferences } from "../context/PreferencesContext";
-import { InputComponent } from "../components/InputComponent";
-import { PasswordInput } from "../components/PasswordInput";
+import { InputComponent } from "../components/ui/InputComponent";
+import { PasswordInput } from "../components/ui/PasswordInput";
 
 const ToggleSwitch = ({
   checked,

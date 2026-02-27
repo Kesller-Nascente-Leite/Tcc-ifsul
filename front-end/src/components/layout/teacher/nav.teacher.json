@@ -4,7 +4,7 @@
       "id": 1,
       "label": "Visão Geral",
       "path": "/teacher/dashboard",
-      "icon": "LayoutDashboard"
+      "icon": "Home"
     },
     {
       "id": 2,
@@ -13,25 +13,25 @@
       "icon": "BookOpen"
     },
     {
-      "id": 6,
+      "id": 3,
       "label": "Matérias",
       "path": "/teacher/subjects",
       "icon": "Book"
     },
     {
-      "id": 3,
+      "id": 4,
       "label": "Atribuições",
       "path": "/teacher/assignments",
       "icon": "CheckSquare"
     },
     {
-      "id": 4,
+      "id": 5,
       "label": "Cronograma",
       "path": "/teacher/schedule",
       "icon": "Calendar"
     },
     {
-      "id": 5,
+      "id": 6,
       "label": "Desempenho",
       "path": "/teacher/analytics",
       "icon": "BarChart2"

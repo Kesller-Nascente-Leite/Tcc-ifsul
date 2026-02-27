@@ -4,7 +4,7 @@
       "id": 1,
       "label": "Visão Geral",
       "path": "/student/dashboard",
-      "icon": "LayoutDashboard"
+      "icon": "Home"
     },
     {
       "id":2,

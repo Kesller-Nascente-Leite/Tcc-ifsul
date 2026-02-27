@@ -1,15 +1,8 @@
-/* eslint-disable react-hooks/set-state-in-effect */
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Menu, X, Moon, Sun } from "lucide-react";
-import navData from "./nav.public.json";
 import Logo from "../../../assets/Logo.png";
 import { useTheme } from "../../../context/ThemeContext";
 
-interface NavItem {
-  id: number;
-  label: string;
-  path: string;
-}
 
 interface PublicNavbarProps {
   onMenuClick?: () => void;
@@ -17,12 +10,8 @@ interface PublicNavbarProps {
 
 export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [items, setItems] = useState<NavItem[]>([]);
   const { isDark, toggleTheme } = useTheme();
 
-  useEffect(() => {
-    setItems(navData.menuItems);
-  }, []);
 
   return (
     <nav
@@ -37,15 +26,6 @@ export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
           </div>
 
           <div className="hidden md:flex gap-8 items-center">
-            {items.map((item) => (
-              <a
-                key={item.id}
-                href={item.path}
-                className="text-sm font-medium text-text-secondary hover:text-primary transition-colors"
-              >
-                {item.label}
-              </a>
-            ))}
             <button
               onClick={toggleTheme}
               className="p-2 text-text-secondary hover:bg-primary/10 rounded-lg transition-colors"
@@ -83,16 +63,6 @@ export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
         id="mobile-menu"
       >
         <div className="px-4 pt-2 pb-6 space-y-1">
-          {items.map((item) => (
-            <a
-              key={item.id}
-              href={item.path}
-              onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 text-base font-medium text-text-secondary hover:bg-primary/10 hover:text-primary rounded-md transition-colors"
-            >
-              {item.label}
-            </a>
-          ))}
           <div className="pt-4 space-y-3">
             <button
               onClick={toggleTheme}

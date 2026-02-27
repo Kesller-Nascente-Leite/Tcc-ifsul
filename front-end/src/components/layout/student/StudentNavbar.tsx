@@ -3,7 +3,7 @@ import { Menu, X, Bell, Search, LogOut, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router";
 import { AuthApi, type AuthUser } from "../../../api/auth.api";
 import { useTheme } from "../../../context/ThemeContext";
-import { InputComponent } from "../../InputComponent";
+import { InputComponent } from "../../ui/InputComponent";
 
 interface StudentNavbarProps {
   onMenuClick: () => void;

@@ -1,6 +1,6 @@
 package com.meutcc.backend.content.courses;
 
-import com.meutcc.backend.common.exceptions.CourseNotFoundException;
+import com.meutcc.backend.common.exceptions.CourseException;
 import com.meutcc.backend.teacher.Teacher;
 import com.meutcc.backend.teacher.TeacherRepository;
 import com.meutcc.backend.user.User;
@@ -46,21 +46,21 @@ public class CourseService {
         List<Course> courses = courseRepository.findByTeacher(teacher);
 
         if (courses.isEmpty()) {
-            throw new CourseNotFoundException("Nenhuma curso encontrada.");
+            throw new CourseException("Nenhuma curso encontrada.");
         }
         return courses.stream().map(CourseMapper::toDTO).toList();
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-    public CourseDTO checkIfTheCourseExistsByID(@PathVariable Long id) throws CourseNotFoundException {
+    public CourseDTO checkIfTheCourseExistsByID(@PathVariable Long id) throws CourseException {
         return courseRepository.findById(id)
                 .map(CourseMapper::toDTO)
-                .orElseThrow(() -> new CourseNotFoundException("Curso não encontrado"));
+                .orElseThrow(() -> new CourseException("Curso não encontrado"));
     }
 
     public CourseResponse updateCourse(@PathVariable Long id, @RequestBody @Valid CourseDTO dto) {
         Teacher teacher = getAuthenticatedTeacher();
-        Course course = courseRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Nenhum curso encontrada."));
+        Course course = courseRepository.findById(id).orElseThrow(() -> new CourseException("Nenhum curso encontrada."));
 
         if (!course.getTeacher().getId().equals(teacher.getId())) {
             throw new IllegalArgumentException("Nenhum curso encontrado para atualizar.");
@@ -72,12 +72,21 @@ public class CourseService {
         return new CourseResponse("Curso atualizado com sucesso!");
     }
 
+    public void deleteCourse(@PathVariable Long id) throws CourseException {
+        Teacher teacher = getAuthenticatedTeacher();
+        Course course = courseRepository.findById(id).orElseThrow(() ->  new CourseException("Nenhum curso encontrada."));
+        if(!course.getTeacher().getId().equals(teacher.getId())) {
+            throw new IllegalArgumentException("Nenhum curso encontrada para atualizar.");
+        }
+        courseRepository.delete(course);
+    }
+
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-    private Teacher getAuthenticatedTeacher() throws CourseNotFoundException {
+    private Teacher getAuthenticatedTeacher() throws CourseException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        assert authentication != null;
         String email = authentication.getName();
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException("Usuário não encontrado"));
-        Teacher teacher = teacherRepository.findByUser(user).orElseThrow(() -> new IllegalStateException("Professor não encontrado"));
-        return teacher;
+        return teacherRepository.findByUser(user).orElseThrow(() -> new IllegalStateException("Professor não encontrado"));
     }
 }
