@@ -1,6 +1,6 @@
 package com.meutcc.backend.content.courses;
 
-import com.meutcc.backend.common.exceptions.CourseException;
+import com.meutcc.backend.common.exceptions.CourseNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,19 +24,19 @@ public class CourseController {
 
     @GetMapping("/student/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<CourseDTO> listAllCourses() throws CourseException {
+    public List<CourseDTO> listAllCourses() throws CourseNotFoundException {
         return courseService.findAllCourses();
     }
 
     @GetMapping("/teacher/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CourseDTO getCourseById(@PathVariable Long id) throws CourseException {
+    public CourseDTO getCourseById(@PathVariable Long id) throws CourseNotFoundException {
         return courseService.checkIfTheCourseExistsByID(id);
     }
 
     @GetMapping("/teacher/list-all-teacher-courses")
     @ResponseStatus(HttpStatus.OK)
-    public List<CourseDTO> listAllTeacherCourses() throws CourseException {
+    public List<CourseDTO> listAllTeacherCourses() throws CourseNotFoundException {
         return courseService.findAllTeacherCourses();
     }
 
@@ -48,13 +48,7 @@ public class CourseController {
 
     @PutMapping("/teacher/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CourseResponse updateCourse(@PathVariable Long id, @RequestBody @Valid CourseDTO courseDTO) throws CourseException {
+    public CourseResponse updateCourse(@PathVariable Long id, @RequestBody @Valid CourseDTO courseDTO) throws Exception {
         return courseService.updateCourse(id, courseDTO);
-    }
-
-    @DeleteMapping("/teacher/{id}/delete")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCourse(@PathVariable Long id) throws CourseException {
-        courseService.deleteCourse(id);
     }
 }

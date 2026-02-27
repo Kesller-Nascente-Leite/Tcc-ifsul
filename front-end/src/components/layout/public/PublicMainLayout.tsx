@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Outlet } from "react-router";
 import PublicNavbar from "./PublicNavbar";
 import { PublicSidebar } from "./PublicSidebar";
-import SharedFooter from "./SharedFooter";
+import SharedFooter from "../SharedFooter";
 
 export function PublicMainLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);

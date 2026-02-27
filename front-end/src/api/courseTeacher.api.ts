@@ -25,7 +25,7 @@ export const CourseTeacherApi = {
   update: (id: number, payload: CourseDTO) =>
     api.put<CourseDTO>(`/courses/teacher/${id}`, payload),
 
-  remove: (id: number) => api.delete(`/courses/teacher/${id}/delete`),
+  remove: (id: number) => api.delete(`/courses/teacher/${id}`),
 
   togglePublish: (id: number) => api.patch(`/courses/teacher/${id}/publish`),
 };

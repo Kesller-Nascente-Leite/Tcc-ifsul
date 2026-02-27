@@ -4,38 +4,37 @@
       "id": 1,
       "label": "Visão Geral",
       "path": "/teacher/dashboard",
-      "icon": "House"
+      "icon": "LayoutDashboard"
     },
     {
       "id": 2,
       "label": "Minhas Turmas",
       "path": "/teacher/create-course",
-      "icon": "Users"
+      "icon": "BookOpen"
     },
     {
-      "id": 3,
+      "id": 6,
       "label": "Matérias",
       "path": "/teacher/subjects",
       "icon": "Book"
     },
     {
-      "id": 4,
+      "id": 3,
       "label": "Atribuições",
       "path": "/teacher/assignments",
       "icon": "CheckSquare"
     },
     {
-      "id": 5,
+      "id": 4,
       "label": "Cronograma",
       "path": "/teacher/schedule",
       "icon": "Calendar"
     },
     {
-      "id": 6,
+      "id": 5,
       "label": "Desempenho",
       "path": "/teacher/analytics",
       "icon": "BarChart2"
     }
   ]
 }
-  

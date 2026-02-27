@@ -3,23 +3,20 @@ import { useEffect } from "react";
 import {
   type LucideIcon,
   LayoutDashboard,
+  BookOpen,
   CheckSquare,
   Calendar,
   BarChart2,
   Settings,
   HelpCircle,
-  Book,
-  Users,
-  House,
 } from "lucide-react";
 import navData from "./nav.teacher.json";
 import Logo from "../../../assets/Logo.png";
 import { NavLink } from "react-router";
 
 const iconMap: Record<string, LucideIcon> = {
-  House,
-  Users,
-  Book,
+  LayoutDashboard,
+  BookOpen,
   CheckSquare,
   Calendar,
   BarChart2,
