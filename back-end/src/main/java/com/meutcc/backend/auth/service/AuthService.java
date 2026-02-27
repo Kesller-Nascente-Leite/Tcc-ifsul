@@ -90,6 +90,31 @@ public class AuthService {
         );
     }
 
+    public LoginResponse refreshToken(String refreshToken) {
+        // Aqui você deve implementar a lógica para:
+        // 1. Validar o refresh token no banco de dados ou via JWT
+        Jwt decoderToken = jwtDecoder.decode(refreshToken);
+        String username = decoderToken.getSubject();
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new UserException("Usuário não está ativo"));
+        Instant now = Instant.now();
+        long expiresIn = 900L;
+
+        JwtClaimsSet claimsSet = JwtClaimsSet.builder()
+                .issuer("http://localhost:5173")
+                .issuedAt(now)
+                .expiresAt(now.plusSeconds(expiresIn))
+                .subject(username)
+                .claim("scope", "ROLE_USER")
+                .build();
+
+        // 2. Gerar um novo Access Token
+
+        String newAccessToken = jwtEncoder.encode(JwtEncoderParameters.from(claimsSet)).getTokenValue();
+
+        return new LoginResponse(newAccessToken, refreshToken, null, null);
+    }
+
     private void existsByEmail(String email) {
         if (userRepository.existsByEmail(email)) {
             throw new UserAlreadyExistException("Email já cadastrado");

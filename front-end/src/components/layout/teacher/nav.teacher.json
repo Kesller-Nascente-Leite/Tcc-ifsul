@@ -12,26 +12,33 @@
       "path": "/teacher/create-course",
       "icon": "BookOpen"
     },
+    
     {
       "id": 3,
+      "label": "Módulos",
+      "path": "/teacher/modules",
+      "icon": "Package"
+    },
+    {
+      "id": 4,
       "label": "Matérias",
       "path": "/teacher/subjects",
       "icon": "Book"
     },
     {
-      "id": 4,
+      "id": 5,
       "label": "Atribuições",
       "path": "/teacher/assignments",
       "icon": "CheckSquare"
     },
     {
-      "id": 5,
+      "id": 6,
       "label": "Cronograma",
       "path": "/teacher/schedule",
       "icon": "Calendar"
     },
     {
-      "id": 6,
+      "id": 7,
       "label": "Desempenho",
       "path": "/teacher/analytics",
       "icon": "BarChart2"
