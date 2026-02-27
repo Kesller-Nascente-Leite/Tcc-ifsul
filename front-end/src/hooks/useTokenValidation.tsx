@@ -36,7 +36,7 @@ export function useTokenValidation() {
     };
 
     // assim que eu terminar o back-end vou colocar para funcionar a validação do token, por enquanto só tem o refresh token
-    // validateToken();
+    validateToken();
 
     const interval = setInterval(validateToken, 15 * 60 * 1000);
 

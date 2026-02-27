@@ -67,11 +67,8 @@ public class SecurityConfig {
                             response.setStatus(HttpServletResponse.SC_OK);
                         })
                         .permitAll())
-
-                // ← MUDANÇA AQUI: usar o conversor customizado
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)))
-
                 .build();
     }
 }
