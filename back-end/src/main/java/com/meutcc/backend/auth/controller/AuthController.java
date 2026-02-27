@@ -1,10 +1,7 @@
 package com.meutcc.backend.auth.controller;
 
-<<<<<<< HEAD
-=======
 import com.meutcc.backend.auth.dto.LoginResponse;
 import com.meutcc.backend.auth.service.AuthService;
->>>>>>> desenvolverRefreshToken
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
