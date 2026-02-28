@@ -8,7 +8,8 @@ export interface ModuleDTO {
   courseId: number;
 }
 
-export const ModuleApi = {
+export const ModuleTeacherApi = {
+    
   // Lista módulos de um curso
   listByCourse: (courseId: number) =>
     api.get<ModuleDTO[]>(`/teacher/courses/${courseId}/modules`),

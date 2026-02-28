@@ -1,21 +1,32 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Plus, Edit2, Trash2, BookOpen, List } from "lucide-react";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  BookOpen,
+  List,
+  CheckCircle,
+  XCircle,
+  Info,
+} from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
 import { CourseTeacherApi } from "../../api/courseTeacher.api";
+import { ModuleTeacherApi } from "../../api/moduleTeacher.api";
 import { useTheme } from "../../context/ThemeContext";
-import { ModuleApi } from "../../api/module.api";
 
-interface CourseItem {
-  id: number;
+interface CourseDTO {
+  id?: number | null;
   title: string;
   description: string;
   published: boolean;
+  teacherId: number;
+  teacherName: string;
 }
 
 interface ModuleItem {
-  id?: number;
+  id?: number | null;
   title: string;
   description: string;
   orderIndex: number;
@@ -26,8 +37,8 @@ export function TeacherModules() {
   const { accentColor } = useTheme();
   const navigate = useNavigate();
 
-  const [courses, setCourses] = useState<CourseItem[]>([]);
-  const [selectedCourse, setSelectedCourse] = useState<CourseItem | null>(null);
+  const [courses, setCourses] = useState<CourseDTO[]>([]);
+  const [selectedCourse, setSelectedCourse] = useState<CourseDTO | null>(null);
   const [modules, setModules] = useState<ModuleItem[]>([]);
 
   const [moduleTitle, setModuleTitle] = useState("");
@@ -38,22 +49,22 @@ export function TeacherModules() {
   const [isCreating, setIsCreating] = useState(false);
 
   const [notification, setNotification] = useState<{
-    type: "success" | "error";
+    type: "success" | "error" | "info";
     message: string;
   } | null>(null);
 
-  // Carregar cursos do professor
+  // Carregar cursos do professor ao montar
   useEffect(() => {
     loadCourses();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Carregar módulos quando seleciona um curso
+  // Carregar módulos quando um curso é selecionado
   useEffect(() => {
     if (selectedCourse) {
-      loadModules(selectedCourse.id);
+      loadModules(selectedCourse.id!);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCourse]);
 
   const loadCourses = async () => {
@@ -72,8 +83,15 @@ export function TeacherModules() {
   const loadModules = async (courseId: number) => {
     try {
       setIsLoadingModules(true);
-      const response = await ModuleApi.listByCourse(courseId);
+      const response = await ModuleTeacherApi.listByCourse(courseId);
       setModules(response.data || []);
+
+      if (response.data.length === 0) {
+        showNotification(
+          "info",
+          "Nenhum módulo encontrado. Crie o primeiro módulo!",
+        );
+      }
     } catch (error) {
       console.error("Erro ao carregar módulos:", error);
       showNotification("error", "Erro ao carregar módulos");
@@ -82,7 +100,10 @@ export function TeacherModules() {
     }
   };
 
-  const showNotification = (type: "success" | "error", message: string) => {
+  const showNotification = (
+    type: "success" | "error" | "info",
+    message: string,
+  ) => {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 3000);
   };
@@ -102,19 +123,34 @@ export function TeacherModules() {
       title: moduleTitle.trim(),
       description: moduleDescription.trim(),
       orderIndex: modules.length + 1,
-      courseId: selectedCourse.id,
+      courseId: selectedCourse.id!,
     };
+
+    // Melhor e mais pratico para fazer validações específicas do formulário, evitando muitos ifs aninhados
+    const valideForm = () => {
+      if (!moduleTitle.trim()) return "O título do módulo é obrigatório";
+      if (moduleTitle.trim().length < 3)
+        return "O título deve conter no mínimo 3 caracteres";
+      if (moduleTitle.trim().length > 100)
+        return "O título deve conter no máximo 100 caracteres";
+      if (moduleDescription.trim().length > 255)
+        return "A descrição deve conter no máximo 255 caracteres";
+      return null;
+    };
+
+    const error = valideForm();
+    if (error) return showNotification("error", error);
 
     try {
       setIsCreating(true);
-      const response = await ModuleApi.create(payload);
+      const response = await ModuleTeacherApi.create(payload);
       const created = response.data;
 
       setModules((prev) => [...prev, created]);
       setModuleTitle("");
       setModuleDescription("");
       showNotification("success", "Módulo criado com sucesso!");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao criar módulo:", error);
       showNotification(
@@ -132,12 +168,53 @@ export function TeacherModules() {
     }
 
     try {
-      await ModuleApi.remove(id);
+      await ModuleTeacherApi.remove(id);
       setModules((prev) => prev.filter((m) => m.id !== id));
       showNotification("success", "Módulo excluído com sucesso!");
     } catch (error) {
       console.error("Erro ao excluir módulo:", error);
       showNotification("error", "Erro ao excluir módulo");
+    }
+  };
+
+  // Função auxiliar para obter estilos da notificação
+  const getNotificationStyles = () => {
+    switch (notification?.type) {
+      case "success":
+        return {
+          bg: "bg-green-50 dark:bg-green-900/20",
+          border: "border-green-200 dark:border-green-800",
+          text: "text-green-800 dark:text-green-200",
+          icon: (
+            <CheckCircle
+              size={20}
+              className="text-green-600 dark:text-green-400"
+            />
+          ),
+        };
+      case "error":
+        return {
+          bg: "bg-red-50 dark:bg-red-900/20",
+          border: "border-red-200 dark:border-red-800",
+          text: "text-red-800 dark:text-red-200",
+          icon: (
+            <XCircle size={20} className="text-red-600 dark:text-red-400" />
+          ),
+        };
+      case "info":
+        return {
+          bg: "bg-blue-50 dark:bg-blue-900/20",
+          border: "border-blue-200 dark:border-blue-800",
+          text: "text-blue-800 dark:text-blue-200",
+          icon: <Info size={20} className="text-blue-600 dark:text-blue-400" />,
+        };
+      default:
+        return {
+          bg: "",
+          border: "",
+          text: "",
+          icon: null,
+        };
     }
   };
 
@@ -153,10 +230,7 @@ export function TeacherModules() {
             Organize o conteúdo do seu curso em módulos
           </p>
         </div>
-        <ButtonComponent
-          size="sm"
-          onClick={() => navigate("/teacher/create-course")}
-        >
+        <ButtonComponent size="sm" onClick={() => navigate("/teacher/courses")}>
           Voltar para Cursos
         </ButtonComponent>
       </header>
@@ -164,19 +238,10 @@ export function TeacherModules() {
       {/* Notificação */}
       {notification && (
         <div
-          className={`p-4 rounded-xl border flex items-center gap-3 ${
-            notification.type === "success"
-              ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
-              : "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-          }`}
+          className={`p-4 rounded-xl border flex items-center gap-3 ${getNotificationStyles().bg} ${getNotificationStyles().border}`}
         >
-          <p
-            className={`text-sm font-medium ${
-              notification.type === "success"
-                ? "text-green-800 dark:text-green-200"
-                : "text-red-800 dark:text-red-200"
-            }`}
-          >
+          {getNotificationStyles().icon}
+          <p className={`text-sm font-medium ${getNotificationStyles().text}`}>
             {notification.message}
           </p>
         </div>
@@ -187,7 +252,15 @@ export function TeacherModules() {
         <h3 className="font-bold text-lg mb-4">1. Selecione o Curso</h3>
 
         {isLoadingCourses ? (
-          <div className="text-text-secondary">Carregando cursos...</div>
+          <div className="flex items-center justify-center py-8">
+            <div className="flex items-center gap-3 text-text-secondary">
+              <div
+                className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"
+                style={{ borderColor: accentColor }}
+              />
+              <span>Carregando cursos...</span>
+            </div>
+          </div>
         ) : courses.length === 0 ? (
           <div className="text-center py-8">
             <BookOpen
@@ -212,8 +285,8 @@ export function TeacherModules() {
                 onClick={() => setSelectedCourse(course)}
                 className={`p-4 rounded-xl border text-left transition-all ${
                   selectedCourse?.id === course.id
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
+                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                    : "border-border hover:border-primary/50 hover:shadow-md"
                 }`}
               >
                 <h4 className="font-bold text-text-primary mb-1">
@@ -223,9 +296,12 @@ export function TeacherModules() {
                   {course.description}
                 </p>
                 {selectedCourse?.id === course.id && (
-                  <span className="inline-block mt-2 text-xs font-medium text-primary">
-                    ✓ Selecionado
-                  </span>
+                  <div className="flex items-center gap-1 mt-2">
+                    <CheckCircle size={14} className="text-primary" />
+                    <span className="text-xs font-medium text-primary">
+                      Selecionado
+                    </span>
+                  </div>
                 )}
               </button>
             ))}
@@ -273,7 +349,7 @@ export function TeacherModules() {
                   placeholder="Descreva o conteúdo deste módulo..."
                   disabled={isCreating}
                   rows={4}
-                  className="w-full px-4 py-2 rounded-lg border bg-background border-border text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                  className="w-full px-4 py-2 rounded-lg border bg-background border-border text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
 

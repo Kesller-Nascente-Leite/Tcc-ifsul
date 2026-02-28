@@ -1,6 +1,5 @@
 package com.meutcc.backend.content.lesson;
 
-import com.meutcc.backend.common.model.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,22 +10,39 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Video extends BaseEntity {
+public class Video {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String title;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "storage_type", nullable = false)
-    private VideoStorageType storageType;
 
     private String url;
 
     @Lob
-    @Basic(fetch = FetchType.LAZY)
     @Column(name = "data_blob")
     private byte[] dataBlob;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private VideoStorageType storageType;
+
+    @ManyToOne
     @JoinColumn(name = "lesson_id")
     private Lesson lesson;
+
+    private java.time.LocalDateTime createdAt;
+    private java.time.LocalDateTime updatedAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = java.time.LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = java.time.LocalDateTime.now();
+    }
+
 }
