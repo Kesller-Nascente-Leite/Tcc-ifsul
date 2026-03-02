@@ -7,11 +7,10 @@ import {
   BookOpen,
   List,
   CheckCircle,
-  XCircle,
-  Info,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
+import { NotificationComponent } from "../../components/ui/NotificationComponent";
 import { CourseTeacherApi } from "../../api/courseTeacher.api";
 import { ModuleTeacherApi } from "../../api/moduleTeacher.api";
 import { useTheme } from "../../context/ThemeContext";
@@ -30,7 +29,7 @@ interface ModuleItem {
   title: string;
   description: string;
   orderIndex: number;
-  courseId?: number;
+  courseId: number;
 }
 
 export function TeacherModules() {
@@ -92,7 +91,8 @@ export function TeacherModules() {
           "Nenhum módulo encontrado. Crie o primeiro módulo!",
         );
       }
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("Erro ao carregar módulos:", error);
       showNotification("error", "Erro ao carregar módulos");
     } finally {
@@ -105,7 +105,6 @@ export function TeacherModules() {
     message: string,
   ) => {
     setNotification({ type, message });
-    setTimeout(() => setNotification(null), 3000);
   };
 
   const createModule = async () => {
@@ -120,6 +119,7 @@ export function TeacherModules() {
     }
 
     const payload: ModuleItem = {
+      id: null,
       title: moduleTitle.trim(),
       description: moduleDescription.trim(),
       orderIndex: modules.length + 1,
@@ -177,47 +177,6 @@ export function TeacherModules() {
     }
   };
 
-  // Função auxiliar para obter estilos da notificação
-  const getNotificationStyles = () => {
-    switch (notification?.type) {
-      case "success":
-        return {
-          bg: "bg-green-50 dark:bg-green-900/20",
-          border: "border-green-200 dark:border-green-800",
-          text: "text-green-800 dark:text-green-200",
-          icon: (
-            <CheckCircle
-              size={20}
-              className="text-green-600 dark:text-green-400"
-            />
-          ),
-        };
-      case "error":
-        return {
-          bg: "bg-red-50 dark:bg-red-900/20",
-          border: "border-red-200 dark:border-red-800",
-          text: "text-red-800 dark:text-red-200",
-          icon: (
-            <XCircle size={20} className="text-red-600 dark:text-red-400" />
-          ),
-        };
-      case "info":
-        return {
-          bg: "bg-blue-50 dark:bg-blue-900/20",
-          border: "border-blue-200 dark:border-blue-800",
-          text: "text-blue-800 dark:text-blue-200",
-          icon: <Info size={20} className="text-blue-600 dark:text-blue-400" />,
-        };
-      default:
-        return {
-          bg: "",
-          border: "",
-          text: "",
-          icon: null,
-        };
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -237,14 +196,12 @@ export function TeacherModules() {
 
       {/* Notificação */}
       {notification && (
-        <div
-          className={`p-4 rounded-xl border flex items-center gap-3 ${getNotificationStyles().bg} ${getNotificationStyles().border}`}
-        >
-          {getNotificationStyles().icon}
-          <p className={`text-sm font-medium ${getNotificationStyles().text}`}>
-            {notification.message}
-          </p>
-        </div>
+        <NotificationComponent
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+          duration={3000}
+        />
       )}
 
       {/* Seletor de Curso */}

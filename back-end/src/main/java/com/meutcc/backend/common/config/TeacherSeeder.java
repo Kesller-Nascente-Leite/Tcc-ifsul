@@ -1,18 +1,18 @@
 package com.meutcc.backend.common.config;
 
+import com.meutcc.backend.content.courses.CourseRepository;
 import com.meutcc.backend.role.RoleRepository;
 import com.meutcc.backend.role.Roles;
 import com.meutcc.backend.teacher.Teacher;
 import com.meutcc.backend.teacher.TeacherRepository;
-import com.meutcc.backend.user.*;
-import com.meutcc.backend.content.courses.Course;
-import com.meutcc.backend.content.courses.CourseRepository;
+import com.meutcc.backend.user.User;
+import com.meutcc.backend.user.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.core.annotation.Order;
 
 @Component
 @AllArgsConstructor
@@ -53,14 +53,6 @@ public class TeacherSeeder implements ApplicationRunner {
                 // Salva o teacher e cria uma turma (Course) padrão associada
                 Teacher savedTeacher = teacherRepository.save(teacher);
 
-                Course defaultCourse = Course.builder()
-                        .title("Turma Padrão")
-                        .description("Turma inicial criada automaticamente")
-                        .published(false)
-                        .teacher(savedTeacher)
-                        .build();
-
-                courseRepository.save(defaultCourse);
             }
         }
     }

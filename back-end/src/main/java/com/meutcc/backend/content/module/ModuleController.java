@@ -12,8 +12,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ModuleController {
 
-    ModuleService moduleService;
+    private final ModuleService moduleService;
 
+    // resolver bug: error 500.
     @PreAuthorize("hasAuthority('TEACHER')")
     @GetMapping("/teacher/courses/{courseId}/modules")
     @ResponseStatus(HttpStatus.OK)
