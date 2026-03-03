@@ -1,14 +1,12 @@
 package com.meutcc.backend.content.courses;
 
 import com.meutcc.backend.common.exceptions.CourseException;
+import com.meutcc.backend.security.AuthenticationService;
 import com.meutcc.backend.teacher.Teacher;
 import com.meutcc.backend.teacher.TeacherRepository;
-import com.meutcc.backend.user.User;
 import com.meutcc.backend.user.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +22,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final TeacherRepository teacherRepository;
     private final UserRepository userRepository;
+    private final AuthenticationService authenticationService;
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     public List<CourseDTO> findAllCourses() {   
@@ -32,7 +31,7 @@ public class CourseService {
 
     @Transactional
     public CourseDTO createCourse(@RequestBody CourseDTO courseDTO) {
-        Teacher teacher = getAuthenticatedTeacher();
+        Teacher teacher = authenticationService.getAuthenticatedTeacher();
         Course course = CourseMapper.toEntity(courseDTO, teacher);
         Course savedCourse = courseRepository.save(course);
         return CourseMapper.toDTO(savedCourse);
@@ -41,7 +40,7 @@ public class CourseService {
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     public List<CourseDTO> findAllTeacherCourses() {
-        Teacher teacher = getAuthenticatedTeacher();
+        Teacher teacher = authenticationService.getAuthenticatedTeacher();
 
         List<Course> courses = courseRepository.findByTeacher(teacher);
 
@@ -59,7 +58,7 @@ public class CourseService {
     }
 
     public CourseResponse updateCourse(@PathVariable Long id, @RequestBody @Valid CourseDTO dto) {
-        Teacher teacher = getAuthenticatedTeacher();
+        Teacher teacher = authenticationService.getAuthenticatedTeacher();
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseException("Nenhum curso encontrada."));
 
         if (!course.getTeacher().getId().equals(teacher.getId())) {
@@ -73,7 +72,7 @@ public class CourseService {
     }
 
     public void deleteCourse(@PathVariable Long id) throws CourseException {
-        Teacher teacher = getAuthenticatedTeacher();
+        Teacher teacher = authenticationService.getAuthenticatedTeacher();
         Course course = courseRepository.findById(id).orElseThrow(() ->  new CourseException("Nenhum curso encontrada."));
         if(!course.getTeacher().getId().equals(teacher.getId())) {
             throw new IllegalArgumentException("Nenhum curso encontrada para atualizar.");
@@ -81,12 +80,4 @@ public class CourseService {
         courseRepository.delete(course);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-    private Teacher getAuthenticatedTeacher() throws CourseException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        assert authentication != null;
-        String email = authentication.getName();
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalStateException("Usuário não encontrado"));
-        return teacherRepository.findByUser(user).orElseThrow(() -> new IllegalStateException("Professor não encontrado"));
-    }
 }

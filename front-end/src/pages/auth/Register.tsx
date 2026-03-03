@@ -2,7 +2,6 @@ import { useState, type ChangeEvent, type FormEvent } from "react";
 import { FormComponent } from "../../components/ui/FormComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
-import { PasswordInput } from "../../components/ui/PasswordInput";
 import { useNavigate } from "react-router";
 import axios from "axios";
 import { AuthService } from "../../services/auth.service";
@@ -124,8 +123,10 @@ export function Register() {
           />
 
           <div>
-            <PasswordInput
-              label="Senha"
+            <InputComponent
+              type="password"
+              labelText="Senha"
+              placeholder="********"
               value={formData.password}
               autoComplete="off"
               onChange={(e) => handleChange(e, "password")}

@@ -8,7 +8,7 @@
     },
     {
       "id": 2,
-      "label": "Minhas Turmas",
+      "label": "Meus Cursos",
       "path": "/teacher/create-course",
       "icon": "BookOpen"
     },

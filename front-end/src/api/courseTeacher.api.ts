@@ -1,21 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "./http";
-
-export interface CourseDTO {
-  id?: number | null;
-  title: string;
-  description: string;
-  published: boolean;
-  teacherId: number;
-  teacherName: string;
-}
+import { type CourseDTO } from "../types/CourseDT";
 
 export const CourseTeacherApi = {
   // verifica se existe o curso com o id fornecido
   getById: (id: number) => api.get<CourseDTO>(`/courses/teacher/${id}`),
 
   listAllTeacherCourses: (params?: any) =>
-    api.get<CourseDTO[]>("/courses/teacher/list-all-teacher-courses", { params }),
+    api.get<CourseDTO[]>("/courses/teacher/list-all-teacher-courses", {
+      params,
+    }),
 
   get: (id: number) => api.get<CourseDTO>(`/courses/teacher/${id}`),
 

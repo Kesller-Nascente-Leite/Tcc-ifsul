@@ -19,7 +19,7 @@ export const ModuleTeacherApi = {
 
   // Cria novo módulo
   create: (payload: ModuleDTO) =>
-    api.post<ModuleDTO>("/teacher/modules", payload),
+    api.post<ModuleDTO>("/teacher/modules/create", payload),
 
   // Atualiza módulo
   update: (id: number, payload: ModuleDTO) =>

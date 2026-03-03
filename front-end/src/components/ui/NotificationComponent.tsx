@@ -28,7 +28,7 @@ export function NotificationComponent({
     switch (type) {
       case "success":
         return {
-          bg: "bg-green-50 dark:bg-green-900/20",
+          bg: "bg-green-50 dark:bg-green-800/20",
           border: "border-green-200 dark:border-green-800",
           text: "text-green-800 dark:text-green-200",
           icon: (
@@ -53,6 +53,13 @@ export function NotificationComponent({
           border: "border-blue-200 dark:border-blue-800",
           text: "text-blue-800 dark:text-blue-200",
           icon: <Info size={20} className="text-blue-600 dark:text-blue-400" />,
+        };
+      default:
+        return {
+          bg: "bg-gray-50 dark:bg-gray-900/20",
+          border: "border-gray-200 dark:border-gray-800",
+          text: "text-gray-800 dark:text-gray-200",
+          icon: null,
         };
     }
   };

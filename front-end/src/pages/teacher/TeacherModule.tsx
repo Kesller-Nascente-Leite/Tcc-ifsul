@@ -1,22 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import {
-  Plus,
-  Edit2,
-  Trash2,
-  BookOpen,
-  List,
-  CheckCircle,
-} from "lucide-react";
+import { Plus, Edit2, Trash2, BookOpen, List, CheckCircle } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
 import { NotificationComponent } from "../../components/ui/NotificationComponent";
 import { CourseTeacherApi } from "../../api/courseTeacher.api";
-import { ModuleTeacherApi } from "../../api/moduleTeacher.api";
+import { ModuleTeacherApi, type ModuleDTO } from "../../api/moduleTeacher.api";
 import { useTheme } from "../../context/ThemeContext";
 
-interface CourseDTO {
-  id?: number | null;
+type CourseDTO = {
+  id?: number;
   title: string;
   description: string;
   published: boolean;
@@ -24,13 +17,6 @@ interface CourseDTO {
   teacherName: string;
 }
 
-interface ModuleItem {
-  id?: number | null;
-  title: string;
-  description: string;
-  orderIndex: number;
-  courseId: number;
-}
 
 export function TeacherModules() {
   const { accentColor } = useTheme();
@@ -38,7 +24,7 @@ export function TeacherModules() {
 
   const [courses, setCourses] = useState<CourseDTO[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<CourseDTO | null>(null);
-  const [modules, setModules] = useState<ModuleItem[]>([]);
+  const [modules, setModules] = useState<ModuleDTO[]>([]);
 
   const [moduleTitle, setModuleTitle] = useState("");
   const [moduleDescription, setModuleDescription] = useState("");
@@ -60,8 +46,8 @@ export function TeacherModules() {
 
   // Carregar módulos quando um curso é selecionado
   useEffect(() => {
-    if (selectedCourse) {
-      loadModules(selectedCourse.id!);
+    if (selectedCourse?.id) {
+      loadModules(selectedCourse.id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCourse]);
@@ -118,8 +104,7 @@ export function TeacherModules() {
       return;
     }
 
-    const payload: ModuleItem = {
-      id: null,
+    const payload: ModuleDTO = {
       title: moduleTitle.trim(),
       description: moduleDescription.trim(),
       orderIndex: modules.length + 1,
@@ -133,8 +118,8 @@ export function TeacherModules() {
         return "O título deve conter no mínimo 3 caracteres";
       if (moduleTitle.trim().length > 100)
         return "O título deve conter no máximo 100 caracteres";
-      if (moduleDescription.trim().length > 255)
-        return "A descrição deve conter no máximo 255 caracteres";
+      if (moduleDescription.trim().length > 500)
+        return "A descrição deve conter no máximo 500 caracteres";
       return null;
     };
 
