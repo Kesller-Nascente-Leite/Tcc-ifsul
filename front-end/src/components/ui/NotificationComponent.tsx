@@ -25,56 +25,38 @@ export function NotificationComponent({
     }
   }, [duration, onClose]);
 
-  const getNotificationStyles = () => {
-    switch (type) {
-      case "success":
-        return {
-          bg: "bg-green-50 dark:bg-green-800/20",
-          border: "border-green-200 dark:border-green-800",
-          text: "text-green-800 dark:text-green-200",
-          icon: (
-            <CheckCircle
-              size={20}
-              className="text-green-600 dark:text-green-400"
-            />
-          ),
-        };
-      case "error":
-        return {
-          bg: "bg-red-50 dark:bg-red-900/20",
-          border: "border-red-200 dark:border-red-800",
-          text: "text-red-800 dark:text-red-200",
-          icon: (
-            <XCircle size={20} className="text-red-600 dark:text-red-400" />
-          ),
-        };
-      case "info":
-        return {
-          bg: "bg-blue-50 dark:bg-blue-900/20",
-          border: "border-blue-200 dark:border-blue-800",
-          text: "text-blue-800 dark:text-blue-200",
-          icon: <Info size={20} className="text-blue-600 dark:text-blue-400" />,
-        };
-      default:
-        return {
-          bg: "bg-gray-50 dark:bg-gray-900/20",
-          border: "border-gray-200 dark:border-gray-800",
-          text: "text-gray-800 dark:text-gray-200",
-          icon: null,
-        };
-    }
+  const NOTIFICATION_VARIANTS = {
+    success: {
+      bg: "bg-green-50 dark:bg-green-900/40",
+      border: "border-green-200 dark:border-green-800",
+      text: "text-green-800 dark:text-green-200",
+      icon: (
+        <CheckCircle size={20} className="text-green-600 dark:text-green-400" />
+      ),
+    },
+    error: {
+      bg: "bg-red-50 dark:bg-red-900/40",
+      border: "border-red-200 dark:border-red-800",
+      text: "text-red-900 dark:text-red-200",
+      icon: <XCircle size={20} className="text-red-600 dark:text-red-400" />,
+    },
+    info: {
+      bg: "bg-sky-50 dark:bg-sky-900/40",
+      border: "border-sky-200 dark:border-sky-800",
+      text: "text-sky-900 dark:text-sky-200",
+      icon: <Info size={20} className="text-sky-600 dark:text-sky-400" />,
+    },
   };
-
-  const styles = getNotificationStyles();
+  const styles = NOTIFICATION_VARIANTS[type] || NOTIFICATION_VARIANTS.info;
 
   return (
     <div
       className={`p-4 rounded-xl border flex items-center gap-3 ${styles.bg} ${styles.border} animate-in slide-in-from-top-5 duration-300`}
     >
       {styles.icon}
-      <p className={`text-sm font-medium flex-1 ${styles.text}`}>{message}</p>
+      <p className={`text-sm font-medium flex-1  ${styles.text}`}>{message}</p>
       <Button
-        onClick={onClose}
+        onPress={onClose}
         className={`${styles.text} hover:opacity-70 transition-opacity`}
         aria-label="Fechar notificação"
       >

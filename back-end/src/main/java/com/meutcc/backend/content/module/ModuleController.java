@@ -2,7 +2,6 @@ package com.meutcc.backend.content.module;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,7 +13,6 @@ public class ModuleController {
 
     private final ModuleService moduleService;
 
-    // resolver bug: error 500.
     @GetMapping("/teacher/courses/{courseId}/modules")
     @ResponseStatus(HttpStatus.OK)
     public List<ModuleDTO> listByCourses(@PathVariable Long  courseId) {

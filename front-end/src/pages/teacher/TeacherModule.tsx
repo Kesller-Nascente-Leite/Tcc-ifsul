@@ -13,6 +13,7 @@ import { ModuleTeacherApi } from "../../api/moduleTeacher.api";
 import type { ModuleDTO } from "../../types/ModuleDTO";
 import { useTheme } from "../../context/ThemeContext";
 import { type CourseDTO } from "../../types/CourseDTO";
+import { Button, Header, Label, TextArea } from "react-aria-components";
 
 export function TeacherModules() {
   const { accentColor, isDark } = useTheme();
@@ -174,7 +175,7 @@ export function TeacherModules() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <header className="flex items-center justify-between">
+      <Header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">
             Módulos do Curso
@@ -186,7 +187,7 @@ export function TeacherModules() {
         <ButtonComponent size="sm" onClick={() => navigate("/teacher/courses")}>
           Voltar para Cursos
         </ButtonComponent>
-      </header>
+      </Header>
 
       {/* Notificação */}
       {notification && (
@@ -231,7 +232,7 @@ export function TeacherModules() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {courses.map((course) => (
-              <button
+              <Button
                 key={course.id}
                 onClick={() => setSelectedCourse(course)}
                 className={`p-4 rounded-xl border text-left transition-all ${
@@ -254,7 +255,7 @@ export function TeacherModules() {
                     </span>
                   </div>
                 )}
-              </button>
+              </Button>
             ))}
           </div>
         )}
@@ -277,9 +278,9 @@ export function TeacherModules() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">
+                <Label className="block text-sm font-medium text-text-secondary mb-2">
                   Título do Módulo *
-                </label>
+                </Label>
                 <InputComponent
                   value={moduleTitle}
                   onChange={(e) =>
@@ -291,10 +292,10 @@ export function TeacherModules() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">
+                <Label className="block text-sm font-medium text-text-secondary mb-2">
                   Descrição
-                </label>
-                <textarea
+                </Label>
+                <TextArea
                   value={moduleDescription}
                   onChange={(e) => setModuleDescription(e.target.value)}
                   placeholder="Descreva o conteúdo deste módulo..."
@@ -370,7 +371,7 @@ export function TeacherModules() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <button
+                        <Button
                           className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
                           onClick={() => {
                             navigate(`/teacher/modules/${module.id}/lessons`, {
@@ -380,15 +381,15 @@ export function TeacherModules() {
                         >
                           <Edit2 size={16} />
                           Editar
-                        </button>
+                        </Button>
 
-                        <button
+                        <Button
                           className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                           onClick={() => handleDeleteModule(module)}
                         >
                           <Trash2 size={16} />
                           Excluir
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </div>

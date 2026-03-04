@@ -29,20 +29,15 @@ public class Course extends BaseEntity {
     @JoinColumn(name = "teacher_id", nullable = false)
     private Teacher teacher;
 
+    @Column(columnDefinition = "TEXT", length = 255, name = "access_code")
+    private String accessCode;
+
+    @Column(name = "    ")
+    private Integer maxStudents;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("orderIndex ASC")
     @Builder.Default
     private List<Module> modules = new ArrayList<>();
-/*
-    public void addModule(Module module) {
-        modules.add(module);
-        module.setCourse(this);
-    }
 
-    public void removeModule(Module module) {
-        modules.remove(module);
-        module.setCourse(null);
-    }
-
- */
 }

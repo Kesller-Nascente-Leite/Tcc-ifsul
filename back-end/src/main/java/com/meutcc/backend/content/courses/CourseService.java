@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class CourseService {
     }
 
     @Transactional
-    public CourseDTO createCourse(CourseDTO courseDTO) {
+    public CourseDTO createCourse(@RequestBody CourseDTO courseDTO) {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
         Course course = CourseMapper.toEntity(courseDTO, teacher);
         Course savedCourse = courseRepository.save(course);
@@ -51,7 +52,6 @@ public class CourseService {
                 .map(CourseMapper::toDTO)
                 .orElseThrow(() -> new CourseException("Curso não encontrado"));
     }
-
     @Transactional
     public CourseResponse updateCourse(Long id, CourseDTO dto) {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
@@ -67,7 +67,8 @@ public class CourseService {
     @Transactional
     public void deleteCourse(Long id) throws CourseException {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
-        Course course = courseRepository.findById(id).orElseThrow(() ->  new CourseException("Nenhum curso encontrada."));
+        Course course = courseRepository.findById(id).orElseThrow(() ->
+                new CourseException("Nenhum curso encontrada."));
         securityService.validateCourseOwner(course, teacher);
         courseRepository.delete(course);
     }

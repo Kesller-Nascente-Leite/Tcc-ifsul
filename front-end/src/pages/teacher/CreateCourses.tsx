@@ -15,23 +15,20 @@ import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
 import { CourseTeacherApi } from "../../api/courseTeacher.api";
 import { useTheme } from "../../context/ThemeContext";
-
-type CourseItem = {
-  id?: number | null;
-  title: string;
-  description: string;
-  published: boolean;
-  teacherId: number;
-  teacherName: string;
-};
+import {
+  ConfirmDialog,
+  useConfirmDialog,
+} from "../../components/ui/ConfirmDialog";
+import type { CourseDTO } from "../../types/CourseDTO";
 
 export function CreateCourse() {
-  const { accentColor } = useTheme();
+  const { accentColor, isDark } = useTheme();
   const navigate = useNavigate();
+  const { isOpen, setIsOpen, confirm, dialogConfig } = useConfirmDialog();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [courses, setCourses] = useState<CourseItem[]>([]);
+  const [courses, setCourses] = useState<CourseDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [notification, setNotification] = useState<{
@@ -99,7 +96,7 @@ export function CreateCourse() {
       return;
     }
 
-    const payload: CourseItem = {
+    const payload: CourseDTO = {
       title: title.trim(),
       description: description.trim(),
       published: false,
@@ -132,25 +129,38 @@ export function CreateCourse() {
   };
 
   const deleteCourse = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este curso?")) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: "Confirmar exclusão",
+      message: (
+        <div className="space-y-2">
+          <p>Tem certeza que deseja excluir o curso:</p>
+          <p className="font-semibold text-text-primary">"{courses.find((c) => c.id === id)?.title}"?</p>
+          <p className="text-xs">Esta ação não pode ser desfeita.</p>
+        </div>
+      ),
+      confirmText: "Sim, excluir",
+      cancelText: "Cancelar",
+      variant: "danger",
+      isDark,
+    });
 
-    try {
-      await CourseTeacherApi.remove(id);
-      setCourses((prev) => prev.filter((c) => c.id !== id));
-      showNotification("success", "Curso excluído com sucesso!");
-    } catch (error) {
-      console.error("Erro ao excluir curso:", error);
-      showNotification("error", "Erro ao excluir curso");
+    if (confirmed) {
+      try {
+        await CourseTeacherApi.remove(id);
+        setCourses((prev) => prev.filter((c) => c.id !== id));
+        showNotification("success", "Curso excluído com sucesso!");
+      } catch (error) {
+        console.error("Erro ao excluir curso:", error);
+        showNotification("error", "Erro ao excluir curso");
+      }
     }
   };
 
-  const togglePublish = async (course: CourseItem) => {
+  const togglePublish = async (course: CourseDTO) => {
     if (!course.id) return;
 
     try {
-      const updated: CourseItem = {
+      const updated: CourseDTO = {
         ...course,
         published: !course.published,
       };
@@ -455,6 +465,12 @@ export function CreateCourse() {
           </div>
         </section>
       )}
+      <ConfirmDialog
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        isDark={isDark}
+        {...dialogConfig}
+      />
     </div>
   );
 }
