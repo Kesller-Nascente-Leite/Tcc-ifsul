@@ -1,6 +1,6 @@
 import type { RouteObject } from "react-router";
 import { Navigate } from "react-router";
-import Settings from "../pages/Settings.";
+import Settings from "../pages/Settings";
 import { TeacherDashboard } from "../pages/teacher/TeacherDashboard";
 import { TeacherSubjects } from "../pages/teacher/TeacherSubjects";
 import { CreateCourse } from "../pages/teacher/CreateCourses";

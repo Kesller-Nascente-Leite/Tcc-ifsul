@@ -1,5 +1,6 @@
 import { CheckCircle, XCircle, Info, X } from "lucide-react";
 import { useEffect } from "react";
+import { Button } from "react-aria-components";
 
 interface NotificationProps {
   type: "success" | "error" | "info";
@@ -72,13 +73,13 @@ export function NotificationComponent({
     >
       {styles.icon}
       <p className={`text-sm font-medium flex-1 ${styles.text}`}>{message}</p>
-      <button
+      <Button
         onClick={onClose}
         className={`${styles.text} hover:opacity-70 transition-opacity`}
         aria-label="Fechar notificação"
       >
         <X size={18} />
-      </button>
+      </Button>
     </div>
   );
 }

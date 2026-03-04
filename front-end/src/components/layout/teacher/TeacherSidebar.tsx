@@ -68,6 +68,7 @@ export function TeacherSidebar({ isOpen, setIsOpen }: TeacherSidebarProps) {
                   ${isActive ? "bg-primary/10 text-primary" : "text-text-secondary hover:bg-bg-main hover:text-text-primary"}`}
               >
                 {({ isActive }) => (
+                  // se colocar a div aqui, o icone fica em cima do texto
                   <>
                     <IconComponent size={20} className={isActive ? "text-primary" : "text-text-secondary group-hover:text-primary"} />
                     <span>{item.label}</span>

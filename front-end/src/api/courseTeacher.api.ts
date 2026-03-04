@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "./http";
-import { type CourseDTO } from "../types/CourseDT";
+import { type CourseDTO } from "../types/CourseDTO";
 
 export const CourseTeacherApi = {
   // verifica se existe o curso com o id fornecido

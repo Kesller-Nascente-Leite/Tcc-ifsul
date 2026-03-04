@@ -141,6 +141,7 @@ export function Register() {
             fullWidth
             isLoading={isLoading}
             size="lg"
+            className="mt-6"
           >
             Cadastre-se
           </ButtonComponent>

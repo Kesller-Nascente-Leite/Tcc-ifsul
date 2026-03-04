@@ -7,16 +7,7 @@ import { NotificationComponent } from "../../components/ui/NotificationComponent
 import { CourseTeacherApi } from "../../api/courseTeacher.api";
 import { ModuleTeacherApi, type ModuleDTO } from "../../api/moduleTeacher.api";
 import { useTheme } from "../../context/ThemeContext";
-
-type CourseDTO = {
-  id?: number;
-  title: string;
-  description: string;
-  published: boolean;
-  teacherId: number;
-  teacherName: string;
-}
-
+import { type CourseDTO } from "../../types/CourseDTO";
 
 export function TeacherModules() {
   const { accentColor } = useTheme();

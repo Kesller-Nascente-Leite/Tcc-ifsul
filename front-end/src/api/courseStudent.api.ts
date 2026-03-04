@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "./http";
-import { type CourseDTO } from "../types/CourseDT";
+import { type CourseDTO } from "../types/CourseDTO";
 
 export const CourseStudentApi = {
   list: (params?: any) => api.get<CourseDTO[]>("/courses/student", { params }),

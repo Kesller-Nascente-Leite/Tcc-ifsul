@@ -1,4 +1,5 @@
 import { useId, type ComponentPropsWithRef } from "react";
+import { Input, Label } from "react-aria-components";
 
 interface InputProps extends ComponentPropsWithRef<"input"> {
   labelText?: string;
@@ -17,18 +18,17 @@ export function InputComponent({
   return (
     <div className="flex flex-col gap-1.5 w-full text-left">
       {labelText && (
-        <label
+        <Label
           htmlFor={inputId}
           className="text-sm font-medium text-text-primary"
         >
           {labelText}
-        </label>
+        </Label>
       )}
 
-      <input
+      <Input
         id={inputId}
         ref={ref}
-
         data-error={!!error}
         className={`
           bg-surface
