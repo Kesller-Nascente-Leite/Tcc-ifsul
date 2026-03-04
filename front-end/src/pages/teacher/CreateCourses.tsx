@@ -115,11 +115,11 @@ export function CreateCourse() {
       setCourses((prev) => [created, ...prev]);
       setTitle("");
       setDescription("");
-      
+
       // Volta para a página 1 para o professor ver o curso que acabou de criar
-      setCurrentPage(1); 
+      setCurrentPage(1);
       showNotification("success", "Curso criado com sucesso!");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao criar curso:", error);
       showNotification(
@@ -171,7 +171,7 @@ export function CreateCourse() {
   const totalPages = Math.ceil(courses.length / ITEMS_PER_PAGE);
   const indexOfLastCourse = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstCourse = indexOfLastCourse - ITEMS_PER_PAGE;
-  
+
   // "Fatia" o array original para pegar apenas os 5 da página atual
   const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
 
@@ -181,7 +181,6 @@ export function CreateCourse() {
       setCurrentPage(totalPages);
     }
   }, [courses.length, currentPage, totalPages]);
-
 
   return (
     <div className="space-y-6">
@@ -274,7 +273,7 @@ export function CreateCourse() {
             <div className="pt-2">
               <ButtonComponent
                 onClick={saveCourse}
-                disabled={isCreating || !title.trim() || !description.trim()}
+                isDisabled={isCreating || !title.trim() || !description.trim()}
               >
                 {isCreating ? "Criando..." : "Criar Curso"}
               </ButtonComponent>
@@ -319,7 +318,6 @@ export function CreateCourse() {
           ) : (
             <div className="flex flex-col flex-1 justify-between">
               <div className="space-y-3">
-                {/* AQUI ESTÁ A MUDANÇA: Usando currentCourses ao invés de courses */}
                 {currentCourses.map((course) => (
                   <div
                     key={course.id}
@@ -352,15 +350,21 @@ export function CreateCourse() {
                       <div className="flex items-center gap-2">
                         <ButtonComponent
                           size="sm"
-                          onClick={() => navigate(`/teacher/subjects?course=${course.id}`)}
+                          onClick={() =>
+                            navigate(`/teacher/subjects?course=${course.id}`)
+                          }
                         >
-                          <Eye size={16} />
-                          Ver Matérias
+                          <div className="flex items-center gap-2">
+                            <Eye size={16} />
+                            <span>Ver Matérias</span>
+                          </div>
                         </ButtonComponent>
 
                         <button
                           className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
-                          onClick={() => navigate(`/teacher/courses/${course.id}/edit`)}
+                          onClick={() =>
+                            navigate(`/teacher/courses/${course.id}/edit`)
+                          }
                         >
                           <Edit2 size={16} />
                           Editar
@@ -400,7 +404,9 @@ export function CreateCourse() {
                   </span>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
                       disabled={currentPage === 1}
                       className="p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
                       title="Página Anterior"
@@ -408,7 +414,9 @@ export function CreateCourse() {
                       <ChevronLeft size={18} />
                     </button>
                     <button
-                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      }
                       disabled={currentPage === totalPages}
                       className="p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
                       title="Próxima Página"

@@ -33,7 +33,8 @@ interface TeacherSidebarProps {
 
 export function TeacherSidebar({ isOpen, setIsOpen }: TeacherSidebarProps) {
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => e.key === "Escape" && setIsOpen(false);
+    const handleEsc = (e: KeyboardEvent) =>
+      e.key === "Escape" && setIsOpen(false);
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [setIsOpen]);
@@ -41,7 +42,10 @@ export function TeacherSidebar({ isOpen, setIsOpen }: TeacherSidebarProps) {
   return (
     <div>
       {isOpen && (
-        <div className=" fixed inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-xs z-40 md:hidden" onClick={() => setIsOpen(false)} />
+        <div
+          className=" fixed inset-0 bg-black/50 dark:bg-black/60 backdrop-blur-xs z-40 md:hidden"
+          onClick={() => setIsOpen(false)}
+        />
       )}
 
       <aside
@@ -50,11 +54,15 @@ export function TeacherSidebar({ isOpen, setIsOpen }: TeacherSidebarProps) {
       >
         <div className="hidden md:flex items-center gap-2 px-6 h-16 border-b border-border">
           <img src={Logo} className="max-w-10 h-auto" alt="Estuda Fácil" />
-          <span className="font-bold text-lg text-text-primary">Estuda Fácil</span>
+          <span className="font-bold text-lg text-text-primary">
+            Estuda Fácil
+          </span>
         </div>
 
         <div className="flex-1 overflow-y-auto py-6 px-4 space-y-1">
-          <p className="px-2 mb-2 text-xs font-bold text-text-secondary uppercase tracking-wider">Menu Principal</p>
+          <p className="px-2 mb-2 text-xs font-bold text-text-secondary uppercase tracking-wider">
+            Menu Principal
+          </p>
 
           {navData.menuItems.map((item: any) => {
             const IconComponent = iconMap[item.icon] || Home;
@@ -64,15 +72,28 @@ export function TeacherSidebar({ isOpen, setIsOpen }: TeacherSidebarProps) {
                 key={item.id}
                 to={item.path}
                 onClick={() => setIsOpen(false)}
-                className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group
+                className={({
+                  isActive,
+                }) => `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group
                   ${isActive ? "bg-primary/10 text-primary" : "text-text-secondary hover:bg-bg-main hover:text-text-primary"}`}
               >
                 {({ isActive }) => (
                   // se colocar a div aqui, o icone fica em cima do texto
                   <>
-                    <IconComponent size={20} className={isActive ? "text-primary" : "text-text-secondary group-hover:text-primary"} />
+                    <IconComponent
+                      size={20}
+                      className={
+                        isActive
+                          ? "text-primary"
+                          : "text-text-secondary group-hover:text-primary"
+                      }
+                    />
                     <span>{item.label}</span>
-                    {item.cta && <span className="ml-auto text-xs font-semibold text-primary">{item.cta}</span>}
+                    {item.cta && (
+                      <span className="ml-auto text-xs font-semibold text-primary">
+                        {item.cta}
+                      </span>
+                    )}
                   </>
                 )}
               </NavLink>
@@ -80,12 +101,26 @@ export function TeacherSidebar({ isOpen, setIsOpen }: TeacherSidebarProps) {
           })}
 
           <div className="pt-6 mt-6 border-t border-border">
-            <p className="px-2 mb-2 text-xs font-bold text-text-secondary uppercase tracking-wider">Sistema</p>
-            <NavLink to="/teacher/settings" onClick={() => setIsOpen(false)} className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isActive ? "bg-primary/10 text-primary" : "text-text-secondary hover:bg-bg-main hover:text-text-primary"}`}>
+            <p className="px-2 mb-2 text-xs font-bold text-text-secondary uppercase tracking-wider">
+              Sistema
+            </p>
+            <NavLink
+              to="/teacher/settings"
+              onClick={() => setIsOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isActive ? "bg-primary/10 text-primary" : "text-text-secondary hover:bg-bg-main hover:text-text-primary"}`
+              }
+            >
               <Settings size={20} />
               Configurações
             </NavLink>
-            <NavLink to="/help" onClick={() => setIsOpen(false)} className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isActive ? "bg-primary/10 text-primary" : "text-text-secondary hover:bg-bg-main hover:text-text-primary"}`}>
+            <NavLink
+              to="/help"
+              onClick={() => setIsOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${isActive ? "bg-primary/10 text-primary" : "text-text-secondary hover:bg-bg-main hover:text-text-primary"}`
+              }
+            >
               <HelpCircle size={20} /> Ajuda
             </NavLink>
           </div>

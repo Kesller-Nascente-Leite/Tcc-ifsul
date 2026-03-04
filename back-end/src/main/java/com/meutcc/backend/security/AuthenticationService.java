@@ -1,5 +1,6 @@
 package com.meutcc.backend.security;
 
+import com.meutcc.backend.content.courses.Course;
 import com.meutcc.backend.teacher.Teacher;
 import com.meutcc.backend.teacher.TeacherRepository;
 import com.meutcc.backend.user.User;

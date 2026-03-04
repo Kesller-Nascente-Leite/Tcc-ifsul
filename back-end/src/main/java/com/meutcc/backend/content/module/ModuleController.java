@@ -2,6 +2,7 @@ package com.meutcc.backend.content.module;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,5 +26,12 @@ public class ModuleController {
     public ModuleDTO create(@RequestBody ModuleDTO moduleDTO) {
         return moduleService.create(moduleDTO);
     }
+
+    @DeleteMapping("/teacher/modules/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(@PathVariable Long id) {
+        moduleService.delete(id);
+    }
+
 
 }

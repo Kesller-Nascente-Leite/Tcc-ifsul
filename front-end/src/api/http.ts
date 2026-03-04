@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 export const api = axios.create({
   baseURL: baseURL,
   headers: { "Content-Type": "application/json" },
@@ -26,22 +27,25 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    
+    const isAuthRoute =
+      originalRequest.url?.includes("/auth/login") ||
+      originalRequest.url?.includes("/auth/register");
 
-    // Se 401 e ainda não tentou refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isAuthRoute
+    ) {
       originalRequest._retry = true;
-
       const refreshToken = localStorage.getItem("refresh_token");
 
       if (refreshToken) {
         try {
           const response = await api.post("/auth/refresh", { refreshToken });
-
           const newAccessToken = response.data.accessToken;
           localStorage.setItem("access_token", newAccessToken);
-
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
           return api(originalRequest);
         } catch (refreshError) {
           console.error("Refresh token inválido, fazendo logout...");
@@ -55,7 +59,7 @@ api.interceptors.response.use(
       }
     }
 
-    if (error.response?.status === 403) {
+    if (error.response?.status === 403 && !isAuthRoute) {
       console.error("Acesso negado - permissão insuficiente");
       localStorage.clear();
       window.location.href = "/login";

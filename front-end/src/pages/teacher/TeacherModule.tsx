@@ -4,14 +4,20 @@ import { Plus, Edit2, Trash2, BookOpen, List, CheckCircle } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
 import { NotificationComponent } from "../../components/ui/NotificationComponent";
+import {
+  ConfirmDialog,
+  useConfirmDialog,
+} from "../../components/ui/ConfirmDialog";
 import { CourseTeacherApi } from "../../api/courseTeacher.api";
-import { ModuleTeacherApi, type ModuleDTO } from "../../api/moduleTeacher.api";
+import { ModuleTeacherApi } from "../../api/moduleTeacher.api";
+import type { ModuleDTO } from "../../types/ModuleDTO";
 import { useTheme } from "../../context/ThemeContext";
 import { type CourseDTO } from "../../types/CourseDTO";
 
 export function TeacherModules() {
-  const { accentColor } = useTheme();
+  const { accentColor, isDark } = useTheme();
   const navigate = useNavigate();
+  const { isOpen, setIsOpen, confirm, dialogConfig } = useConfirmDialog();
 
   const [courses, setCourses] = useState<CourseDTO[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<CourseDTO | null>(null);
@@ -102,8 +108,7 @@ export function TeacherModules() {
       courseId: selectedCourse.id!,
     };
 
-    // Melhor e mais pratico para fazer validações específicas do formulário, evitando muitos ifs aninhados
-    const valideForm = () => {
+    const validateForm = () => {
       if (!moduleTitle.trim()) return "O título do módulo é obrigatório";
       if (moduleTitle.trim().length < 3)
         return "O título deve conter no mínimo 3 caracteres";
@@ -114,7 +119,7 @@ export function TeacherModules() {
       return null;
     };
 
-    const error = valideForm();
+    const error = validateForm();
     if (error) return showNotification("error", error);
 
     try {
@@ -138,18 +143,31 @@ export function TeacherModules() {
     }
   };
 
-  const deleteModule = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este módulo?")) {
-      return;
-    }
+  const handleDeleteModule = async (module: ModuleDTO) => {
+    const confirmed = await confirm({
+      title: "Confirmar exclusão",
+      message: (
+        <div className="space-y-2">
+          <p>Tem certeza que deseja excluir o módulo:</p>
+          <p className="font-semibold text-text-primary">"{module.title}"?</p>
+          <p className="text-xs">Esta ação não pode ser desfeita.</p>
+        </div>
+      ),
+      confirmText: "Sim, excluir",
+      cancelText: "Cancelar",
+      variant: "danger",
+      isDark,
+    });
 
-    try {
-      await ModuleTeacherApi.remove(id);
-      setModules((prev) => prev.filter((m) => m.id !== id));
-      showNotification("success", "Módulo excluído com sucesso!");
-    } catch (error) {
-      console.error("Erro ao excluir módulo:", error);
-      showNotification("error", "Erro ao excluir módulo");
+    if (confirmed && module.id) {
+      try {
+        await ModuleTeacherApi.remove(module.id);
+        setModules((prev) => prev.filter((m) => m.id !== module.id));
+        showNotification("success", "Módulo excluído com sucesso!");
+      } catch (error) {
+        console.error("Erro ao excluir módulo:", error);
+        showNotification("error", "Erro ao excluir módulo");
+      }
     }
   };
 
@@ -289,7 +307,7 @@ export function TeacherModules() {
               <div className="pt-2">
                 <ButtonComponent
                   onClick={createModule}
-                  disabled={isCreating || !moduleTitle.trim()}
+                  isDisabled={isCreating || !moduleTitle.trim()}
                 >
                   {isCreating ? "Criando..." : "Criar Módulo"}
                 </ButtonComponent>
@@ -355,7 +373,9 @@ export function TeacherModules() {
                         <button
                           className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
                           onClick={() => {
-                            /* TODO: Implementar edição */
+                            navigate(`/teacher/modules/${module.id}/lessons`, {
+                              state: { module },
+                            });
                           }}
                         >
                           <Edit2 size={16} />
@@ -364,7 +384,7 @@ export function TeacherModules() {
 
                         <button
                           className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-                          onClick={() => module.id && deleteModule(module.id)}
+                          onClick={() => handleDeleteModule(module)}
                         >
                           <Trash2 size={16} />
                           Excluir
@@ -378,6 +398,14 @@ export function TeacherModules() {
           </div>
         </section>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        isDark={isDark}
+        {...dialogConfig}
+      />
     </div>
   );
 }

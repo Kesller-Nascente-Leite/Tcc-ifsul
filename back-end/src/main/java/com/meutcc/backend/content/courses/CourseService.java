@@ -2,16 +2,12 @@ package com.meutcc.backend.content.courses;
 
 import com.meutcc.backend.common.exceptions.CourseException;
 import com.meutcc.backend.security.AuthenticationService;
+import com.meutcc.backend.security.SecurityService;
 import com.meutcc.backend.teacher.Teacher;
-import com.meutcc.backend.teacher.TeacherRepository;
-import com.meutcc.backend.user.UserRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -20,8 +16,7 @@ import java.util.List;
 public class CourseService {
 
     private final CourseRepository courseRepository;
-    private final TeacherRepository teacherRepository;
-    private final UserRepository userRepository;
+    private final SecurityService securityService;
     private final AuthenticationService authenticationService;
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
@@ -30,7 +25,7 @@ public class CourseService {
     }
 
     @Transactional
-    public CourseDTO createCourse(@RequestBody CourseDTO courseDTO) {
+    public CourseDTO createCourse(CourseDTO courseDTO) {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
         Course course = CourseMapper.toEntity(courseDTO, teacher);
         Course savedCourse = courseRepository.save(course);
@@ -51,19 +46,17 @@ public class CourseService {
     }
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-    public CourseDTO checkIfTheCourseExistsByID(@PathVariable Long id) throws CourseException {
+    public CourseDTO checkIfTheCourseExistsByID(Long id) throws CourseException {
         return courseRepository.findById(id)
                 .map(CourseMapper::toDTO)
                 .orElseThrow(() -> new CourseException("Curso não encontrado"));
     }
 
-    public CourseResponse updateCourse(@PathVariable Long id, @RequestBody @Valid CourseDTO dto) {
+    @Transactional
+    public CourseResponse updateCourse(Long id, CourseDTO dto) {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseException("Nenhum curso encontrada."));
-
-        if (!course.getTeacher().getId().equals(teacher.getId())) {
-            throw new IllegalArgumentException("Nenhum curso encontrado para atualizar.");
-        }
+        securityService.validateCourseOwner(course, teacher);
 
         CourseMapper.updateEntity(course, dto);
         courseRepository.save(course);
@@ -71,12 +64,11 @@ public class CourseService {
         return new CourseResponse("Curso atualizado com sucesso!");
     }
 
-    public void deleteCourse(@PathVariable Long id) throws CourseException {
+    @Transactional
+    public void deleteCourse(Long id) throws CourseException {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
         Course course = courseRepository.findById(id).orElseThrow(() ->  new CourseException("Nenhum curso encontrada."));
-        if(!course.getTeacher().getId().equals(teacher.getId())) {
-            throw new IllegalArgumentException("Nenhum curso encontrada para atualizar.");
-        }
+        securityService.validateCourseOwner(course, teacher);
         courseRepository.delete(course);
     }
 

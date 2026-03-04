@@ -3,6 +3,7 @@ import { FormComponent } from "../../components/ui/FormComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { useNavigate } from "react-router";
+import { ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { AuthService } from "../../services/auth.service";
 
@@ -87,8 +88,17 @@ export function Register() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-bg-main p-4">
-      <div className="w-full max-w-md space-y-6 rounded-lg border bg-surface p-8 shadow-sm border-border">
-        <div className="text-center">
+      <div className="w-full max-w-md space-y-6 rounded-lg border bg-surface p-8 shadow-sm border-border relative">
+        {/* Botão de Voltar */}
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute top-4 left-4 p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-main transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
+          aria-label="Voltar"
+        >
+          <ArrowLeft size={20} />
+        </button>
+
+        <div className="text-center pt-4">
           <h1 className="text-2xl font-bold text-text-primary">Criar conta</h1>
           <p className="text-sm text-text-secondary">
             Comece a organizar seus estudos hoje.
@@ -96,7 +106,7 @@ export function Register() {
         </div>
 
         {generalError && (
-          <div className="mb-4 p-3 text-sm text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md">
+          <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md">
             {generalError}
           </div>
         )}
@@ -124,6 +134,7 @@ export function Register() {
 
           <div>
             <InputComponent
+              required
               type="password"
               labelText="Senha"
               placeholder="********"
@@ -146,6 +157,18 @@ export function Register() {
             Cadastre-se
           </ButtonComponent>
         </FormComponent>
+        
+        <div className="text-center pt-4 border-t border-border">
+          <p className="text-sm text-text-secondary">
+            Já tem uma conta?{" "}
+            <button
+              onClick={() => navigate("/login")}
+              className="text-primary hover:text-primary-hover font-semibold hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
+            >
+              Faça login
+            </button>
+          </p>
+        </div>
       </div>
     </main>
   );

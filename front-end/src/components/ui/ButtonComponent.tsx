@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { type ReactNode } from "react";
 import {
   Button,
@@ -80,6 +79,7 @@ export function ButtonComponent({
 
   return (
     <Button
+      type={props.type || "submit"}
       className={buttonClass}
       isDisabled={isLoading || isDisabled}
       {...props}
