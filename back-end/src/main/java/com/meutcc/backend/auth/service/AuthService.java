@@ -58,7 +58,7 @@ public class AuthService {
 
         Student student = Student.builder()
                 .user(savedUser)
-                .subjects(new ArrayList<>())
+                .courses(new ArrayList<>())
                 .build();
         studentRepository.save(student);
         return new ApiResponse("Usuário cadastrado com sucesso");

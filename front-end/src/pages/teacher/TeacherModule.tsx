@@ -117,6 +117,8 @@ export function TeacherModules() {
         return "O título deve conter no máximo 100 caracteres";
       if (moduleDescription.trim().length > 500)
         return "A descrição deve conter no máximo 500 caracteres";
+      if(moduleDescription.trim().length === 0) return "A descrição do módulo é obrigatória";
+      if(moduleDescription.trim().length < 10) return "A descrição deve conter no mínimo 10 caracteres";
       return null;
     };
 
@@ -184,7 +186,10 @@ export function TeacherModules() {
             Organize o conteúdo do seu curso em módulos
           </p>
         </div>
-        <ButtonComponent size="sm" onClick={() => navigate("/teacher/courses")}>
+        <ButtonComponent
+          size="sm"
+          onClick={() => navigate("/teacher/create-course")}
+        >
           Voltar para Cursos
         </ButtonComponent>
       </Header>
@@ -374,9 +379,16 @@ export function TeacherModules() {
                         <Button
                           className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
                           onClick={() => {
-                            navigate(`/teacher/modules/${module.id}/lessons`, {
-                              state: { module },
-                            });
+                            if (selectedCourse?.id && module.id) {
+                              navigate(
+                                `/teacher/courses/${selectedCourse.id}/modules/${module.id}/edit`,
+                                {
+                                  state: { module },
+                                },
+                              );
+                            }else{
+                              showNotification("error", "Dados incompletos para edição do módulo");
+                            }
                           }}
                         >
                           <Edit2 size={16} />

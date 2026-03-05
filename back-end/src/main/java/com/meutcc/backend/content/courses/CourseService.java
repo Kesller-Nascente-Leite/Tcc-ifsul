@@ -56,7 +56,7 @@ public class CourseService {
     public CourseResponse updateCourse(Long id, CourseDTO dto) {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseException("Nenhum curso encontrada."));
-        securityService.validateCourseOwner(course, teacher);
+        securityService.validateCourseOwner(id);
 
         CourseMapper.updateEntity(course, dto);
         courseRepository.save(course);
@@ -69,7 +69,7 @@ public class CourseService {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
         Course course = courseRepository.findById(id).orElseThrow(() ->
                 new CourseException("Nenhum curso encontrada."));
-        securityService.validateCourseOwner(course, teacher);
+        securityService.validateCourseOwner(id);
         courseRepository.delete(course);
     }
 

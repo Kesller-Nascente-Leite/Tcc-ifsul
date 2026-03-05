@@ -7,6 +7,8 @@ import { CreateCourse } from "../pages/teacher/CreateCourses";
 import { TeacherLayout } from "../components/layout/teacher/TeacherLayout";
 import { EditCourses } from "../pages/teacher/EditCourses";
 import { TeacherModules } from "../pages/teacher/TeacherModule";
+import { ManageCourseStudents } from "../pages/teacher/ManageCourseStudents";
+import { EditModule } from "../pages/teacher/EditModule";
 
 export const TeacherRoutes: RouteObject[] = [
   {
@@ -26,8 +28,20 @@ export const TeacherRoutes: RouteObject[] = [
         element: <CreateCourse />,
       },
       {
+        path: "courses/:id/edit",
+        element: <EditCourses />,
+      },
+      {
+        path: "courses/:courseId/students",
+        element: <ManageCourseStudents />,
+      },
+      {
         path: "modules",
         element: <TeacherModules />,
+      },
+      {
+        path: "/teacher/courses/:courseId/modules/:moduleId/edit",
+        element: <EditModule />,
       },
       {
         path: "subjects",
@@ -36,11 +50,7 @@ export const TeacherRoutes: RouteObject[] = [
       {
         path: "settings",
         element: <Settings />,
-      },
-      {
-        path: "courses/:id/edit",
-        element: <EditCourses />,
-      },
+      }
     ],
   },
 ];

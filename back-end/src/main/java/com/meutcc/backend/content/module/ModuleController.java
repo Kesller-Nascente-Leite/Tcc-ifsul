@@ -19,10 +19,22 @@ public class ModuleController {
         return moduleService.listByCourses(courseId);
     }
 
+    @GetMapping("/teacher/modules/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ModuleDTO getModuleById(@PathVariable Long id){
+        return moduleService.getModuleById(id);
+    }
+
     @PostMapping("/teacher/modules/create")
     @ResponseStatus(HttpStatus.CREATED)
     public ModuleDTO create(@RequestBody ModuleDTO moduleDTO) {
         return moduleService.create(moduleDTO);
+    }
+
+    @PutMapping("/teacher/modules/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ModuleDTO update(@PathVariable Long id, @RequestBody ModuleDTO moduleDTO) {
+        return moduleService.update(id,moduleDTO);
     }
 
     @DeleteMapping("/teacher/modules/{id}")
@@ -30,6 +42,5 @@ public class ModuleController {
     public void delete(@PathVariable Long id) {
         moduleService.delete(id);
     }
-
 
 }

@@ -10,6 +10,7 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
+  Users,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
@@ -134,7 +135,9 @@ export function CreateCourse() {
       message: (
         <div className="space-y-2">
           <p>Tem certeza que deseja excluir o curso:</p>
-          <p className="font-semibold text-text-primary">"{courses.find((c) => c.id === id)?.title}"?</p>
+          <p className="font-semibold text-text-primary">
+            "{courses.find((c) => c.id === id)?.title}"?
+          </p>
           <p className="text-xs">Esta ação não pode ser desfeita.</p>
         </div>
       ),
@@ -367,6 +370,18 @@ export function CreateCourse() {
                           <div className="flex items-center gap-2">
                             <Eye size={16} />
                             <span>Ver Matérias</span>
+                          </div>
+                        </ButtonComponent>
+
+                        <ButtonComponent
+                          size="sm"
+                          onClick={() =>
+                            navigate(`/teacher/courses/${course.id}/students`)
+                          }
+                        >
+                          <div className="flex items-center gap-2">
+                            <Users size={16} className="mr-1" />
+                            <span>Alunos</span>
                           </div>
                         </ButtonComponent>
 

@@ -2,13 +2,10 @@ package com.meutcc.backend.content.module;
 
 import com.meutcc.backend.common.exceptions.CourseException;
 import com.meutcc.backend.common.exceptions.ModuleException;
-import com.meutcc.backend.common.exceptions.TeacherException;
 import com.meutcc.backend.content.courses.Course;
-import com.meutcc.backend.content.courses.CourseMapper;
 import com.meutcc.backend.content.courses.CourseRepository;
 import com.meutcc.backend.security.AuthenticationService;
 import com.meutcc.backend.security.SecurityService;
-import com.meutcc.backend.teacher.Teacher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,13 +29,19 @@ public class ModuleService {
     }
 
     @Transactional
+    public ModuleDTO getModuleById(Long id) {
+        securityService.validateCourseOwner(id);
+        Module modules = moduleRepository.findById(id).orElseThrow(
+                () -> new ModuleException("Esse módulo não existe!")
+        );
+        return moduleMapper.toDTO(modules);
+    }
+
+    @Transactional
     public ModuleDTO create(ModuleDTO dto) {
-        Teacher teacher = authenticationService.getAuthenticatedTeacher();
+        securityService.validateCourseOwner(dto.courseId());
         Course course = courseRepository.findById(dto.courseId()).orElseThrow(()
-                -> new CourseException("Curso não encontrado"));
-        if(!course.getTeacher().getId().equals(teacher.getId())) {
-            throw new TeacherException("Você não tem permissão para criar esse módulo.");
-        }
+                -> new CourseException("Curso não encontrado."));
 
         Module module = moduleMapper.toEntity(dto);
         module.setCourse(course);
@@ -48,14 +51,30 @@ public class ModuleService {
         return moduleMapper.toDTO(savedModule);
     }
 
+    // está criando em vez de atualizar.
+    @Transactional
+    public ModuleDTO update(Long id, ModuleDTO dto) {
+        securityService.validateCourseOwner(id);
+        Module module = moduleRepository.findById(id).orElseThrow(
+                () -> new ModuleException("Curso não encontrado.")
+        );
+
+        Module updateModule = moduleMapper.toEntity(dto);
+        updateModule.setCourse(module.getCourse());
+
+        return moduleMapper.toDTO(moduleRepository.save(updateModule));
+
+    }
+
     @Transactional
     public void delete(Long id) {
-        Teacher teacher = authenticationService.getAuthenticatedTeacher();
-        Course course = courseRepository.findById(id).orElseThrow(() ->  new CourseException("Nenhum curso encontrada."));
-        securityService.validateCourseOwner(course, teacher);
+        authenticationService.getAuthenticatedTeacher();
+        courseRepository.findById(id).orElseThrow(() -> new CourseException("Nenhum curso encontrada."));
+        securityService.validateCourseOwner(id);
         Module module = moduleRepository.findById(id).orElseThrow(
                 () -> new ModuleException("Nenhum módulo encontrado.")
         );
         moduleRepository.delete(module);
     }
+
 }
