@@ -29,9 +29,6 @@ import { usePreferences } from "../context/PreferencesContext";
 import { InputComponent } from "../components/ui/InputComponent";
 import { PasswordInput } from "../components/ui/PasswordInput";
 
-/* ========================================
-   TOGGLE SWITCH COMPONENT
-   ======================================== */
 interface ToggleSwitchProps {
   checked: boolean;
   onChange: () => void;
@@ -67,9 +64,6 @@ const ToggleSwitch = ({ checked, onChange, label }: ToggleSwitchProps) => (
   </Switch>
 );
 
-/* ========================================
-   COLOR OPTION COMPONENT
-   ======================================== */
 interface ColorOptionProps {
   color: string;
   active?: boolean;
@@ -92,9 +86,6 @@ function ColorOption({ color, active = false, onClick }: ColorOptionProps) {
   );
 }
 
-/* ========================================
-   MAIN SETTINGS COMPONENT
-   ======================================== */
 export default function Settings() {
   const { isDark, toggleTheme, accentColor, setAccentColor } = useTheme();
   const {
@@ -137,6 +128,12 @@ export default function Settings() {
     setProfileData((prev) => ({ ...prev, [field]: value }));
     setHasChanges(true);
   };
+
+  const handleLogoult = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("access_token");
+    window.location.href = "/";
+  }
 
   const handleNotificationChange = (field: string, value: unknown) => {
     setNotificationData((prev) => ({ ...prev, [field]: value }));
@@ -275,7 +272,7 @@ export default function Settings() {
                   <Tab
                     key={item.id}
                     id={item.id}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-left group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary data-[selected]:text-white"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-left group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary data-selected:text-white"
                     style={{
                       color: "var(--color-text-secondary)",
                       backgroundColor: "transparent",
@@ -327,6 +324,7 @@ export default function Settings() {
                     (e.target as HTMLElement).style.backgroundColor =
                       "transparent";
                   }}
+                  onPress={handleLogoult}
                 >
                   <LogOut size={20} />
                   <span>Sair da conta</span>
@@ -536,15 +534,9 @@ export default function Settings() {
                       {[
                         {
                           key: "examAlerts",
-                          label: "Lembretes de Provas",
+                          label: "Lembretes de Atividades",
                           icon: Bell,
-                          desc: "Notificar 24h antes de datas importantes.",
-                        },
-                        {
-                          key: "newFollowers",
-                          label: "Novos Seguidores",
-                          icon: User,
-                          desc: "Quando alguém começar a seguir seu perfil.",
+                          desc: "Notificar 24h antes da atividade expirar.",
                         },
                         {
                           key: "securityAlerts",
@@ -918,9 +910,6 @@ export default function Settings() {
   );
 }
 
-/* ========================================
-   TAB PANEL CONTENT WRAPPER
-   ======================================== */
 interface TabPanelContentProps {
   title: string;
   description: string;
@@ -959,9 +948,6 @@ function TabPanelContent({
   );
 }
 
-/* ========================================
-   FOOTER ACTIONS COMPONENT
-   ======================================== */
 interface FooterActionsProps {
   hasChanges: boolean;
   isLoading: boolean;
