@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import { Plus, Edit2, Trash2, BookOpen, List, CheckCircle } from "lucide-react";
+import {
+  Plus,
+  Edit2,
+  Trash2,
+  BookOpen,
+  List,
+  CheckCircle,
+  PlayCircle,
+} from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
 import { NotificationComponent } from "../../components/ui/NotificationComponent";
@@ -117,8 +125,10 @@ export function TeacherModules() {
         return "O título deve conter no máximo 100 caracteres";
       if (moduleDescription.trim().length > 500)
         return "A descrição deve conter no máximo 500 caracteres";
-      if(moduleDescription.trim().length === 0) return "A descrição do módulo é obrigatória";
-      if(moduleDescription.trim().length < 10) return "A descrição deve conter no mínimo 10 caracteres";
+      if (moduleDescription.trim().length === 0)
+        return "A descrição do módulo é obrigatória";
+      if (moduleDescription.trim().length < 10)
+        return "A descrição deve conter no mínimo 10 caracteres";
       return null;
     };
 
@@ -186,10 +196,7 @@ export function TeacherModules() {
             Organize o conteúdo do seu curso em módulos
           </p>
         </div>
-        <ButtonComponent
-          size="sm"
-          onClick={() => navigate("/teacher/course")}
-        >
+        <ButtonComponent size="sm" onClick={() => navigate("/teacher/course")}>
           Voltar para Cursos
         </ButtonComponent>
       </Header>
@@ -386,15 +393,30 @@ export function TeacherModules() {
                                   state: { module },
                                 },
                               );
-                            }else{
-                              showNotification("error", "Dados incompletos para edição do módulo");
+                            } else {
+                              showNotification(
+                                "error",
+                                "Dados incompletos para edição do módulo",
+                              );
                             }
                           }}
                         >
                           <Edit2 size={16} />
                           Editar
                         </Button>
-
+                        <Button
+                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
+                          onClick={() => {
+                            if (selectedCourse?.id && module.id) {
+                              navigate(
+                                `/teacher/courses/${selectedCourse.id}/modules/${module.id}/lessons`,
+                              );
+                            }
+                          }}
+                        >
+                          <PlayCircle size={16} />
+                          Gerenciar Aulas
+                        </Button>
                         <Button
                           className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                           onClick={() => handleDeleteModule(module)}

@@ -9,6 +9,7 @@ import { EditCourses } from "../pages/teacher/EditCourses";
 import { TeacherModules } from "../pages/teacher/TeacherModule";
 import { ManageCourseStudents } from "../pages/teacher/ManageCourseStudents";
 import { EditModule } from "../pages/teacher/EditModule";
+import { TeacherLessons } from "../pages/teacher/TeacherLesson";
 
 export const TeacherRoutes: RouteObject[] = [
   {
@@ -50,7 +51,11 @@ export const TeacherRoutes: RouteObject[] = [
       {
         path: "settings",
         element: <Settings />,
-      }
+      },
+      {
+        path: "/teacher/courses/:courseId/modules/:moduleId/lessons",
+        element: <TeacherLessons />,
+      },
     ],
   },
 ];

@@ -44,6 +44,7 @@ export function ManageCourseStudents() {
     if (courseId) {
       loadCourseData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [courseId]);
 
   const loadCourseData = async () => {
