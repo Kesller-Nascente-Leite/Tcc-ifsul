@@ -2,6 +2,7 @@ package com.meutcc.backend.content.module;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
@@ -22,6 +23,14 @@ public interface ModuleMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     Module toEntity(ModuleDTO dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "course", ignore = true)
+    @Mapping(target = "subject", ignore = true)
+    @Mapping(target = "lessons", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    void updateEntityFromDTO(ModuleDTO dto, @MappingTarget Module module);
 
     // Converte lista de Entity -> lista de ModuleDTO
     List<ModuleDTO> toDTOs(List<Module> modules);

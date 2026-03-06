@@ -41,10 +41,10 @@ export function NotificationComponent({
       icon: <XCircle size={20} className="text-red-600 dark:text-red-400" />,
     },
     info: {
-      bg: "bg-sky-50 dark:bg-sky-900/40",
-      border: "border-sky-200 dark:border-sky-800",
-      text: "text-sky-900 dark:text-sky-200",
-      icon: <Info size={20} className="text-sky-600 dark:text-sky-400" />,
+      bg: "bg-blue-50 dark:bg-blue-900/40",
+      border: "border-blue-200 dark:border-sky-800",
+      text: "text-blue-900 dark:text-blue-200",
+      icon: <Info size={20} className="text-blue-600 dark:text-blue-400" />,
     },
   };
   const styles = NOTIFICATION_VARIANTS[type] || NOTIFICATION_VARIANTS.info;

@@ -29,7 +29,9 @@ import { usePreferences } from "../context/PreferencesContext";
 import { InputComponent } from "../components/ui/InputComponent";
 import { PasswordInput } from "../components/ui/PasswordInput";
 
-// Toggle Switch
+/* ========================================
+   TOGGLE SWITCH COMPONENT
+   ======================================== */
 interface ToggleSwitchProps {
   checked: boolean;
   onChange: () => void;
@@ -43,21 +45,31 @@ const ToggleSwitch = ({ checked, onChange, label }: ToggleSwitchProps) => (
     className="group inline-flex items-center gap-2"
   >
     <div
-      className={`w-12 h-7 rounded-full transition-colors relative focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 dark:focus-visible:ring-offset-slate-800 ${
-        checked ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-600"
-      }`}
+      className="w-12 h-7 rounded-full transition-all relative focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+      style={{
+        backgroundColor: checked
+          ? "var(--accent-color)"
+          : "var(--color-border-hover)",
+      }}
     >
       <div
-        className={`w-5 h-5 bg-white rounded-full shadow-md absolute top-1 transition-transform ${
+        className={`w-5 h-5 rounded-full shadow-md absolute top-1 transition-transform ${
           checked ? "translate-x-6" : "translate-x-1"
         }`}
+        style={{ backgroundColor: "white" }}
       />
     </div>
-    {label && <span className="text-sm">{label}</span>}
+    {label && (
+      <span className="text-sm" style={{ color: "var(--color-text-primary)" }}>
+        {label}
+      </span>
+    )}
   </Switch>
 );
 
-// Color Option
+/* ========================================
+   COLOR OPTION COMPONENT
+   ======================================== */
 interface ColorOptionProps {
   color: string;
   active?: boolean;
@@ -68,18 +80,21 @@ function ColorOption({ color, active = false, onClick }: ColorOptionProps) {
   return (
     <Button
       onPress={onClick}
-      className={`w-10 h-10 rounded-full cursor-pointer transition-all hover:scale-110 pressed:scale-95 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500 ${
-        active
-          ? "ring-2 ring-offset-2 ring-offset-white dark:ring-offset-slate-800 ring-blue-500 shadow-lg"
-          : "hover:ring-2 ring-slate-200 dark:ring-slate-700"
-      }`}
-      style={{ backgroundColor: color }}
+      className="w-10 h-10 rounded-full cursor-pointer transition-all hover:scale-110 pressed:scale-95 flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+      style={{
+        backgroundColor: color,
+        border: active ? `2px solid var(--accent-color)` : "none",
+        boxShadow: active ? "var(--shadow-lg)" : "var(--shadow-sm)",
+      }}
     >
       {active && <Check size={16} className="text-white drop-shadow-md" />}
     </Button>
   );
 }
 
+/* ========================================
+   MAIN SETTINGS COMPONENT
+   ======================================== */
 export default function Settings() {
   const { isDark, toggleTheme, accentColor, setAccentColor } = useTheme();
   const {
@@ -115,7 +130,7 @@ export default function Settings() {
         );
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleProfileChange = (field: string, value: unknown) => {
@@ -201,14 +216,25 @@ export default function Settings() {
 
   return (
     <div
-      className={`min-h-screen p-4 md:p-8 flex justify-center transition-colors duration-300 ${
-        isDark ? "bg-slate-900 text-slate-100" : "bg-slate-50 text-slate-800"
-      }`}
+      className="min-h-screen p-4 md:p-8 flex justify-center transition-colors duration-300"
+      style={{
+        backgroundColor: "var(--color-bg-main)",
+        color: "var(--color-text-primary)",
+      }}
     >
       {/* Toast Notification */}
       {showToast && (
-        <div className="fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 z-50">
-          <div className="bg-white/20 p-1 rounded-full">
+        <div
+          className="fixed top-4 right-4 text-white px-6 py-3 rounded-xl flex items-center gap-3 z-50"
+          style={{
+            backgroundColor: "var(--color-success)",
+            boxShadow: "var(--shadow-xl)",
+          }}
+        >
+          <div
+            className="p-1 rounded-full"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.2)" }}
+          >
             <Check size={16} />
           </div>
           <div>
@@ -217,7 +243,7 @@ export default function Settings() {
           </div>
           <Button
             onPress={() => setShowToast(false)}
-            className="ml-2 hover:bg-white/20 rounded p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
+            className="ml-2 rounded p-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50 hover:bg-white/20 transition-colors"
           >
             <X size={14} />
           </Button>
@@ -231,12 +257,14 @@ export default function Settings() {
             <aside className="space-y-6">
               <div className="px-2">
                 <h1
-                  className={`text-2xl font-bold uppercase tracking-tight ${isDark ? "text-white" : "text-slate-800"}`}
+                  className="text-2xl font-bold uppercase tracking-tight"
+                  style={{ color: "var(--color-text-primary)" }}
                 >
                   Ajustes
                 </h1>
                 <p
-                  className={`text-xs font-medium mt-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                  className="text-xs font-medium mt-1"
+                  style={{ color: "var(--color-text-secondary)" }}
                 >
                   GERENCIE SUA CONTA
                 </p>
@@ -247,28 +275,58 @@ export default function Settings() {
                   <Tab
                     key={item.id}
                     id={item.id}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-left group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 data-selected:bg-blue-600 data-selected:text-white data-selected:shadow-lg data-selected:shadow-blue-600/20 text-slate-400 dark:text-slate-400 hover:bg-slate-800 dark:hover:bg-slate-800"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-left group cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary data-[selected]:text-white"
+                    style={{
+                      color: "var(--color-text-secondary)",
+                      backgroundColor: "transparent",
+                    }}
+                    data-selected-style={{
+                      backgroundColor: "var(--accent-color)",
+                      boxShadow: "var(--shadow-md)",
+                    }}
                   >
-                    <item.icon
-                      size={20}
-                      className="group-data-selected:text-text-primary"
-                    />
-                    <div>
-                      <span className="font-semibold block text-sm">
-                        {item.label}
-                      </span>
-                    </div>
+                    {({ isSelected }) => (
+                      <div
+                        className="w-full flex items-center gap-3"
+                        style={{
+                          backgroundColor: isSelected
+                            ? "var(--accent-color)"
+                            : "transparent",
+                          color: isSelected
+                            ? "white"
+                            : "var(--color-text-secondary)",
+                          padding: "inherit",
+                          borderRadius: "inherit",
+                        }}
+                      >
+                        <item.icon size={20} />
+                        <span className="font-semibold text-sm">
+                          {item.label}
+                        </span>
+                      </div>
+                    )}
                   </Tab>
                 ))}
               </TabList>
 
               <div
-                className={`pt-8 border-t ${isDark ? "border-slate-800" : "border-slate-200"}`}
+                className="pt-8 border-t"
+                style={{ borderColor: "var(--color-border)" }}
               >
                 <Button
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm text-red-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 ${
-                    isDark ? "hover:bg-red-900/10" : "hover:bg-red-50"
-                  }`}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm focus:outline-none focus-visible:ring-2"
+                  style={{
+                    color: "var(--color-error)",
+                    backgroundColor: "transparent",
+                  }}
+                  onHoverStart={(e) => {
+                    (e.target as HTMLElement).style.backgroundColor =
+                      "var(--color-error-light)";
+                  }}
+                  onHoverEnd={(e) => {
+                    (e.target as HTMLElement).style.backgroundColor =
+                      "transparent";
+                  }}
                 >
                   <LogOut size={20} />
                   <span>Sair da conta</span>
@@ -276,12 +334,14 @@ export default function Settings() {
               </div>
             </aside>
 
+            {/* Main Content */}
             <div
-              className={`border rounded-3xl shadow-sm overflow-hidden transition-colors duration-300 ${
-                isDark
-                  ? "bg-slate-800 border-slate-700"
-                  : "bg-white border-slate-200"
-              }`}
+              className="border rounded-3xl overflow-hidden transition-colors duration-300"
+              style={{
+                backgroundColor: "var(--color-surface)",
+                borderColor: "var(--color-border)",
+                boxShadow: "var(--shadow-sm)",
+              }}
             >
               {/* Profile TabPanel */}
               <TabPanel id="profile" className="flex flex-col h-full">
@@ -289,14 +349,21 @@ export default function Settings() {
                   title="Perfil"
                   description="Gerencie suas informações pessoais"
                   icon={User}
-                  isDark={isDark}
                 >
                   <section className="space-y-8 max-w-2xl">
+                    {/* Avatar Section */}
                     <div
-                      className={`flex flex-col sm:flex-row items-center gap-8 pb-8 border-b ${isDark ? "border-slate-700" : "border-slate-100"}`}
+                      className="flex flex-col sm:flex-row items-center gap-8 pb-8 border-b"
+                      style={{ borderColor: "var(--color-border)" }}
                     >
                       <div className="relative group cursor-pointer">
-                        <div className="w-28 h-28 rounded-3xl bg-linear-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white text-4xl font-bold shadow-xl ring-4 ring-white dark:ring-slate-800 overflow-hidden">
+                        <div
+                          className="w-28 h-28 rounded-3xl flex items-center justify-center text-white text-4xl font-bold overflow-hidden"
+                          style={{
+                            background: `linear-gradient(135deg, var(--accent-color), var(--color-primary-hover))`,
+                            boxShadow: "var(--shadow-lg)",
+                          }}
+                        >
                           {profileData.avatar ? (
                             <img
                               src={profileData.avatar}
@@ -314,36 +381,46 @@ export default function Settings() {
 
                       <div className="space-y-3 text-center sm:text-left flex-1">
                         <h3
-                          className={`font-bold text-lg ${isDark ? "text-white" : "text-slate-800"}`}
+                          className="font-bold text-lg"
+                          style={{ color: "var(--color-text-primary)" }}
                         >
                           Foto de Perfil
                         </h3>
                         <p
-                          className={`text-xs max-w-xs mx-auto sm:mx-0 ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                          className="text-xs max-w-xs mx-auto sm:mx-0"
+                          style={{ color: "var(--color-text-secondary)" }}
                         >
                           Recomendamos uma imagem de pelo menos 400x400px.
                         </p>
                         <div className="flex gap-2 justify-center sm:justify-start pt-2">
                           <Button
-                            className={`text-xs font-bold px-4 py-2 rounded-lg hover:opacity-80 transition-all uppercase tracking-wider ${
-                              isDark
-                                ? "bg-slate-700 text-slate-200"
-                                : "bg-slate-100 text-slate-600"
-                            }`}
+                            className="text-xs font-bold px-4 py-2 rounded-lg hover:opacity-80 transition-all uppercase tracking-wider"
+                            style={{
+                              backgroundColor: "var(--color-surface-hover)",
+                              color: "var(--color-text-secondary)",
+                            }}
                           >
                             Remover
                           </Button>
-                          <Button className="text-xs font-bold px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all uppercase tracking-wider shadow-lg shadow-blue-500/20">
+                          <Button
+                            className="text-xs font-bold px-4 py-2 rounded-lg hover:opacity-90 transition-all uppercase tracking-wider text-white"
+                            style={{
+                              backgroundColor: "var(--accent-color)",
+                              boxShadow: "var(--shadow-md)",
+                            }}
+                          >
                             Alterar
                           </Button>
                         </div>
                       </div>
                     </div>
 
+                    {/* Form Fields */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div className="space-y-2">
                         <label
-                          className={`text-sm font-bold ml-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                          className="text-sm font-bold ml-1"
+                          style={{ color: "var(--color-text-secondary)" }}
                         >
                           Nome Completo
                         </label>
@@ -353,16 +430,18 @@ export default function Settings() {
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             handleProfileChange("fullName", e.target.value)
                           }
-                          className={`rounded-xl border outline-none transition-all px-4 py-3 w-full ${
-                            isDark
-                              ? "bg-slate-900 border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-100"
-                              : "bg-slate-50 border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-800"
-                          }`}
+                          className="rounded-xl border outline-none transition-all px-4 py-3 w-full focus:ring-2"
+                          style={{
+                            backgroundColor: "var(--color-surface-secondary)",
+                            borderColor: "var(--color-border)",
+                            color: "var(--color-text-primary)",
+                          }}
                         />
                       </div>
                       <div className="space-y-2">
                         <label
-                          className={`text-sm font-bold ml-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                          className="text-sm font-bold ml-1"
+                          style={{ color: "var(--color-text-secondary)" }}
                         >
                           E-mail Acadêmico
                         </label>
@@ -372,11 +451,12 @@ export default function Settings() {
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             handleProfileChange("email", e.target.value)
                           }
-                          className={`rounded-xl border outline-none transition-all px-4 py-3 w-full ${
-                            isDark
-                              ? "bg-slate-900 border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-100"
-                              : "bg-slate-50 border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-800"
-                          }`}
+                          className="rounded-xl border outline-none transition-all px-4 py-3 w-full focus:ring-2"
+                          style={{
+                            backgroundColor: "var(--color-surface-secondary)",
+                            borderColor: "var(--color-border)",
+                            color: "var(--color-text-primary)",
+                          }}
                         />
                       </div>
                     </div>
@@ -386,7 +466,6 @@ export default function Settings() {
                 <FooterActions
                   hasChanges={hasChanges}
                   isLoading={isLoading}
-                  isDark={isDark}
                   onSave={handleSave}
                   onDiscard={handleDiscard}
                 />
@@ -398,33 +477,35 @@ export default function Settings() {
                   title="Notificações"
                   description="Escolha como quer ser avisado"
                   icon={Bell}
-                  isDark={isDark}
                 >
                   <section className="space-y-6 max-w-2xl">
+                    {/* Email Digest Card */}
                     <div
-                      className={`p-4 rounded-xl flex gap-3 border ${
-                        isDark
-                          ? "bg-blue-900/20 border-blue-800/30"
-                          : "bg-blue-50 border-blue-100"
-                      }`}
+                      className="p-4 rounded-xl flex gap-3 border"
+                      style={{
+                        backgroundColor: "var(--color-info-light)",
+                        borderColor: "rgba(var(--accent-rgb), 0.3)",
+                      }}
                     >
                       <div
-                        className={`p-2 rounded-lg h-fit ${
-                          isDark
-                            ? "bg-blue-800 text-blue-300"
-                            : "bg-blue-100 text-blue-600"
-                        }`}
+                        className="p-2 rounded-lg h-fit"
+                        style={{
+                          backgroundColor: "var(--accent-color)",
+                          color: "white",
+                        }}
                       >
                         <Mail size={20} />
                       </div>
                       <div className="flex-1">
                         <h4
-                          className={`font-bold text-sm ${isDark ? "text-blue-100" : "text-blue-900"}`}
+                          className="font-bold text-sm"
+                          style={{ color: "var(--color-text-primary)" }}
                         >
                           Resumo Semanal
                         </h4>
                         <p
-                          className={`text-xs mt-1 ${isDark ? "text-blue-300" : "text-blue-700"}`}
+                          className="text-xs mt-1"
+                          style={{ color: "var(--color-text-secondary)" }}
                         >
                           Receba um e-mail toda segunda-feira com seu progresso
                           e tarefas pendentes.
@@ -443,9 +524,11 @@ export default function Settings() {
                       </div>
                     </div>
 
+                    {/* Platform Alerts */}
                     <div className="space-y-4">
                       <h3
-                        className={`text-sm font-bold uppercase tracking-wider ml-1 ${isDark ? "text-slate-500" : "text-slate-400"}`}
+                        className="text-sm font-bold uppercase tracking-wider ml-1"
+                        style={{ color: "var(--color-text-tertiary)" }}
                       >
                         Alertas da Plataforma
                       </h3>
@@ -472,26 +555,40 @@ export default function Settings() {
                       ].map((item) => (
                         <div
                           key={item.key}
-                          className={`flex items-center justify-between p-4 border rounded-xl transition-colors ${
-                            isDark
-                              ? "border-slate-700 hover:bg-slate-700/50"
-                              : "border-slate-100 hover:bg-slate-50"
-                          }`}
+                          className="flex items-center justify-between p-4 border rounded-xl transition-all hover:shadow-sm"
+                          style={{
+                            borderColor: "var(--color-border)",
+                            backgroundColor: "transparent",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor =
+                              "var(--color-surface-hover)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor =
+                              "transparent";
+                          }}
                         >
                           <div className="flex items-center gap-3">
                             <div
-                              className={`p-2 rounded-lg ${isDark ? "bg-slate-800 text-slate-400" : "bg-slate-100 text-slate-400"}`}
+                              className="p-2 rounded-lg"
+                              style={{
+                                backgroundColor: "var(--color-surface-hover)",
+                                color: "var(--color-text-tertiary)",
+                              }}
                             >
                               <item.icon size={18} />
                             </div>
                             <div>
                               <p
-                                className={`font-bold text-sm ${isDark ? "text-slate-200" : "text-slate-700"}`}
+                                className="font-bold text-sm"
+                                style={{ color: "var(--color-text-primary)" }}
                               >
                                 {item.label}
                               </p>
                               <p
-                                className={`text-xs ${isDark ? "text-slate-500" : "text-slate-500"}`}
+                                className="text-xs"
+                                style={{ color: "var(--color-text-secondary)" }}
                               >
                                 {item.desc}
                               </p>
@@ -527,7 +624,6 @@ export default function Settings() {
                 <FooterActions
                   hasChanges={hasChanges}
                   isLoading={isLoading}
-                  isDark={isDark}
                   onSave={handleSave}
                   onDiscard={handleDiscard}
                 />
@@ -539,16 +635,24 @@ export default function Settings() {
                   title="Segurança"
                   description="Proteja sua conta e dados"
                   icon={Lock}
-                  isDark={isDark}
                 >
                   <section className="space-y-8 max-w-2xl">
+                    {/* Change Password */}
                     <div
-                      className={`p-6 rounded-2xl border ${isDark ? "bg-slate-900 border-slate-700" : "bg-slate-50 border-slate-200"}`}
+                      className="p-6 rounded-2xl border"
+                      style={{
+                        backgroundColor: "var(--color-surface-secondary)",
+                        borderColor: "var(--color-border)",
+                      }}
                     >
                       <h3
-                        className={`font-bold mb-4 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-800"}`}
+                        className="font-bold mb-4 flex items-center gap-2"
+                        style={{ color: "var(--color-text-primary)" }}
                       >
-                        <Lock size={18} className="text-blue-600" />
+                        <Lock
+                          size={18}
+                          style={{ color: "var(--accent-color)" }}
+                        />
                         Alterar Senha
                       </h3>
 
@@ -595,23 +699,31 @@ export default function Settings() {
                       </div>
                     </div>
 
+                    {/* 2FA */}
                     <div
-                      className={`flex items-center justify-between p-6 border rounded-2xl ${isDark ? "border-slate-700" : "border-slate-200"}`}
+                      className="flex items-center justify-between p-6 border rounded-2xl"
+                      style={{ borderColor: "var(--color-border)" }}
                     >
                       <div className="flex gap-4">
                         <div
-                          className={`p-3 rounded-xl h-fit ${isDark ? "bg-green-900/30 text-green-400" : "bg-green-100 text-green-600"}`}
+                          className="p-3 rounded-xl h-fit"
+                          style={{
+                            backgroundColor: "var(--color-success-light)",
+                            color: "var(--color-success)",
+                          }}
                         >
                           <Smartphone size={24} />
                         </div>
                         <div>
                           <h4
-                            className={`font-bold ${isDark ? "text-white" : "text-slate-800"}`}
+                            className="font-bold"
+                            style={{ color: "var(--color-text-primary)" }}
                           >
                             Autenticação de Dois Fatores (2FA)
                           </h4>
                           <p
-                            className={`text-sm mt-1 max-w-md ${isDark ? "text-slate-400" : "text-slate-500"}`}
+                            className="text-sm mt-1 max-w-md"
+                            style={{ color: "var(--color-text-secondary)" }}
                           >
                             Adicione uma camada extra de segurança à sua conta
                             exigindo um código do seu celular.
@@ -619,11 +731,11 @@ export default function Settings() {
                         </div>
                       </div>
                       <Button
-                        className={`px-4 py-2 border-2 font-bold rounded-xl text-sm transition-all ${
-                          isDark
-                            ? "border-slate-700 text-slate-300 hover:border-blue-500 hover:text-blue-400"
-                            : "border-slate-200 text-slate-600 hover:border-blue-500 hover:text-blue-600"
-                        }`}
+                        className="px-4 py-2 border-2 font-bold rounded-xl text-sm transition-all hover:opacity-80"
+                        style={{
+                          borderColor: "var(--color-border-hover)",
+                          color: "var(--accent-color)",
+                        }}
                       >
                         Configurar
                       </Button>
@@ -634,7 +746,6 @@ export default function Settings() {
                 <FooterActions
                   hasChanges={hasChanges}
                   isLoading={isLoading}
-                  isDark={isDark}
                   onSave={handleSave}
                   onDiscard={handleDiscard}
                 />
@@ -646,61 +757,116 @@ export default function Settings() {
                   title="Aparência"
                   description="Personalize a interface"
                   icon={Palette}
-                  isDark={isDark}
                 >
                   <section className="space-y-8 max-w-2xl">
+                    {/* Theme Mode */}
                     <div>
                       <h3
-                        className={`font-bold mb-4 ${isDark ? "text-white" : "text-slate-800"}`}
+                        className="font-bold mb-4"
+                        style={{ color: "var(--color-text-primary)" }}
                       >
                         Modo de Tema
                       </h3>
                       <div className="grid grid-cols-2 gap-4">
+                        {/* Dark Mode */}
                         <Button
                           onPress={() => !isDark && toggleTheme()}
-                          className={`p-4 rounded-xl border-2 flex flex-col items-center gap-3 transition-all relative ${
-                            isDark
-                              ? "border-blue-600 bg-blue-50/10"
-                              : "border-slate-200 hover:border-blue-300"
-                          }`}
+                          className="p-4 rounded-xl border-2 flex flex-col items-center gap-3 transition-all relative hover:scale-105"
+                          style={{
+                            borderColor: isDark
+                              ? "var(--accent-color)"
+                              : "var(--color-border)",
+                            backgroundColor: isDark
+                              ? "rgba(var(--accent-rgb), 0.1)"
+                              : "transparent",
+                          }}
                         >
-                          <div className="w-full h-24 bg-slate-900 rounded-lg relative overflow-hidden shadow-inner">
-                            <div className="absolute top-2 left-2 w-16 h-2 bg-slate-700 rounded-full"></div>
-                            <div className="absolute top-6 left-2 w-10 h-2 bg-slate-700 rounded-full"></div>
-                            <div className="absolute bottom-0 right-0 w-20 h-20 bg-blue-600/20 rounded-tl-full"></div>
+                          <div
+                            className="w-full h-24 rounded-lg relative overflow-hidden"
+                            style={{
+                              backgroundColor: "#18181b",
+                              boxShadow: "var(--shadow-sm)",
+                            }}
+                          >
+                            <div
+                              className="absolute top-2 left-2 w-16 h-2 rounded-full"
+                              style={{ backgroundColor: "#3f3f46" }}
+                            />
+                            <div
+                              className="absolute top-6 left-2 w-10 h-2 rounded-full"
+                              style={{ backgroundColor: "#3f3f46" }}
+                            />
+                            <div
+                              className="absolute bottom-0 right-0 w-20 h-20 rounded-tl-full"
+                              style={{
+                                backgroundColor: "rgba(var(--accent-rgb), 0.2)",
+                              }}
+                            />
                           </div>
                           <div
-                            className={`flex items-center gap-2 font-bold ${isDark ? "text-slate-300" : "text-slate-700"}`}
+                            className="flex items-center gap-2 font-bold"
+                            style={{ color: "var(--color-text-primary)" }}
                           >
                             <Moon size={18} /> Modo Escuro
                           </div>
                           {isDark && (
-                            <div className="absolute top-3 right-3 text-blue-600">
+                            <div
+                              className="absolute top-3 right-3"
+                              style={{ color: "var(--accent-color)" }}
+                            >
                               <Check size={20} />
                             </div>
                           )}
                         </Button>
 
+                        {/* Light Mode */}
                         <Button
                           onPress={() => isDark && toggleTheme()}
-                          className={`p-4 rounded-xl border-2 flex flex-col items-center gap-3 transition-all relative ${
-                            !isDark
-                              ? "border-blue-600 bg-blue-50"
-                              : "border-slate-200 hover:border-blue-300"
-                          }`}
+                          className="p-4 rounded-xl border-2 flex flex-col items-center gap-3 transition-all relative hover:scale-105"
+                          style={{
+                            borderColor: !isDark
+                              ? "var(--accent-color)"
+                              : "var(--color-border)",
+                            backgroundColor: !isDark
+                              ? "rgba(var(--accent-rgb), 0.1)"
+                              : "transparent",
+                          }}
                         >
-                          <div className="w-full h-24 bg-white border border-slate-200 rounded-lg relative overflow-hidden shadow-inner">
-                            <div className="absolute top-2 left-2 w-16 h-2 bg-slate-200 rounded-full"></div>
-                            <div className="absolute top-6 left-2 w-10 h-2 bg-slate-200 rounded-full"></div>
-                            <div className="absolute bottom-0 right-0 w-20 h-20 bg-blue-100 rounded-tl-full"></div>
+                          <div
+                            className="w-full h-24 rounded-lg relative overflow-hidden"
+                            style={{
+                              backgroundColor: "white",
+                              border: "1px solid var(--color-border)",
+                              boxShadow: "var(--shadow-sm)",
+                            }}
+                          >
+                            <div
+                              className="absolute top-2 left-2 w-16 h-2 rounded-full"
+                              style={{ backgroundColor: "#e4e4e7" }}
+                            />
+                            <div
+                              className="absolute top-6 left-2 w-10 h-2 rounded-full"
+                              style={{ backgroundColor: "#e4e4e7" }}
+                            />
+                            <div
+                              className="absolute bottom-0 right-0 w-20 h-20 rounded-tl-full"
+                              style={{
+                                backgroundColor:
+                                  "rgba(var(--accent-rgb), 0.15)",
+                              }}
+                            />
                           </div>
                           <div
-                            className={`flex items-center gap-2 font-bold ${isDark ? "text-slate-300" : "text-slate-700"}`}
+                            className="flex items-center gap-2 font-bold"
+                            style={{ color: "var(--color-text-primary)" }}
                           >
                             <Sun size={18} /> Modo Claro
                           </div>
                           {!isDark && (
-                            <div className="absolute top-3 right-3 text-blue-600">
+                            <div
+                              className="absolute top-3 right-3"
+                              style={{ color: "var(--accent-color)" }}
+                            >
                               <Check size={20} />
                             </div>
                           )}
@@ -708,19 +874,21 @@ export default function Settings() {
                       </div>
                     </div>
 
+                    {/* Accent Colors */}
                     <div className="space-y-4">
                       <h3
-                        className={`font-bold ${isDark ? "text-white" : "text-slate-800"}`}
+                        className="font-bold"
+                        style={{ color: "var(--color-text-primary)" }}
                       >
                         Cores de Destaque
                       </h3>
                       <div className="flex flex-wrap gap-4">
                         {[
-                          "#2563eb",
-                          "#059669",
-                          "#7c3aed",
-                          "#db2777",
-                          "#ea580c",
+                          "#3b82f6",
+                          "#10b981",
+                          "#8b5cf6",
+                          "#ec4899",
+                          "#f59e0b",
                         ].map((color) => (
                           <ColorOption
                             key={color}
@@ -738,7 +906,6 @@ export default function Settings() {
                 <FooterActions
                   hasChanges={hasChanges}
                   isLoading={isLoading}
-                  isDark={isDark}
                   onSave={handleSave}
                   onDiscard={handleDiscard}
                 />
@@ -751,12 +918,13 @@ export default function Settings() {
   );
 }
 
-// TabPanel Content Wrapper
+/* ========================================
+   TAB PANEL CONTENT WRAPPER
+   ======================================== */
 interface TabPanelContentProps {
   title: string;
   description: string;
   icon: React.ElementType;
-  isDark: boolean;
   children: React.ReactNode;
 }
 
@@ -764,22 +932,24 @@ function TabPanelContent({
   title,
   description,
   icon: Icon,
-  isDark,
   children,
 }: TabPanelContentProps) {
   return (
     <>
       <div
-        className={`p-6 md:p-8 border-b ${isDark ? "border-slate-700" : "border-slate-100"}`}
+        className="p-6 md:p-8 border-b"
+        style={{ borderColor: "var(--color-border)" }}
       >
         <h2
-          className={`text-2xl font-bold flex items-center gap-3 ${isDark ? "text-white" : "text-slate-800"}`}
+          className="text-2xl font-bold flex items-center gap-3"
+          style={{ color: "var(--color-text-primary)" }}
         >
-          <Icon className="text-blue-600" size={28} />
+          <Icon style={{ color: "var(--accent-color)" }} size={28} />
           {title}
         </h2>
         <p
-          className={`mt-1 text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`}
+          className="mt-1 text-sm"
+          style={{ color: "var(--color-text-secondary)" }}
         >
           {description}
         </p>
@@ -789,11 +959,12 @@ function TabPanelContent({
   );
 }
 
-// Footer Actions Component
+/* ========================================
+   FOOTER ACTIONS COMPONENT
+   ======================================== */
 interface FooterActionsProps {
   hasChanges: boolean;
   isLoading: boolean;
-  isDark: boolean;
   onSave: () => void;
   onDiscard: () => void;
 }
@@ -801,22 +972,23 @@ interface FooterActionsProps {
 function FooterActions({
   hasChanges,
   isLoading,
-  isDark,
   onSave,
   onDiscard,
 }: FooterActionsProps) {
   return (
     <div
-      className={`p-6 border-t flex flex-col sm:flex-row justify-between items-center gap-4 transition-all ${
-        isDark
-          ? "bg-slate-900/50 border-slate-700"
-          : "bg-slate-50 border-slate-200"
-      }`}
+      className="p-6 border-t flex flex-col sm:flex-row justify-between items-center gap-4 transition-all"
+      style={{
+        backgroundColor: "var(--color-surface-secondary)",
+        borderColor: "var(--color-border)",
+      }}
     >
       <p
-        className={`text-sm font-medium italic transition-opacity ${
-          hasChanges ? "opacity-100 text-amber-600" : "opacity-0"
-        }`}
+        className="text-sm font-medium italic transition-opacity"
+        style={{
+          opacity: hasChanges ? 1 : 0,
+          color: "var(--color-warning)",
+        }}
       >
         Você tem alterações não salvas.
       </p>
@@ -824,22 +996,23 @@ function FooterActions({
         <Button
           onPress={onDiscard}
           isDisabled={!hasChanges || isLoading}
-          className={`flex-1 sm:flex-none px-6 py-2.5 font-bold transition-all rounded-lg disabled:opacity-50 disabled:cursor-not-allowed ${
-            isDark
-              ? "text-slate-400 hover:text-white"
-              : "text-slate-500 hover:text-slate-800"
-          }`}
+          className="flex-1 sm:flex-none px-6 py-2.5 font-bold transition-all rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-80"
+          style={{
+            color: "var(--color-text-secondary)",
+          }}
         >
           Descartar
         </Button>
         <Button
           onPress={onSave}
           isDisabled={!hasChanges || isLoading}
-          className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl shadow-lg transition-all font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed ${
-            hasChanges
-              ? "bg-blue-600 hover:bg-blue-700 hover:scale-105 shadow-blue-500/30"
-              : "bg-slate-300 dark:bg-slate-700 text-slate-500"
-          }`}
+          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl transition-all font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105"
+          style={{
+            backgroundColor: hasChanges
+              ? "var(--accent-color)"
+              : "var(--color-border-hover)",
+            boxShadow: hasChanges ? "var(--shadow-lg)" : "none",
+          }}
         >
           {isLoading ? (
             <Loader2 className="animate-spin" size={18} />

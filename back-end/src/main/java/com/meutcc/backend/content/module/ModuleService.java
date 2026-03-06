@@ -51,7 +51,6 @@ public class ModuleService {
         return moduleMapper.toDTO(savedModule);
     }
 
-    // está criando em vez de atualizar.
     @Transactional
     public ModuleDTO update(Long id, ModuleDTO dto) {
         securityService.validateCourseOwner(id);
@@ -59,10 +58,10 @@ public class ModuleService {
                 () -> new ModuleException("Curso não encontrado.")
         );
 
-        Module updateModule = moduleMapper.toEntity(dto);
-        updateModule.setCourse(module.getCourse());
+        moduleMapper.updateEntityFromDTO(dto, module);
+        Module updateModule = moduleRepository.save(module);
 
-        return moduleMapper.toDTO(moduleRepository.save(updateModule));
+        return moduleMapper.toDTO(updateModule);
 
     }
 
