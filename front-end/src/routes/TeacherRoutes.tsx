@@ -3,7 +3,7 @@ import { Navigate } from "react-router";
 import Settings from "../pages/Settings";
 import { TeacherDashboard } from "../pages/teacher/TeacherDashboard";
 import { TeacherSubjects } from "../pages/teacher/TeacherSubjects";
-import { CreateCourse } from "../pages/teacher/CreateCourses";
+import { TeacherCourse } from "../pages/teacher/TeacherCourses";
 import { TeacherLayout } from "../components/layout/teacher/TeacherLayout";
 import { EditCourses } from "../pages/teacher/EditCourses";
 import { TeacherModules } from "../pages/teacher/TeacherModule";
@@ -24,8 +24,8 @@ export const TeacherRoutes: RouteObject[] = [
         element: <TeacherDashboard />,
       },
       {
-        path: "create-course",
-        element: <CreateCourse />,
+        path: "course",
+        element: <TeacherCourse />,
       },
       {
         path: "courses/:id/edit",

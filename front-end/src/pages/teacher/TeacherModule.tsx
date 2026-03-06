@@ -188,7 +188,7 @@ export function TeacherModules() {
         </div>
         <ButtonComponent
           size="sm"
-          onClick={() => navigate("/teacher/create-course")}
+          onClick={() => navigate("/teacher/course")}
         >
           Voltar para Cursos
         </ButtonComponent>

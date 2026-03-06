@@ -22,7 +22,7 @@ import {
 } from "../../components/ui/ConfirmDialog";
 import type { CourseDTO } from "../../types/CourseDTO";
 
-export function CreateCourse() {
+export function TeacherCourse() {
   const { accentColor, isDark } = useTheme();
   const navigate = useNavigate();
   const { isOpen, setIsOpen, confirm, dialogConfig } = useConfirmDialog();

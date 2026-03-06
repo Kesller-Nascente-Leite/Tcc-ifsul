@@ -9,7 +9,7 @@
     {
       "id": 2,
       "label": "Meus Cursos",
-      "path": "/teacher/create-course",
+      "path": "/teacher/course",
       "icon": "BookOpen"
     },
     

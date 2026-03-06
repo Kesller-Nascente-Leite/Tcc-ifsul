@@ -162,7 +162,7 @@ export function ManageCourseStudents() {
         <AlertCircle size={48} className="text-text-secondary mb-4" />
         <p className="text-text-secondary">Curso não encontrado</p>
         <ButtonComponent
-          onClick={() => navigate("/teacher/create-course")}
+          onClick={() => navigate("/teacher/course")}
           className="mt-4"
         >
           Voltar para Cursos
@@ -176,7 +176,7 @@ export function ManageCourseStudents() {
       {/* Header */}
       <header>
         <button
-          onClick={() => navigate("/teacher/create-course")}
+          onClick={() => navigate("/teacher/course")}
           className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors mb-4"
         >
           <ArrowLeft size={20} />
