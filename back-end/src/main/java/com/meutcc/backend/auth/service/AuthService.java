@@ -3,7 +3,7 @@ package com.meutcc.backend.auth.service;
 import com.meutcc.backend.auth.dto.*;
 import com.meutcc.backend.auth.mapper.UserMapper;
 import com.meutcc.backend.common.exceptions.UserAlreadyExistException;
-import com.meutcc.backend.common.exceptions.UserException;
+import com.meutcc.backend.user.UserException;
 import com.meutcc.backend.common.security.RoleIds;
 import com.meutcc.backend.role.RoleRepository;
 import com.meutcc.backend.role.Roles;
@@ -58,7 +58,7 @@ public class AuthService {
 
         Student student = Student.builder()
                 .user(savedUser)
-                .subjects(new ArrayList<>())
+                .courses(new ArrayList<>())
                 .build();
         studentRepository.save(student);
         return new ApiResponse("Usuário cadastrado com sucesso");

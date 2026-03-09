@@ -35,7 +35,7 @@ export function EditCourses() {
     if (id) {
       loadCourse(Number(id));
     } else {
-      navigate("/teacher/create-course");
+      navigate("/teacher/course");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, navigate]);
@@ -59,7 +59,7 @@ export function EditCourses() {
           "error",
           "Você não tem permissão para editar este curso",
         );
-        setTimeout(() => navigate("/teacher/create-course"), 2000);
+        setTimeout(() => navigate("/teacher/course"), 2000);
         return;
       }
 
@@ -69,7 +69,7 @@ export function EditCourses() {
     } catch (error) {
       console.error("Erro ao carregar curso:", error);
       showNotification("error", "Erro ao carregar dados do curso");
-      setTimeout(() => navigate("/teacher/create-course"), 2000);
+      setTimeout(() => navigate("/teacher/course"), 2000);
     } finally {
       setIsLoading(false);
     }
@@ -98,7 +98,7 @@ export function EditCourses() {
       setIsSaving(true);
       await CourseTeacherApi.update(Number(id), updatedPayload);
       showNotification("success", "Curso atualizado com sucesso!");
-      setTimeout(() => navigate("/teacher/create-course"), 1500);
+      setTimeout(() => navigate("/teacher/course"), 1500);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao atualizar curso:", error);
@@ -130,7 +130,7 @@ export function EditCourses() {
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => navigate("/teacher/create-course")}
+            onClick={() => navigate("/teacher/course")}
             className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors text-text-secondary"
           >
             <ArrowLeft size={24} />
@@ -201,14 +201,14 @@ export function EditCourses() {
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
             <button
-              onClick={() => navigate("/teacher/create-course")}
+              onClick={() => navigate("/teacher/course")}
               className="px-4 py-2 text-sm text-text-secondary"
             >
               Cancelar
             </button>
             <ButtonComponent
               onClick={updateCourse}
-              disabled={
+              isDisabled={
                 isSaving ||
                 (title === course?.title && description === course?.description)
               }

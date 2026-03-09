@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type React from "react";
+import { Form } from "react-aria-components";
 
 interface FormProps {
   onSubmit?: (event: React.FormEvent) => void;
@@ -11,5 +12,5 @@ export function FormComponent({ onSubmit, children }: FormProps) {
     event.preventDefault();
     if (onSubmit) return onSubmit(event);
   };
-  return <form onSubmit={handleSubmit}>{children}</form>;
+  return <Form onSubmit={handleSubmit}>{children}</Form>;
 }

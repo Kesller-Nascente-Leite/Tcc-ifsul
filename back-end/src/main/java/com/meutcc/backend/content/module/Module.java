@@ -20,7 +20,13 @@ import java.util.List;
 @Getter
 @Setter
 public class Module extends BaseEntity {
+
+    @Column(length = 100, nullable = false)
     private String title;
+
+    @Column(length = 255, nullable = false)
+    private String description;
+
     private Integer orderIndex;
 
     @ManyToOne(fetch = FetchType.LAZY)

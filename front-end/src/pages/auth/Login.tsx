@@ -150,7 +150,7 @@ export function Login() {
               </div>
 
               <ButtonComponent
-                type="submit"
+                type="submit" 
                 variant="primary"
                 fullWidth
                 size="lg"

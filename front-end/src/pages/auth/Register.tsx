@@ -3,39 +3,31 @@ import { FormComponent } from "../../components/ui/FormComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { useNavigate } from "react-router";
+import { ArrowLeft } from "lucide-react";
 import axios from "axios";
 import { AuthService } from "../../services/auth.service";
 
 export function Register() {
   const navigate = useNavigate();
 
-  const [showPassword, setShowPassword] = useState(false);
-
-  // "Guardar" os dados do formulario
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
   });
-  // estado para erro
+
   const [error, setError] = useState({
     fullName: "",
     email: "",
     password: "",
   });
-  //estado de carregamento, muito massa
-  const [isLoading, setIsLoading] = useState(false);
 
+  const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState("");
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>, field: string) => {
     setFormData({ ...formData, [field]: e.target.value });
-    // limpa o erro quando o usuario digitar algo
     if (generalError) setGeneralError("");
-  };
-
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
   };
 
   const validate = () => {
@@ -56,6 +48,7 @@ export function Register() {
       newErrors.password = "Sua senha deve conter pelo menos 8 caracteres";
       isValid = false;
     }
+
     setError(newErrors);
     return isValid;
   };
@@ -68,7 +61,6 @@ export function Register() {
     setGeneralError("");
 
     try {
-      //primeiro prepara o objeto como o java esta esperando
       const payload = {
         fullName: formData.fullName,
         email: formData.email,
@@ -77,21 +69,16 @@ export function Register() {
       const responseData = await AuthService.register(payload);
 
       navigate("/login", {
-        state: {
-          successMessage: responseData.message,
-        },
+        state: { successMessage: responseData.message },
       });
     } catch (err: unknown) {
       console.error(err);
 
-      // Verifica se o erro é uma instância do AxiosError
       if (axios.isAxiosError(err)) {
-        // Agora o TypeScript sabe que 'err' tem a propriedade 'response'
         const message =
           err.response?.data?.message || "Erro ao cadastrar usuário.";
         setGeneralError(message);
       } else {
-        // Para errosF que não são do Axios (ex: erro de código)
         setGeneralError("Ocorreu um erro inesperado.");
       }
     } finally {
@@ -101,18 +88,29 @@ export function Register() {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-bg-main p-4">
-      <div className="w-full max-w-md space-y-6 rounded-lg border bg-surface p-8 shadow-sm border-border">
-        <div className="text-center">
+      <div className="w-full max-w-md space-y-6 rounded-lg border bg-surface p-8 shadow-sm border-border relative">
+        {/* Botão de Voltar */}
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute top-4 left-4 p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-main transition-all focus:outline-none focus:ring-2 focus:ring-primary/50"
+          aria-label="Voltar"
+        >
+          <ArrowLeft size={20} />
+        </button>
+
+        <div className="text-center pt-4">
           <h1 className="text-2xl font-bold text-text-primary">Criar conta</h1>
           <p className="text-sm text-text-secondary">
             Comece a organizar seus estudos hoje.
           </p>
         </div>
+
         {generalError && (
-          <div className="mb-4 p-3 text-sm text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md">
+          <div className="p-3 text-sm text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-md">
             {generalError}
           </div>
         )}
+
         <FormComponent onSubmit={handleSubmit}>
           <InputComponent
             required
@@ -120,9 +118,7 @@ export function Register() {
             labelText="Nome de Usuário:"
             placeholder="Ex: Fulano"
             value={formData.fullName}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleChange(e, "fullName")
-            }
+            onChange={(e) => handleChange(e, "fullName")}
             error={error.fullName}
           />
 
@@ -132,30 +128,23 @@ export function Register() {
             labelText="E-mail"
             placeholder="Ex: fulaninho@teste.com"
             value={formData.email}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              handleChange(e, "email")
-            }
+            onChange={(e) => handleChange(e, "email")}
             error={error.email}
           />
-          <div className="relative">
+
+          <div>
             <InputComponent
               required
-              type={showPassword ? "text" : "password"}
+              type="password"
               labelText="Senha"
               placeholder="********"
               value={formData.password}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                handleChange(e, "password");
-              }}
-              error={error.password}
+              autoComplete="off"
+              onChange={(e) => handleChange(e, "password")}
             />
-            <button
-              type="button"
-              className="text-xs text-primary hover:text-primary-hover mt-1"
-              onClick={toggleShowPassword}
-            >
-              {showPassword ? "Esconder senha" : "Mostrar senha"}
-            </button>
+            {error.password && (
+              <p className="text-xs text-red-500 mt-1 ml-1">{error.password}</p>
+            )}
           </div>
 
           <ButtonComponent
@@ -163,10 +152,23 @@ export function Register() {
             fullWidth
             isLoading={isLoading}
             size="lg"
+            className="mt-6"
           >
             Cadastre-se
           </ButtonComponent>
         </FormComponent>
+        
+        <div className="text-center pt-4 border-t border-border">
+          <p className="text-sm text-text-secondary">
+            Já tem uma conta?{" "}
+            <button
+              onClick={() => navigate("/login")}
+              className="text-primary hover:text-primary-hover font-semibold hover:underline transition-colors focus:outline-none focus:ring-2 focus:ring-primary/50 rounded px-1"
+            >
+              Faça login
+            </button>
+          </p>
+        </div>
       </div>
     </main>
   );

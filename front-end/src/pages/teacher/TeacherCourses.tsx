@@ -10,28 +10,26 @@ import {
   Eye,
   ChevronLeft,
   ChevronRight,
+  Users,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
 import { CourseTeacherApi } from "../../api/courseTeacher.api";
 import { useTheme } from "../../context/ThemeContext";
+import {
+  ConfirmDialog,
+  useConfirmDialog,
+} from "../../components/ui/ConfirmDialog";
+import type { CourseDTO } from "../../types/CourseDTO";
 
-type CourseItem = {
-  id?: number | null;
-  title: string;
-  description: string;
-  published: boolean;
-  teacherId: number;
-  teacherName: string;
-};
-
-export function CreateCourse() {
-  const { accentColor } = useTheme();
+export function TeacherCourse() {
+  const { accentColor, isDark } = useTheme();
   const navigate = useNavigate();
+  const { isOpen, setIsOpen, confirm, dialogConfig } = useConfirmDialog();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [courses, setCourses] = useState<CourseItem[]>([]);
+  const [courses, setCourses] = useState<CourseDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [notification, setNotification] = useState<{
@@ -99,7 +97,7 @@ export function CreateCourse() {
       return;
     }
 
-    const payload: CourseItem = {
+    const payload: CourseDTO = {
       title: title.trim(),
       description: description.trim(),
       published: false,
@@ -115,11 +113,11 @@ export function CreateCourse() {
       setCourses((prev) => [created, ...prev]);
       setTitle("");
       setDescription("");
-      
+
       // Volta para a página 1 para o professor ver o curso que acabou de criar
-      setCurrentPage(1); 
+      setCurrentPage(1);
       showNotification("success", "Curso criado com sucesso!");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao criar curso:", error);
       showNotification(
@@ -132,25 +130,40 @@ export function CreateCourse() {
   };
 
   const deleteCourse = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este curso?")) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: "Confirmar exclusão",
+      message: (
+        <div className="space-y-2">
+          <p>Tem certeza que deseja excluir o curso:</p>
+          <p className="font-semibold text-text-primary">
+            "{courses.find((c) => c.id === id)?.title}"?
+          </p>
+          <p className="text-xs">Esta ação não pode ser desfeita.</p>
+        </div>
+      ),
+      confirmText: "Sim, excluir",
+      cancelText: "Cancelar",
+      variant: "danger",
+      isDark,
+    });
 
-    try {
-      await CourseTeacherApi.remove(id);
-      setCourses((prev) => prev.filter((c) => c.id !== id));
-      showNotification("success", "Curso excluído com sucesso!");
-    } catch (error) {
-      console.error("Erro ao excluir curso:", error);
-      showNotification("error", "Erro ao excluir curso");
+    if (confirmed) {
+      try {
+        await CourseTeacherApi.remove(id);
+        setCourses((prev) => prev.filter((c) => c.id !== id));
+        showNotification("success", "Curso excluído com sucesso!");
+      } catch (error) {
+        console.error("Erro ao excluir curso:", error);
+        showNotification("error", "Erro ao excluir curso");
+      }
     }
   };
 
-  const togglePublish = async (course: CourseItem) => {
+  const togglePublish = async (course: CourseDTO) => {
     if (!course.id) return;
 
     try {
-      const updated: CourseItem = {
+      const updated: CourseDTO = {
         ...course,
         published: !course.published,
       };
@@ -171,7 +184,7 @@ export function CreateCourse() {
   const totalPages = Math.ceil(courses.length / ITEMS_PER_PAGE);
   const indexOfLastCourse = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstCourse = indexOfLastCourse - ITEMS_PER_PAGE;
-  
+
   // "Fatia" o array original para pegar apenas os 5 da página atual
   const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
 
@@ -181,7 +194,6 @@ export function CreateCourse() {
       setCurrentPage(totalPages);
     }
   }, [courses.length, currentPage, totalPages]);
-
 
   return (
     <div className="space-y-6">
@@ -274,7 +286,7 @@ export function CreateCourse() {
             <div className="pt-2">
               <ButtonComponent
                 onClick={saveCourse}
-                disabled={isCreating || !title.trim() || !description.trim()}
+                isDisabled={isCreating || !title.trim() || !description.trim()}
               >
                 {isCreating ? "Criando..." : "Criar Curso"}
               </ButtonComponent>
@@ -319,7 +331,6 @@ export function CreateCourse() {
           ) : (
             <div className="flex flex-col flex-1 justify-between">
               <div className="space-y-3">
-                {/* AQUI ESTÁ A MUDANÇA: Usando currentCourses ao invés de courses */}
                 {currentCourses.map((course) => (
                   <div
                     key={course.id}
@@ -352,15 +363,33 @@ export function CreateCourse() {
                       <div className="flex items-center gap-2">
                         <ButtonComponent
                           size="sm"
-                          onClick={() => navigate(`/teacher/subjects?course=${course.id}`)}
+                          onClick={() =>
+                            navigate(`/teacher/subjects?course=${course.id}`)
+                          }
                         >
-                          <Eye size={16} />
-                          Ver Matérias
+                          <div className="flex items-center gap-2">
+                            <Eye size={16} />
+                            <span>Ver Matérias</span>
+                          </div>
+                        </ButtonComponent>
+
+                        <ButtonComponent
+                          size="sm"
+                          onClick={() =>
+                            navigate(`/teacher/courses/${course.id}/students`)
+                          }
+                        >
+                          <div className="flex items-center gap-2">
+                            <Users size={16} className="mr-1" />
+                            <span>Alunos</span>
+                          </div>
                         </ButtonComponent>
 
                         <button
                           className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
-                          onClick={() => navigate(`/teacher/courses/${course.id}/edit`)}
+                          onClick={() =>
+                            navigate(`/teacher/courses/${course.id}/edit`)
+                          }
                         >
                           <Edit2 size={16} />
                           Editar
@@ -400,7 +429,9 @@ export function CreateCourse() {
                   </span>
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.max(prev - 1, 1))
+                      }
                       disabled={currentPage === 1}
                       className="p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
                       title="Página Anterior"
@@ -408,7 +439,9 @@ export function CreateCourse() {
                       <ChevronLeft size={18} />
                     </button>
                     <button
-                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      onClick={() =>
+                        setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                      }
                       disabled={currentPage === totalPages}
                       className="p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
                       title="Próxima Página"
@@ -447,6 +480,12 @@ export function CreateCourse() {
           </div>
         </section>
       )}
+      <ConfirmDialog
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        isDark={isDark}
+        {...dialogConfig}
+      />
     </div>
   );
 }

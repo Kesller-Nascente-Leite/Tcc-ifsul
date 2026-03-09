@@ -1,14 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "./http";
-
-export interface CourseDTO {
-  id?: number | null;
-  title: string;
-  description: string;
-  published: boolean;
-  teacherId: number;
-  teacherName: string;
-}
+import { type CourseDTO } from "../types/CourseDTO";
 
 export const CourseStudentApi = {
   list: (params?: any) => api.get<CourseDTO[]>("/courses/student", { params }),
