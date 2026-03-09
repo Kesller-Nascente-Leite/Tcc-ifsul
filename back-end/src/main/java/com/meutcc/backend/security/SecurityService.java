@@ -1,6 +1,8 @@
 package com.meutcc.backend.security;
 
 import com.meutcc.backend.content.courses.CourseException;
+import com.meutcc.backend.content.lesson.LessonException;
+import com.meutcc.backend.content.lesson.LessonRepository;
 import com.meutcc.backend.content.module.ModuleException;
 import com.meutcc.backend.content.courses.Course;
 import com.meutcc.backend.content.courses.CourseRepository;
@@ -18,6 +20,7 @@ public class SecurityService {
     private final ModuleRepository moduleRepository;
     private final AuthenticationService authenticationService;
     private final CourseRepository courseRepository;
+    private final LessonRepository lessonRepository;
 
     public void validateCourseOwner(Long id) throws AccessDeniedException {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
@@ -76,6 +79,5 @@ public class SecurityService {
             return false;
         }
     }
-
 
 }

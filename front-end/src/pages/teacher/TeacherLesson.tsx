@@ -6,7 +6,6 @@ import {
   Trash2,
   PlayCircle,
   Clock,
-  Video as VideoIcon,
   ArrowLeft,
   Link as LinkIcon,
   FileVideo,
@@ -14,6 +13,9 @@ import {
   Download,
   Globe,
   Play,
+  FileText,
+  ExternalLink,
+  Calendar,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
@@ -29,6 +31,8 @@ import type { LessonDTO, VideoDTO } from "../../types/LessonDTO";
 import type { ModuleDTO } from "../../types/ModuleDTO";
 import { useTheme } from "../../context/ThemeContext";
 import { Button, Header, Label, TextArea } from "react-aria-components";
+import { AttachmentTeacherApi } from "../../api/attachmentTeacher.api";
+import type { AttachmentDTO } from "../../types/AttachmentDTO";
 
 export function TeacherLessons() {
   const { moduleId, courseId } = useParams<{
@@ -59,15 +63,37 @@ export function TeacherLessons() {
   const [isCreating, setIsCreating] = useState(false);
   const [isAddingVideo, setIsAddingVideo] = useState(false);
 
+  // Modal de Anexo,com modo upload/url
+  const [showAttachmentModal, setShowAttachmentModal] = useState(false);
+  const [attachmentMode, setAttachmentMode] = useState<"url" | "upload">(
+    "upload",
+  );
+  const [attachmentTitle, setAttachmentTitle] = useState("");
+  const [attachmentDescription, setAttachmentDescription] = useState("");
+  const [attachmentFileUrl, setAttachmentFileUrl] = useState("");
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null); // NOVO!
+  const [attachmentDeliveryDate, setAttachmentDeliveryDate] = useState("");
+  const [isAddingAttachment, setIsAddingAttachment] = useState(false);
+
+  const openAttachmentModal = (lesson: LessonDTO) => {
+    setSelectedLesson(lesson);
+    setShowAttachmentModal(true);
+    setAttachmentMode("upload"); // Modo padrão: upload
+    setAttachmentTitle("");
+    setAttachmentDescription("");
+    setAttachmentFileUrl("");
+    setAttachmentFile(null); // Limpar arquivo
+    setAttachmentDeliveryDate("");
+  };
+
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";
     message: string;
   } | null>(null);
 
   useEffect(() => {
-    if (moduleId) {
-      loadModuleData();
-    }
+    if (!moduleId) return;
+    loadModuleData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moduleId]);
 
@@ -83,28 +109,33 @@ export function TeacherLessons() {
 
       setModule(moduleResponse.data);
 
-      // Carregar vídeos para cada aula
-      const lessonsWithVideos = await Promise.all(
+      // Carregar vídeos E anexos para cada aula
+      const lessonsWithContent = await Promise.all(
         lessonsResponse.data.map(async (lesson) => {
           if (lesson.id) {
             try {
-              const videosResponse = await VideoTeacherApi.listVideos(
-                lesson.id
-              );
-              return { ...lesson, videos: videosResponse.data };
+              const [videosResponse, attachmentsResponse] = await Promise.all([
+                VideoTeacherApi.listVideos(lesson.id),
+                AttachmentTeacherApi.listByLesson(lesson.id),
+              ]);
+              return {
+                ...lesson,
+                videos: videosResponse.data,
+                attachments: attachmentsResponse.data,
+              };
             } catch (error) {
               console.error(
-                `Erro ao carregar vídeos da aula ${lesson.id}:`,
-                error
+                `Erro ao carregar conteúdo da aula ${lesson.id}:`,
+                error,
               );
-              return { ...lesson, videos: [] };
+              return { ...lesson, videos: [], attachments: [] };
             }
           }
           return lesson;
-        })
+        }),
       );
 
-      setLessons(lessonsWithVideos || []);
+      setLessons(lessonsWithContent || []);
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
       showNotification("error", "Erro ao carregar informações do módulo");
@@ -115,7 +146,7 @@ export function TeacherLessons() {
 
   const showNotification = (
     type: "success" | "error" | "info",
-    message: string
+    message: string,
   ) => {
     setNotification({ type, message });
   };
@@ -151,12 +182,12 @@ export function TeacherLessons() {
       setLessonDescription("");
       setLessonDuration(0);
       showNotification("success", "Aula criada com sucesso!");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao criar aula:", error);
       showNotification(
         "error",
-        error.response?.data?.message || "Erro ao criar aula"
+        error.response?.data?.message || "Erro ao criar aula",
       );
     } finally {
       setIsCreating(false);
@@ -222,7 +253,50 @@ export function TeacherLessons() {
 
       setVideoFile(file);
       if (!videoTitle.trim()) {
-        setVideoTitle(file.name.replace(/\.[^/.]+$/, "")); 
+        setVideoTitle(file.name.replace(/\.[^/.]+$/, ""));
+      }
+    }
+  };
+
+  // NOVA FUNÇÃO: Handle de arquivo de anexo
+  const handleAttachmentFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validar tamanho (50MB para documentos)
+      if (file.size > 50 * 1024 * 1024) {
+        showNotification("error", "Arquivo muito grande. Máximo: 50MB");
+        return;
+      }
+
+      // Validar tipo
+      const allowedTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-powerpoint",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "text/plain",
+        "image/jpeg",
+        "image/png",
+        "image/jpg",
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        showNotification(
+          "error",
+          "Tipo de arquivo não permitido. Use PDF, DOC, PPTX, XLS, TXT ou imagens",
+        );
+        return;
+      }
+
+      setAttachmentFile(file);
+      if (!attachmentTitle.trim()) {
+        // Remover extensão do nome
+        setAttachmentTitle(file.name.replace(/\.[^/.]+$/, ""));
       }
     }
   };
@@ -247,7 +321,7 @@ export function TeacherLessons() {
         await VideoTeacherApi.uploadVideo(
           selectedLesson.id,
           videoTitle.trim(),
-          videoFile
+          videoFile,
         );
       } else {
         if (!videoUrl.trim()) {
@@ -258,7 +332,7 @@ export function TeacherLessons() {
         await VideoTeacherApi.addVideoUrl(
           selectedLesson.id,
           videoTitle.trim(),
-          videoUrl.trim()
+          videoUrl.trim(),
         );
       }
 
@@ -270,12 +344,12 @@ export function TeacherLessons() {
       setVideoUrl("");
       setVideoFile(null);
       showNotification("success", "Vídeo adicionado com sucesso!");
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao adicionar vídeo:", error);
       showNotification(
         "error",
-        error.response?.data?.message || "Erro ao adicionar vídeo"
+        error.response?.data?.message || "Erro ao adicionar vídeo",
       );
     } finally {
       setIsAddingVideo(false);
@@ -338,6 +412,91 @@ export function TeacherLessons() {
       </div>
     );
   }
+  const addAttachment = async () => {
+    if (!attachmentTitle.trim()) {
+      showNotification("error", "Título do anexo é obrigatório");
+      return;
+    }
+
+    if (!attachmentDescription.trim()) {
+      showNotification("error", "Descrição do anexo é obrigatória");
+      return;
+    }
+
+    if (!selectedLesson?.id) return;
+
+    try {
+      setIsAddingAttachment(true);
+
+      if (attachmentMode === "upload") {
+        if (!attachmentFile) {
+          showNotification("error", "Selecione um arquivo");
+          return;
+        }
+
+        await AttachmentTeacherApi.uploadFile(
+          selectedLesson.id,
+          attachmentTitle.trim(),
+          attachmentDescription.trim(),
+          attachmentDeliveryDate,
+          attachmentFile,
+        );
+      } else {
+        // enviar link, url.
+        if (!attachmentFileUrl.trim()) {
+          showNotification("error", "URL do anexo é obrigatória");
+          return;
+        }
+
+        const payload: AttachmentDTO = {
+          title: attachmentTitle.trim(),
+          description: attachmentDescription.trim(),
+          fileUrl: attachmentFileUrl.trim(),
+          deliveryDate: attachmentDeliveryDate
+            ? new Date(attachmentDeliveryDate).toISOString()
+            : undefined,
+          lessonId: selectedLesson.id,
+        };
+
+        await AttachmentTeacherApi.createWithUrl(payload);
+      }
+
+      await loadModuleData();
+      setShowAttachmentModal(false);
+      showNotification("success", "Anexo adicionado com sucesso!");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Erro ao adicionar anexo:", error);
+      showNotification(
+        "error",
+        error.response?.data?.message || "Erro ao adicionar anexo",
+      );
+    } finally {
+      setIsAddingAttachment(false);
+    }
+  };
+
+  const deleteAttachment = async (attachmentId: number) => {
+    const confirmed = await confirm({
+      title: "Confirmar exclusão",
+      message: "Tem certeza que deseja excluir este anexo?",
+      confirmText: "Sim, excluir",
+      cancelText: "Cancelar",
+      variant: "danger",
+      isDark,
+    });
+
+    if (confirmed) {
+      try {
+        await AttachmentTeacherApi.remove(attachmentId);
+        await loadModuleData();
+        showNotification("success", "Anexo excluído com sucesso!");
+      } catch (error) {
+        console.error("Erro ao excluir anexo:", error);
+        showNotification("error", "Erro ao excluir anexo");
+      }
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -455,7 +614,7 @@ export function TeacherLessons() {
                 value={lessonDuration}
                 onChange={(e) =>
                   setLessonDuration(
-                    (e.target as HTMLInputElement).valueAsNumber || 0
+                    (e.target as HTMLInputElement).valueAsNumber || 0,
                   )
                 }
                 placeholder="30"
@@ -467,9 +626,7 @@ export function TeacherLessons() {
               <ButtonComponent
                 onClick={createLesson}
                 isDisabled={
-                  isCreating ||
-                  !lessonTitle.trim() ||
-                  !lessonDescription.trim()
+                  isCreating || !lessonTitle.trim() || !lessonDescription.trim()
                 }
               >
                 {isCreating ? "Criando..." : "Criar Aula"}
@@ -572,7 +729,7 @@ export function TeacherLessons() {
                         }}
                         onClick={() =>
                           navigate(
-                            `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/edit`
+                            `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/edit`,
                           )
                         }
                       >
@@ -604,7 +761,7 @@ export function TeacherLessons() {
                         className="font-semibold text-sm flex items-center gap-2"
                         style={{ color: "var(--color-text-primary)" }}
                       >
-                        <VideoIcon size={16} />
+                        <PlayCircle size={16} />
                         Vídeos ({lesson.videos?.length || 0})
                       </h5>
                       <Button
@@ -679,27 +836,32 @@ export function TeacherLessons() {
                             </div>
                             <div className="flex items-center gap-2">
                               {video.storageType === "DATABASE" && (
-                                  <><Button
-                                  className="p-2 rounded-lg transition-colors hover:opacity-80"
-                                  style={{
-                                    backgroundColor: `${accentColor}15`,
-                                    color: accentColor,
-                                  }}
-                                  onClick={() => navigate(
-                                    `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/videos/${video.id}/watch`
-                                  )}
-                                >
-                                  <Play size={16} />
-                                </Button><Button
-                                  className="p-2 rounded-lg transition-colors hover:opacity-80"
-                                  style={{
-                                    backgroundColor: `${accentColor}15`,
-                                    color: accentColor,
-                                  }}
-                                  onClick={() => downloadVideo(video)}
-                                >
+                                <>
+                                  <Button
+                                    className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                    style={{
+                                      backgroundColor: `${accentColor}15`,
+                                      color: accentColor,
+                                    }}
+                                    onClick={() =>
+                                      navigate(
+                                        `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/videos/${video.id}/watch`,
+                                      )
+                                    }
+                                  >
+                                    <Play size={16} />
+                                  </Button>
+                                  <Button
+                                    className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                    style={{
+                                      backgroundColor: `${accentColor}15`,
+                                      color: accentColor,
+                                    }}
+                                    onClick={() => downloadVideo(video)}
+                                  >
                                     <Download size={16} />
-                                  </Button></>
+                                  </Button>
+                                </>
                               )}
                               <Button
                                 className="p-2 rounded-lg transition-colors"
@@ -723,6 +885,127 @@ export function TeacherLessons() {
                         style={{ color: "var(--color-text-secondary)" }}
                       >
                         Nenhum vídeo adicionado
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Anexos */}
+                  <div
+                    className="mt-4 pt-4 border-t"
+                    style={{ borderColor: "var(--color-border)" }}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h5
+                        className="font-semibold text-sm flex items-center gap-2"
+                        style={{ color: "var(--color-text-primary)" }}
+                      >
+                        <FileText size={16} />
+                        Anexos ({lesson.attachments?.length || 0})
+                      </h5>
+                      <Button
+                        className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
+                        style={{
+                          backgroundColor: `${accentColor}15`,
+                          color: accentColor,
+                        }}
+                        onClick={() => openAttachmentModal(lesson)}
+                      >
+                        <Plus size={14} />
+                        Adicionar Anexo
+                      </Button>
+                    </div>
+
+                    {lesson.attachments && lesson.attachments.length > 0 ? (
+                      <div className="space-y-2">
+                        {lesson.attachments.map((attachment) => (
+                          <div
+                            key={attachment.id}
+                            className="flex items-center justify-between p-3 rounded-lg"
+                            style={{
+                              backgroundColor: "var(--color-surface-hover)",
+                            }}
+                          >
+                            <div className="flex items-center gap-3 flex-1">
+                              <div
+                                className="p-2 rounded-lg"
+                                style={{
+                                  backgroundColor: `${accentColor}15`,
+                                  color: accentColor,
+                                }}
+                              >
+                                <FileText size={16} />
+                              </div>
+                              <div className="flex-1">
+                                <p
+                                  className="text-sm font-medium"
+                                  style={{
+                                    color: "var(--color-text-primary)",
+                                  }}
+                                >
+                                  {attachment.title}
+                                </p>
+                                <p
+                                  className="text-xs line-clamp-1"
+                                  style={{
+                                    color: "var(--color-text-secondary)",
+                                  }}
+                                >
+                                  {attachment.description}
+                                </p>
+                                {attachment.deliveryDate && (
+                                  <div
+                                    className="flex items-center gap-1 text-xs mt-1"
+                                    style={{
+                                      color: "var(--color-text-secondary)",
+                                    }}
+                                  >
+                                    <Calendar size={12} />
+                                    <span>
+                                      Entrega:{" "}
+                                      {new Date(
+                                        attachment.deliveryDate,
+                                      ).toLocaleDateString("pt-BR")}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={attachment.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                style={{
+                                  backgroundColor: `${accentColor}15`,
+                                  color: accentColor,
+                                }}
+                              >
+                                <ExternalLink size={16} />
+                              </a>
+                              <Button
+                                className="p-2 rounded-lg transition-colors"
+                                style={{
+                                  backgroundColor: "var(--color-error-light)",
+                                  color: "var(--color-error)",
+                                }}
+                                onClick={() =>
+                                  attachment.id &&
+                                  deleteAttachment(attachment.id)
+                                }
+                              >
+                                <Trash2 size={16} />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p
+                        className="text-xs text-center py-2"
+                        style={{ color: "var(--color-text-secondary)" }}
+                      >
+                        Nenhum anexo adicionado
                       </p>
                     )}
                   </div>
@@ -761,7 +1044,9 @@ export function TeacherLessons() {
                 className="flex-1 px-4 py-2 rounded-lg transition-all font-semibold"
                 style={{
                   backgroundColor:
-                    videoMode === "url" ? accentColor : "var(--color-surface-hover)",
+                    videoMode === "url"
+                      ? accentColor
+                      : "var(--color-surface-hover)",
                   color:
                     videoMode === "url"
                       ? "white"
@@ -776,7 +1061,9 @@ export function TeacherLessons() {
                 className="flex-1 px-4 py-2 rounded-lg transition-all font-semibold"
                 style={{
                   backgroundColor:
-                    videoMode === "upload" ? accentColor : "var(--color-surface-hover)",
+                    videoMode === "upload"
+                      ? accentColor
+                      : "var(--color-surface-hover)",
                   color:
                     videoMode === "upload"
                       ? "white"
@@ -836,7 +1123,7 @@ export function TeacherLessons() {
                     className="block text-sm font-medium mb-2"
                     style={{ color: "var(--color-text-secondary)" }}
                   >
-                    Arquivo de Vídeo * (Máx: 100MB)
+                    Arquivo de Vídeo * (Máx: 900MB)
                   </Label>
                   <input
                     type="file"
@@ -879,6 +1166,214 @@ export function TeacherLessons() {
                   }
                 >
                   {isAddingVideo ? "Adicionando..." : "Adicionar Vídeo"}
+                </ButtonComponent>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE ANEXO ATUALIZADO - COM UPLOAD E URL */}
+      {showAttachmentModal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          onClick={() => setShowAttachmentModal(false)}
+        >
+          <div
+            className="w-full max-w-md p-6 rounded-2xl border"
+            style={{
+              backgroundColor: "var(--color-surface)",
+              borderColor: "var(--color-border)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3
+              className="text-xl font-bold mb-4"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              Adicionar Anexo
+            </h3>
+
+            {/* Seletor de Modo - UPLOAD OU URL */}
+            <div className="flex gap-2 mb-4">
+              <Button
+                className="flex-1 px-4 py-2 rounded-lg transition-all font-semibold"
+                style={{
+                  backgroundColor:
+                    attachmentMode === "upload"
+                      ? accentColor
+                      : "var(--color-surface-hover)",
+                  color:
+                    attachmentMode === "upload"
+                      ? "white"
+                      : "var(--color-text-secondary)",
+                }}
+                onClick={() => setAttachmentMode("upload")}
+              >
+                <Upload size={16} className="inline mr-2" />
+                Upload Arquivo
+              </Button>
+              <Button
+                className="flex-1 px-4 py-2 rounded-lg transition-all font-semibold"
+                style={{
+                  backgroundColor:
+                    attachmentMode === "url"
+                      ? accentColor
+                      : "var(--color-surface-hover)",
+                  color:
+                    attachmentMode === "url"
+                      ? "white"
+                      : "var(--color-text-secondary)",
+                }}
+                onClick={() => setAttachmentMode("url")}
+              >
+                <Globe size={16} className="inline mr-2" />
+                Link URL
+              </Button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
+                  Título do Anexo *
+                </Label>
+                <InputComponent
+                  value={attachmentTitle}
+                  onChange={(e) =>
+                    setAttachmentTitle((e.target as HTMLInputElement).value)
+                  }
+                  placeholder="Ex: Material Complementar - Parte 1"
+                  disabled={isAddingAttachment}
+                />
+              </div>
+
+              <div>
+                <Label
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
+                  Descrição *
+                </Label>
+                <TextArea
+                  value={attachmentDescription}
+                  onChange={(e) => setAttachmentDescription(e.target.value)}
+                  placeholder="Descreva o conteúdo deste anexo..."
+                  disabled={isAddingAttachment}
+                  rows={3}
+                  className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{
+                    backgroundColor: "var(--color-surface-secondary)",
+                    borderColor: "var(--color-border)",
+                    color: "var(--color-text-primary)",
+                  }}
+                />
+              </div>
+
+              {/* CONDICIONAL: UPLOAD OU URL */}
+              {attachmentMode === "upload" ? (
+                <div>
+                  <Label
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    Arquivo * (Máx: 50MB)
+                  </Label>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png"
+                    onChange={handleAttachmentFileChange}
+                    disabled={isAddingAttachment}
+                    className="w-full px-4 py-2 rounded-lg border file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold hover:file:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
+                    style={{
+                      backgroundColor: "var(--color-surface-secondary)",
+                      borderColor: "var(--color-border)",
+                      color: "var(--color-text-primary)",
+                    }}
+                  />
+                  {attachmentFile && (
+                    <p
+                      className="text-xs mt-1"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      Arquivo: {attachmentFile.name} (
+                      {(attachmentFile.size / 1024 / 1024).toFixed(2)} MB)
+                    </p>
+                  )}
+                  <p
+                    className="text-xs mt-1"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    Formatos aceitos: PDF, DOC, PPTX, XLS, TXT, JPG, PNG
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <Label
+                    className="block text-sm font-medium mb-2"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    URL do Arquivo *
+                  </Label>
+                  <InputComponent
+                    value={attachmentFileUrl}
+                    onChange={(e) =>
+                      setAttachmentFileUrl((e.target as HTMLInputElement).value)
+                    }
+                    placeholder="https://drive.google.com/file/..."
+                    disabled={isAddingAttachment}
+                  />
+                  <p
+                    className="text-xs mt-1"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    Cole o link do Google Drive, Dropbox, etc.
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <Label
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
+                  Data de Entrega (Opcional)
+                </Label>
+                <InputComponent
+                  type="datetime-local"
+                  value={attachmentDeliveryDate}
+                  onChange={(e) =>
+                    setAttachmentDeliveryDate(
+                      (e.target as HTMLInputElement).value,
+                    )
+                  }
+                  disabled={isAddingAttachment}
+                />
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <ButtonComponent
+                  onClick={() => setShowAttachmentModal(false)}
+                  isDisabled={isAddingAttachment}
+                  variant="secondary"
+                >
+                  Cancelar
+                </ButtonComponent>
+                <ButtonComponent
+                  onClick={addAttachment}
+                  isDisabled={
+                    isAddingAttachment ||
+                    !attachmentTitle.trim() ||
+                    !attachmentDescription.trim() ||
+                    (attachmentMode === "url"
+                      ? !attachmentFileUrl.trim()
+                      : !attachmentFile)
+                  }
+                >
+                  {isAddingAttachment ? "Adicionando..." : "Adicionar Anexo"}
                 </ButtonComponent>
               </div>
             </div>

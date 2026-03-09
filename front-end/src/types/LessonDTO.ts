@@ -1,3 +1,5 @@
+import type { AttachmentDTO } from "./AttachmentDTO";
+
 export interface LessonDTO {
   id?: number;
   title: string;
@@ -5,10 +7,9 @@ export interface LessonDTO {
   orderIndex: number;
   durationMinutes?: number;
   moduleId: number;
-  moduleName?: string;
   videos?: VideoDTO[];
+  attachments?: AttachmentDTO[];  
 }
-
 export interface VideoDTO {
   id?: number;
   title: string;

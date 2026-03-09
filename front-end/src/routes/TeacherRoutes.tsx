@@ -10,6 +10,7 @@ import { ManageCourseStudents } from "../pages/teacher/ManageCourseStudents";
 import { EditModule } from "../pages/teacher/EditModule";
 import { TeacherLessons } from "../pages/teacher/TeacherLesson";
 import { VideoPlayerPage } from "../pages/videoplayer/VideoPlayerPage";
+import { EditLesson } from "../pages/teacher/EditLesson";
 
 export const TeacherRoutes: RouteObject[] = [
   {
@@ -41,7 +42,7 @@ export const TeacherRoutes: RouteObject[] = [
         element: <TeacherModules />,
       },
       {
-        path: "/teacher/courses/:courseId/modules/:moduleId/edit",
+        path: "courses/:courseId/modules/:moduleId/edit",
         element: <EditModule />,
       },
       {
@@ -49,8 +50,12 @@ export const TeacherRoutes: RouteObject[] = [
         element: <Settings />,
       },
       {
-        path: "/teacher/courses/:courseId/modules/:moduleId/lessons",
+        path: "courses/:courseId/modules/:moduleId/lessons",
         element: <TeacherLessons />,
+      },
+      {
+        path: "courses/:courseId/modules/:moduleId/lessons/:lessonId/edit",
+        element: <EditLesson />,
       },
       {
         path: "courses/:courseId/modules/:moduleId/lessons/:lessonId/videos/:videoId/watch",

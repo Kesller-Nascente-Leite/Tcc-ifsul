@@ -1,18 +1,20 @@
 package com.meutcc.backend.content.lesson;
 
+import com.meutcc.backend.content.attachment.AttachmentDTO;
 import com.meutcc.backend.content.video.VideoDTO;
-import lombok.Data;
-import java.util.ArrayList;
+
 import java.util.List;
 
-@Data
-public class LessonDTO {
-    private Long id;
-    private String title;
-    private String description;
-    private Integer orderIndex;
-    private Integer durationMinutes;
-    private Long moduleId;
-    private String moduleName;
-    private List<VideoDTO> videos = new ArrayList<>();
+public record LessonDTO(
+        Long id,
+        String title,
+        String description,
+        Integer orderIndex,
+        Integer durationMinutes,
+        Long moduleId,
+        String moduleName,
+        List<VideoDTO> videos,
+        List<AttachmentDTO> attachments
+) {
+
 }

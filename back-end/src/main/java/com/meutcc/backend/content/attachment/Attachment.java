@@ -4,11 +4,13 @@ import com.meutcc.backend.common.model.BaseEntity;
 import com.meutcc.backend.content.lesson.Lesson;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.type.descriptor.jdbc.VarbinaryJdbcType;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "tb_attachment")
+@Table(name = "tb_attachments")
 @Getter
 @Setter
 @Builder
@@ -22,16 +24,25 @@ public class Attachment extends BaseEntity {
     @Column(length = 700, nullable = false)
     private String description;
 
-    @Column(columnDefinition = "TEXT")
-    private String fileNamePdf;
+    @Column(name = "file_name", columnDefinition = "TEXT")
+    private String fileName;
 
-    @Column(nullable = false)
+    @Column(name = "file_url",nullable = true)
     private String fileUrl;
 
-    @Column(name = "delivery_date", nullable = false)
+    @JdbcType(VarbinaryJdbcType.class)
+    @Column(name = "file_data", columnDefinition = "bytea")
+    private byte[] fileData;
+
+    @Column(name = "delivery_date")
     private LocalDateTime deliveryDate;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AttachmentType type;
+
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lesson_id", nullable = false)
     private Lesson lesson;
 
 }

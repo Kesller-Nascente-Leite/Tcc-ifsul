@@ -45,7 +45,7 @@ public class LessonService {
 
     @Transactional
     public LessonDTO create(LessonDTO dto) {
-        Module module = moduleRepository.findById(dto.getModuleId())
+        Module module = moduleRepository.findById(dto.moduleId())
                 .orElseThrow(() -> new LessonException("Módulo não encontrado"));
 
         securityService.validateCourseOwner(module.getCourse().getId());
@@ -64,10 +64,10 @@ public class LessonService {
 
         securityService.validateCourseOwner(lesson.getModule().getCourse().getId());
 
-        lesson.setTitle(dto.getTitle());
-        lesson.setDescription(dto.getDescription());
-        lesson.setOrderIndex(dto.getOrderIndex());
-        lesson.setDurationMinutes(dto.getDurationMinutes());
+        lesson.setTitle(dto.title());
+        lesson.setDescription(dto.description());
+        lesson.setOrderIndex(dto.orderIndex());
+        lesson.setDurationMinutes(dto.durationMinutes());
 
         Lesson updated = lessonRepository.save(lesson);
         return lessonMapper.toDTO(updated);

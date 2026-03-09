@@ -3,7 +3,7 @@ import type { VideoDTO } from "../types/LessonDTO";
 import type { AxiosResponse } from "axios";
 
 export const VideoTeacherApi = {
-  // Upload de vídeo para o banco de dados
+  // Upload de vídeo para o bd
   uploadVideo: (lessonId: number, title: string, file: File) => {
     const formData = new FormData();
     formData.append("title", title);
