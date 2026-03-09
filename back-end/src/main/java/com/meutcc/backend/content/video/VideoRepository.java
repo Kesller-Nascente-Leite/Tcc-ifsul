@@ -1,4 +1,4 @@
-package com.meutcc.backend.content.lesson;
+package com.meutcc.backend.content.video;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

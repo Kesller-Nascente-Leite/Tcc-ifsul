@@ -13,6 +13,7 @@ import {
   Upload,
   Download,
   Globe,
+  Play,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
@@ -207,9 +208,9 @@ export function TeacherLessons() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validar tamanho (100MB)
-      if (file.size > 100 * 1024 * 1024) {
-        showNotification("error", "Arquivo muito grande. Máximo: 100MB");
+      // Validar tamanho (900MB)
+      if (file.size > 900 * 1024 * 1024) {
+        showNotification("error", "Arquivo muito grande. Máximo: 900MB");
         return;
       }
 
@@ -678,7 +679,18 @@ export function TeacherLessons() {
                             </div>
                             <div className="flex items-center gap-2">
                               {video.storageType === "DATABASE" && (
-                                <Button
+                                  <><Button
+                                  className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                  style={{
+                                    backgroundColor: `${accentColor}15`,
+                                    color: accentColor,
+                                  }}
+                                  onClick={() => navigate(
+                                    `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/videos/${video.id}/watch`
+                                  )}
+                                >
+                                  <Play size={16} />
+                                </Button><Button
                                   className="p-2 rounded-lg transition-colors hover:opacity-80"
                                   style={{
                                     backgroundColor: `${accentColor}15`,
@@ -686,8 +698,8 @@ export function TeacherLessons() {
                                   }}
                                   onClick={() => downloadVideo(video)}
                                 >
-                                  <Download size={16} />
-                                </Button>
+                                    <Download size={16} />
+                                  </Button></>
                               )}
                               <Button
                                 className="p-2 rounded-lg transition-colors"

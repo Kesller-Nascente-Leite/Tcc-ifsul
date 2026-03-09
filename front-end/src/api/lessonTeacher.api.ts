@@ -19,4 +19,4 @@ export const LessonTeacherApi = {
 
   // Deletar aula
   remove: (id: number) => api.delete(`/teacher/lessons/${id}`),
-};
+};  

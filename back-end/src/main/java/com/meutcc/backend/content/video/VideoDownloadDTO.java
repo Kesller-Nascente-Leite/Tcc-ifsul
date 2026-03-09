@@ -1,4 +1,9 @@
 package com.meutcc.backend.content.video;
 
-public class VideoDownloadDTO {
+
+public record VideoDownloadDTO(
+        String filename,
+        byte[] data,
+        String contentType
+) {
 }

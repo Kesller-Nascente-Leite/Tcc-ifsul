@@ -1,12 +1,10 @@
-package com.meutcc.backend.content.lesson;
+package com.meutcc.backend.content.video;
 
-import lombok.Data;
-
-@Data
-public class VideoDTO {
-    private Long id;
-    private String title;
-    private String url;
-    private VideoStorageType storageType;
-    private Long lessonId;
+public record VideoDTO(
+        Long id,
+        String title,
+        String url,
+        VideoStorageType storageType,
+        Long lessonId
+) {
 }

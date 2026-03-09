@@ -1,4 +1,4 @@
-package com.meutcc.backend.content.lesson;
+package com.meutcc.backend.content.video;
 
 public enum VideoStorageType {
     URL,         // Link do YouTube, Vimeo, etc

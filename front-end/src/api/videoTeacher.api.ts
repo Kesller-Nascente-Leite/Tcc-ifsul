@@ -1,5 +1,6 @@
 import { api } from "./http";
 import type { VideoDTO } from "../types/LessonDTO";
+import type { AxiosResponse } from "axios";
 
 export const VideoTeacherApi = {
   // Upload de vídeo para o banco de dados
@@ -53,4 +54,17 @@ export const VideoTeacherApi = {
 
   // Excluir vídeo
   remove: (videoId: number) => api.delete(`/teacher/videos/${videoId}`),
+
+    async getById(videoId: number): Promise<AxiosResponse<VideoDTO>> {
+    return await api.get(`/teacher/videos/${videoId}`);
+  },
+
+  // Baixar vídeo como Blob (para player)
+  async getVideoBlob(videoId: number): Promise<Blob> {
+    const response = await api.get(`/teacher/videos/${videoId}/stream`, {
+      responseType: "blob",
+    });
+    return response.data;
+  },
 };
+

@@ -12,7 +12,6 @@
       "path": "/teacher/course",
       "icon": "BookOpen"
     },
-    
     {
       "id": 3,
       "label": "Módulos",
@@ -21,24 +20,18 @@
     },
     {
       "id": 4,
-      "label": "Matérias",
-      "path": "/teacher/subjects",
-      "icon": "Book"
-    },
-    {
-      "id": 5,
       "label": "Atribuições",
       "path": "/teacher/assignments",
       "icon": "CheckSquare"
     },
     {
-      "id": 6,
+      "id": 5,
       "label": "Cronograma",
       "path": "/teacher/schedule",
       "icon": "Calendar"
     },
     {
-      "id": 7,
+      "id": 6,
       "label": "Desempenho",
       "path": "/teacher/analytics",
       "icon": "BarChart2"

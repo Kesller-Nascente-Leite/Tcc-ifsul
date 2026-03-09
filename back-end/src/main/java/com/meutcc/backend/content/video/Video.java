@@ -1,25 +1,30 @@
-package com.meutcc.backend.content.lesson;
+package com.meutcc.backend.content.video;
 
-import com.meutcc.backend.common.model.BaseEntity;
+import com.meutcc.backend.content.lesson.Lesson;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "tb_video")
+@Table(name = "videos")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Video extends BaseEntity {  // ✅ Herdar BaseEntity
+public class Video {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String title;
 
-    @Column(length = 1000)
+    @Column(length = 2048)
     private String url;
 
-    @Lob
-    @Column(name = "data_blob")
+    @Basic(fetch = FetchType.LAZY)
+    @Column(name = "data_blob", columnDefinition = "bytea")
     private byte[] dataBlob;
 
     @Enumerated(EnumType.STRING)
@@ -27,6 +32,6 @@ public class Video extends BaseEntity {  // ✅ Herdar BaseEntity
     private VideoStorageType storageType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lesson_id")
+    @JoinColumn(name = "lesson_id", nullable = false)
     private Lesson lesson;
 }
