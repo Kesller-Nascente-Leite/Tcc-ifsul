@@ -1,4 +1,4 @@
-package com.meutcc.backend.common.exceptions;
+package com.meutcc.backend.content.lesson;
 
 public class LessonException extends RuntimeException {
     public LessonException(String message) {

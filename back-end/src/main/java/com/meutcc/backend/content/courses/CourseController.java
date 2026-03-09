@@ -1,6 +1,5 @@
 package com.meutcc.backend.content.courses;
 
-import com.meutcc.backend.common.exceptions.CourseException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

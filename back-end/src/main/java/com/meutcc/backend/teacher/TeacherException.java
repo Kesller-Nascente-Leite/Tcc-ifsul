@@ -1,4 +1,4 @@
-package com.meutcc.backend.common.exceptions;
+package com.meutcc.backend.teacher;
 
 public class TeacherException extends RuntimeException {
     public TeacherException(String message) {

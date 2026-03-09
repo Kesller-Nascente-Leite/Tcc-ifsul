@@ -1,7 +1,6 @@
 package com.meutcc.backend.content.module;
 
-import com.meutcc.backend.common.exceptions.CourseException;
-import com.meutcc.backend.common.exceptions.ModuleException;
+import com.meutcc.backend.content.courses.CourseException;
 import com.meutcc.backend.content.courses.Course;
 import com.meutcc.backend.content.courses.CourseRepository;
 import com.meutcc.backend.security.AuthenticationService;

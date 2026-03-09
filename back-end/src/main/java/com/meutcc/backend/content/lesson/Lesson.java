@@ -1,6 +1,7 @@
 package com.meutcc.backend.content.lesson;
 
 import com.meutcc.backend.common.model.BaseEntity;
+import com.meutcc.backend.content.attachment.Attachment;
 import com.meutcc.backend.content.module.Module;
 import com.meutcc.backend.content.video.Video;
 import jakarta.persistence.*;
@@ -33,6 +34,10 @@ public class Lesson extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "module_id", nullable = false)
     private Module module;
+
+    @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Attachment> materials = new ArrayList<>();
 
     @OneToMany(mappedBy = "lesson", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

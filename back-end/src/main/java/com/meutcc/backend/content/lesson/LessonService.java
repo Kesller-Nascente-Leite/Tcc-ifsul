@@ -1,10 +1,7 @@
 package com.meutcc.backend.content.lesson;
 
-import com.meutcc.backend.common.exceptions.LessonException;
 import com.meutcc.backend.content.module.Module;
 import com.meutcc.backend.content.module.ModuleRepository;
-import com.meutcc.backend.content.video.Video;
-import com.meutcc.backend.content.video.VideoDTO;
 import com.meutcc.backend.content.video.VideoMapper;
 import com.meutcc.backend.content.video.VideoRepository;
 import com.meutcc.backend.security.SecurityService;

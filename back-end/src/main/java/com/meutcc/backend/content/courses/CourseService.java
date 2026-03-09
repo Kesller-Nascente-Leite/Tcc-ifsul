@@ -1,6 +1,5 @@
 package com.meutcc.backend.content.courses;
 
-import com.meutcc.backend.common.exceptions.CourseException;
 import com.meutcc.backend.security.AuthenticationService;
 import com.meutcc.backend.security.SecurityService;
 import com.meutcc.backend.teacher.Teacher;

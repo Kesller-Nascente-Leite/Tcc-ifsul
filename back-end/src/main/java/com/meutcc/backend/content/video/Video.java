@@ -1,5 +1,6 @@
 package com.meutcc.backend.content.video;
 
+import com.meutcc.backend.common.model.BaseEntity;
 import com.meutcc.backend.content.lesson.Lesson;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,11 +12,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Video {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Video extends BaseEntity {
 
     @Column(nullable = false)
     private String title;
