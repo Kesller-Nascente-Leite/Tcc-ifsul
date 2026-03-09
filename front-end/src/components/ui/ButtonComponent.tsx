@@ -88,7 +88,7 @@ export function ButtonComponent({
         return (
           <div>
             {isLoading ? (
-              <>
+              <div className="flex items-center gap-2">
                 {/* Spinner animado */}
                 <svg
                   className="h-4 w-4 animate-spin"
@@ -111,7 +111,7 @@ export function ButtonComponent({
                   />
                 </svg>
                 <span>Carregando...</span>
-              </>
+              </div>
             ) : (
               children
             )}

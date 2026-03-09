@@ -31,6 +31,7 @@ public class AttachmentService {
         securityService.validateCourseOwner(lesson.getModule().getCourse().getId());
 
         Attachment attachment = attachmentMapper.toEntity(attachmentDTO);
+        attachment.setLesson(lesson);
         attachment.setType(AttachmentType.LINK);
 
         Attachment savedAttachment = attachmentRepository.save(attachment);
