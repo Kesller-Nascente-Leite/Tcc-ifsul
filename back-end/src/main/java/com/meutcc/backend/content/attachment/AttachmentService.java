@@ -130,4 +130,11 @@ public class AttachmentService {
             default -> "application/octet-stream";
         };
     }
+
+    @Transactional
+    public void delete(Long attachmentId) {
+        Attachment attachment = attachmentRepository.findById(attachmentId).orElseThrow(() -> new AttachmentException("Anexo não encontrado"));
+        securityService.validateCourseOwner(attachment.getLesson().getModule().getCourse().getId());
+        attachmentRepository.delete(attachment);
+    }
 }

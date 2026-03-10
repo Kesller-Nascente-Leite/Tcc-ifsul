@@ -35,6 +35,10 @@ public class AttachmentController {
     }
 
     @DeleteMapping("/teacher/attachments/{attachmentId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void delete(@PathVariable("attachmentId") Long attachmentId) {
+        attachmentService.delete(attachmentId);
+    }
 
 
     @PostMapping("/teacher/lessons/{lessonId}/attachments/upload")

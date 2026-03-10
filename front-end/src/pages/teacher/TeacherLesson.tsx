@@ -19,6 +19,7 @@ import {
   ChevronDown,
   ChevronUp,
   DownloadIcon,
+  NotebookText,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
@@ -190,6 +191,11 @@ export function TeacherLessons() {
     }
 
     if (!moduleId) return;
+
+    if(lessonDuration > 6000){
+      showNotification("error"," Não é permitido um curso com mais de 100 horas")
+      return;
+    }
 
     const payload: LessonDTO = {
       title: lessonTitle.trim(),
@@ -533,9 +539,9 @@ export function TeacherLessons() {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <Header className="flex items-center justify-between">
+    <div className="space-y-6 pb-12">
+      {/* Header Responsivo */}
+      <Header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <button
             onClick={() => navigate(`/teacher/modules`)}
@@ -546,13 +552,13 @@ export function TeacherLessons() {
             <span className="text-sm">Voltar para Módulos</span>
           </button>
           <h1
-            className="text-2xl font-bold"
+            className="text-2xl font-bold wrap-break-word"
             style={{ color: "var(--color-text-primary)" }}
           >
             Aulas do Módulo
           </h1>
           <p
-            className="text-sm"
+            className="text-sm line-clamp-2"
             style={{ color: "var(--color-text-secondary)" }}
           >
             {module?.title || "Carregando..."}
@@ -574,7 +580,7 @@ export function TeacherLessons() {
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Formulário de Criação */}
         <div
-          className="lg:col-span-1 p-6 rounded-2xl border h-fit"
+          className="lg:col-span-1 p-4 sm:p-6 rounded-2xl border h-fit"
           style={{
             backgroundColor: "var(--color-surface)",
             borderColor: "var(--color-border)",
@@ -582,7 +588,7 @@ export function TeacherLessons() {
         >
           <div className="flex items-center gap-3 mb-4">
             <div
-              className="p-2 rounded-lg"
+              className="p-2 rounded-lg shrink-0"
               style={{ backgroundColor: `${accentColor}15` }}
             >
               <Plus size={20} style={{ color: accentColor }} />
@@ -610,6 +616,7 @@ export function TeacherLessons() {
                 }
                 placeholder="Ex: Introdução aos Hooks"
                 disabled={isCreating}
+                maxLength={100}
               />
             </div>
 
@@ -626,6 +633,7 @@ export function TeacherLessons() {
                 placeholder="Descreva o conteúdo desta aula..."
                 disabled={isCreating}
                 rows={4}
+                maxLength={1000}
                 className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   backgroundColor: "var(--color-surface-secondary)",
@@ -645,6 +653,7 @@ export function TeacherLessons() {
               <InputComponent
                 type="number"
                 min={0}
+                max={6000}
                 value={lessonDuration}
                 onChange={(e) =>
                   setLessonDuration(
@@ -662,6 +671,7 @@ export function TeacherLessons() {
                 isDisabled={
                   isCreating || !lessonTitle.trim() || !lessonDescription.trim()
                 }
+                className="w-full"
               >
                 {isCreating ? "Criando..." : "Criar Aula"}
               </ButtonComponent>
@@ -671,13 +681,13 @@ export function TeacherLessons() {
 
         {/* Lista de Aulas */}
         <div
-          className="lg:col-span-2 p-6 rounded-2xl border"
+          className="lg:col-span-2 p-4 sm:p-6 rounded-2xl border flex flex-col"
           style={{
             backgroundColor: "var(--color-surface)",
             borderColor: "var(--color-border)",
           }}
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
             <h3
               className="font-bold text-lg"
               style={{ color: "var(--color-text-primary)" }}
@@ -693,7 +703,7 @@ export function TeacherLessons() {
           </div>
 
           {lessons.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-12 flex-1 flex flex-col justify-center">
               <PlayCircle
                 size={48}
                 className="mx-auto mb-4 opacity-50"
@@ -706,7 +716,7 @@ export function TeacherLessons() {
                 className="text-sm mt-2"
                 style={{ color: "var(--color-text-secondary)" }}
               >
-                Crie sua primeira aula ao lado →
+                Crie sua primeira aula ao lado
               </p>
             </div>
           ) : (
@@ -720,14 +730,16 @@ export function TeacherLessons() {
                     borderColor: "var(--color-border)",
                   }}
                 >
-                  {/* Header da Aula */}
+                  {/* Header*/}
                   <div
-                    className="p-5 cursor-pointer select-none"
+                    className="p-4 sm:p-5 cursor-pointer select-none"
                     onClick={() => toggleLessonExpansion(lesson.id)}
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        {" "}
+                        {/* min-w-0 ajuda no truncamento do texto flex */}
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-2">
                           <span
                             className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold shrink-0"
                             style={{ backgroundColor: accentColor }}
@@ -735,25 +747,26 @@ export function TeacherLessons() {
                             {index + 1}
                           </span>
                           <h4
-                            className="font-bold text-lg"
+                            className="font-bold text-lg wrap-break-word"
                             style={{ color: "var(--color-text-primary)" }}
                           >
                             {lesson.title}
                           </h4>
                           {lesson.durationMinutes && (
                             <div
-                              className="flex items-center gap-1 text-xs"
+                              className="flex items-center gap-1 text-xs shrink-0"
                               style={{ color: "var(--color-text-secondary)" }}
                             >
                               <Clock size={14} />
                               <span>{lesson.durationMinutes} min</span>
                             </div>
                           )}
-
-                          {/* Badge de contadores */}
-                          <div className="flex items-center gap-2 ml-auto">
+                        </div>
+                        {/* Badges e Descrição em colunas no mobile */}
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-wrap items-center gap-2">
                             <span
-                              className="text-xs px-2 py-1 rounded-full"
+                              className="text-xs px-2 py-1 rounded-full shrink-0"
                               style={{
                                 backgroundColor: `${accentColor}15`,
                                 color: accentColor,
@@ -762,7 +775,7 @@ export function TeacherLessons() {
                               {lesson.videos?.length || 0} vídeos
                             </span>
                             <span
-                              className="text-xs px-2 py-1 rounded-full"
+                              className="text-xs px-2 py-1 rounded-full shrink-0"
                               style={{
                                 backgroundColor: `${accentColor}15`,
                                 color: accentColor,
@@ -771,52 +784,52 @@ export function TeacherLessons() {
                               {lesson.attachments?.length || 0} anexos
                             </span>
                           </div>
-
-                          {/* Ícone de expandir/colapsar */}
-                          <button
-                            className="p-1 rounded-lg hover:bg-opacity-10 transition-all"
-                            style={{
-                              backgroundColor: `${accentColor}10`,
-                              color: accentColor,
-                            }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleLessonExpansion(lesson.id);
-                            }}
+                          <p
+                            className="text-sm line-clamp-2"
+                            style={{ color: "var(--color-text-secondary)" }}
                           >
-                            {isLessonExpanded(lesson.id) ? (
-                              <ChevronUp size={20} />
-                            ) : (
-                              <ChevronDown size={20} />
-                            )}
-                          </button>
+                            {lesson.description}
+                          </p>
                         </div>
-                        <p
-                          className="text-sm"
-                          style={{ color: "var(--color-text-secondary)" }}
-                        >
-                          {lesson.description}
-                        </p>
                       </div>
+
+                      {/* Ícone de expandir/colapsar isolado no topo direito */}
+                      <button
+                        className="p-1 rounded-lg hover:bg-opacity-10 transition-all shrink-0 mt-1"
+                        style={{
+                          backgroundColor: `${accentColor}10`,
+                          color: accentColor,
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleLessonExpansion(lesson.id);
+                        }}
+                      >
+                        {isLessonExpanded(lesson.id) ? (
+                          <ChevronUp size={20} />
+                        ) : (
+                          <ChevronDown size={20} />
+                        )}
+                      </button>
                     </div>
                   </div>
 
-                  {/* Conteúdo Expansível - ANIMADO */}
+                  {/* Conteúdo Expansível */}
                   <div
                     className="overflow-hidden transition-all duration-300 ease-in-out"
                     style={{
-                      maxHeight: isLessonExpanded(lesson.id) ? "2000px" : "0",
+                      maxHeight: isLessonExpanded(lesson.id) ? "3000px" : "0",
                       opacity: isLessonExpanded(lesson.id) ? 1 : 0,
                     }}
                   >
-                    <div className="px-5 pb-5">
-                      {/* Botões de Ação */}
+                    <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+                      {/* Botões de Ação da Aula */}
                       <div
-                        className="flex items-center gap-2 mb-4 pb-4 border-b"
+                        className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b"
                         style={{ borderColor: "var(--color-border)" }}
                       >
                         <Button
-                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors"
+                          className="flex-1 sm:flex-none flex justify-center items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors"
                           style={{
                             backgroundColor: "var(--color-surface-hover)",
                             color: "var(--color-text-primary)",
@@ -829,11 +842,11 @@ export function TeacherLessons() {
                           }}
                         >
                           <Edit2 size={16} />
-                          Editar
+                          Editar Aula
                         </Button>
 
                         <Button
-                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors"
+                          className="flex-1 sm:flex-none flex justify-center items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors"
                           style={{
                             backgroundColor: "var(--color-error-light)",
                             color: "var(--color-error)",
@@ -844,13 +857,13 @@ export function TeacherLessons() {
                           }}
                         >
                           <Trash2 size={16} />
-                          Excluir
+                          Excluir Aula
                         </Button>
                       </div>
 
-                      {/* Vídeos */}
-                      <div className="mb-4">
-                        <div className="flex items-center justify-between mb-3">
+                      {/* SEÇÃO: Vídeos */}
+                      <div className="mb-6">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
                           <h5
                             className="font-semibold text-sm flex items-center gap-2"
                             style={{ color: "var(--color-text-primary)" }}
@@ -859,7 +872,7 @@ export function TeacherLessons() {
                             Vídeos ({lesson.videos?.length || 0})
                           </h5>
                           <Button
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
+                            className="w-full sm:w-auto flex justify-center items-center gap-2 px-3 py-2 sm:py-1.5 text-sm sm:text-xs rounded-lg transition-colors"
                             style={{
                               backgroundColor: `${accentColor}15`,
                               color: accentColor,
@@ -879,14 +892,14 @@ export function TeacherLessons() {
                             {lesson.videos.map((video) => (
                               <div
                                 key={video.id}
-                                className="flex items-center justify-between p-3 rounded-lg"
+                                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg gap-3"
                                 style={{
                                   backgroundColor: "var(--color-surface-hover)",
                                 }}
                               >
-                                <div className="flex items-center gap-3 flex-1">
+                                <div className="flex items-center gap-3 w-full sm:w-auto flex-1 min-w-0">
                                   <div
-                                    className="p-2 rounded-lg"
+                                    className="p-2 rounded-lg shrink-0"
                                     style={{
                                       backgroundColor: `${accentColor}15`,
                                       color: accentColor,
@@ -898,9 +911,9 @@ export function TeacherLessons() {
                                       <FileVideo size={16} />
                                     )}
                                   </div>
-                                  <div className="flex-1">
+                                  <div className="flex-1 min-w-0">
                                     <p
-                                      className="text-sm font-medium"
+                                      className="text-sm font-medium truncate"
                                       style={{
                                         color: "var(--color-text-primary)",
                                       }}
@@ -913,31 +926,36 @@ export function TeacherLessons() {
                                           href={video.url}
                                           target="_blank"
                                           rel="noopener noreferrer"
-                                          className="text-xs flex items-center gap-1 hover:underline"
+                                          className="text-xs flex items-center gap-1 hover:underline truncate"
                                           style={{ color: accentColor }}
                                           onClick={(e) => e.stopPropagation()}
                                         >
-                                          <LinkIcon size={12} />
-                                          Ver vídeo
+                                          <LinkIcon
+                                            size={12}
+                                            className="shrink-0"
+                                          />
+                                          <span className="truncate">
+                                            {video.url}
+                                          </span>
                                         </a>
                                       )}
                                     {video.storageType === "DATABASE" && (
                                       <span
-                                        className="text-xs"
+                                        className="text-xs truncate block"
                                         style={{
                                           color: "var(--color-text-secondary)",
                                         }}
                                       >
-                                        Armazenado no banco de dados
+                                        Arquivo no banco de dados
                                       </span>
                                     )}
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 border-border pt-2 sm:pt-0">
                                   {video.storageType === "DATABASE" && (
                                     <>
                                       <Button
-                                        className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                        className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg transition-colors hover:opacity-80"
                                         style={{
                                           backgroundColor: `${accentColor}15`,
                                           color: accentColor,
@@ -952,7 +970,7 @@ export function TeacherLessons() {
                                         <Play size={16} />
                                       </Button>
                                       <Button
-                                        className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                        className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg transition-colors hover:opacity-80"
                                         style={{
                                           backgroundColor: `${accentColor}15`,
                                           color: accentColor,
@@ -967,7 +985,7 @@ export function TeacherLessons() {
                                     </>
                                   )}
                                   <Button
-                                    className="p-2 rounded-lg transition-colors"
+                                    className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg transition-colors"
                                     style={{
                                       backgroundColor:
                                         "var(--color-error-light)",
@@ -978,7 +996,8 @@ export function TeacherLessons() {
                                       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                                       video.id && deleteVideo(video.id);
                                     }}
-                                  >
+                                    >
+
                                     <Trash2 size={16} />
                                   </Button>
                                 </div>
@@ -987,7 +1006,7 @@ export function TeacherLessons() {
                           </div>
                         ) : (
                           <p
-                            className="text-xs text-center py-2"
+                            className="text-xs text-center py-4 bg-surface-hover rounded-lg"
                             style={{ color: "var(--color-text-secondary)" }}
                           >
                             Nenhum vídeo adicionado
@@ -997,7 +1016,7 @@ export function TeacherLessons() {
 
                       {/* Anexos */}
                       <div>
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
                           <h5
                             className="font-semibold text-sm flex items-center gap-2"
                             style={{ color: "var(--color-text-primary)" }}
@@ -1006,7 +1025,7 @@ export function TeacherLessons() {
                             Anexos ({lesson.attachments?.length || 0})
                           </h5>
                           <Button
-                            className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
+                            className="w-full sm:w-auto flex justify-center items-center gap-2 px-3 py-2 sm:py-1.5 text-sm sm:text-xs rounded-lg transition-colors"
                             style={{
                               backgroundColor: `${accentColor}15`,
                               color: accentColor,
@@ -1026,24 +1045,28 @@ export function TeacherLessons() {
                             {lesson.attachments.map((attachment) => (
                               <div
                                 key={attachment.id}
-                                className="flex items-center justify-between p-3 rounded-lg"
+                                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg gap-3"
                                 style={{
                                   backgroundColor: "var(--color-surface-hover)",
                                 }}
                               >
-                                <div className="flex items-center gap-3 flex-1">
+                                <div className="flex items-start sm:items-center gap-3 w-full sm:w-auto flex-1 min-w-0">
                                   <div
-                                    className="p-2 rounded-lg"
+                                    className="p-2 rounded-lg shrink-0"
                                     style={{
                                       backgroundColor: `${accentColor}15`,
                                       color: accentColor,
                                     }}
                                   >
-                                    <FileText size={16} />
+                                    {attachment.type === "LINK" ? (
+                                      <FileText size={16} />
+                                    ) : (
+                                      <NotebookText size={16} />
+                                    )}
                                   </div>
-                                  <div className="flex-1">
+                                  <div className="flex-1 min-w-0">
                                     <p
-                                      className="text-sm font-medium"
+                                      className="text-sm font-medium truncate"
                                       style={{
                                         color: "var(--color-text-primary)",
                                       }}
@@ -1051,7 +1074,7 @@ export function TeacherLessons() {
                                       {attachment.title}
                                     </p>
                                     <p
-                                      className="text-xs line-clamp-1"
+                                      className="text-xs line-clamp-2 sm:line-clamp-1"
                                       style={{
                                         color: "var(--color-text-secondary)",
                                       }}
@@ -1065,8 +1088,11 @@ export function TeacherLessons() {
                                           color: "var(--color-text-secondary)",
                                         }}
                                       >
-                                        <Calendar size={12} />
-                                        <span>
+                                        <Calendar
+                                          size={12}
+                                          className="shrink-0"
+                                        />
+                                        <span className="truncate">
                                           Entrega:{" "}
                                           {new Date(
                                             attachment.deliveryDate,
@@ -1076,13 +1102,13 @@ export function TeacherLessons() {
                                     )}
                                   </div>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 border-border pt-2 sm:pt-0">
                                   {attachment.type === "LINK" ? (
                                     <a
                                       href={attachment.fileUrl}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                      className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg transition-colors hover:opacity-80"
                                       style={{
                                         backgroundColor: `${accentColor}15`,
                                         color: accentColor,
@@ -1092,25 +1118,22 @@ export function TeacherLessons() {
                                       <ExternalLink size={16} />
                                     </a>
                                   ) : (
-                                    <a
-                                      href={attachment.fileUrl}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                    <button
+                                      className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg transition-colors hover:opacity-80"
                                       style={{
                                         backgroundColor: `${accentColor}15`,
                                         color: accentColor,
                                       }}
                                       onClick={(e) => {
-                                          e.stopPropagation();
-                                          downloadAttachment(attachment);
+                                        e.stopPropagation();
+                                        downloadAttachment(attachment);
                                       }}
                                     >
                                       <DownloadIcon size={16} />
-                                    </a>
+                                    </button>
                                   )}
                                   <Button
-                                    className="p-2 rounded-lg transition-colors"
+                                    className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg transition-colors"
                                     style={{
                                       backgroundColor:
                                         "var(--color-error-light)",
@@ -1131,7 +1154,7 @@ export function TeacherLessons() {
                           </div>
                         ) : (
                           <p
-                            className="text-xs text-center py-2"
+                            className="text-xs text-center py-4 bg-surface-hover rounded-lg"
                             style={{ color: "var(--color-text-secondary)" }}
                           >
                             Nenhum anexo adicionado
@@ -1155,7 +1178,7 @@ export function TeacherLessons() {
           onClick={() => setShowVideoModal(false)}
         >
           <div
-            className="w-full max-w-md p-6 rounded-2xl border"
+            className="w-full max-w-md p-4 sm:p-6 rounded-2xl border max-h-[90vh] overflow-y-auto"
             style={{
               backgroundColor: "var(--color-surface)",
               borderColor: "var(--color-border)",
@@ -1169,9 +1192,9 @@ export function TeacherLessons() {
               Adicionar Vídeo
             </h3>
 
-            <div className="flex gap-2 mb-4">
+            <div className="flex flex-col sm:flex-row gap-2 mb-4">
               <Button
-                className="flex-1 px-4 py-2 rounded-lg transition-all font-semibold"
+                className="flex-1 px-4 py-2 flex justify-center items-center rounded-lg transition-all font-semibold"
                 style={{
                   backgroundColor:
                     videoMode === "url"
@@ -1184,11 +1207,11 @@ export function TeacherLessons() {
                 }}
                 onClick={() => setVideoMode("url")}
               >
-                <Globe size={16} className="inline mr-2" />
+                <Globe size={16} className="mr-2" />
                 Link URL
               </Button>
               <Button
-                className="flex-1 px-4 py-2 rounded-lg transition-all font-semibold"
+                className="flex-1 px-4 py-2 flex justify-center items-center rounded-lg transition-all font-semibold"
                 style={{
                   backgroundColor:
                     videoMode === "upload"
@@ -1201,7 +1224,7 @@ export function TeacherLessons() {
                 }}
                 onClick={() => setVideoMode("upload")}
               >
-                <Upload size={16} className="inline mr-2" />
+                <Upload size={16} className="mr-2" />
                 Upload
               </Button>
             </div>
@@ -1260,7 +1283,7 @@ export function TeacherLessons() {
                     accept="video/*"
                     onChange={handleFileChange}
                     disabled={isAddingVideo}
-                    className="w-full px-4 py-2 rounded-lg border file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold hover:file:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2 rounded-lg border file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold hover:file:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     style={{
                       backgroundColor: "var(--color-surface-secondary)",
                       borderColor: "var(--color-border)",
@@ -1269,7 +1292,7 @@ export function TeacherLessons() {
                   />
                   {videoFile && (
                     <p
-                      className="text-xs mt-1"
+                      className="text-xs mt-1 truncate"
                       style={{ color: "var(--color-text-secondary)" }}
                     >
                       Arquivo: {videoFile.name} (
@@ -1279,24 +1302,30 @@ export function TeacherLessons() {
                 </div>
               )}
 
-              <div className="flex gap-3 pt-4">
-                <ButtonComponent
-                  onClick={() => setShowVideoModal(false)}
-                  isDisabled={isAddingVideo}
-                  variant="secondary"
-                >
-                  Cancelar
-                </ButtonComponent>
-                <ButtonComponent
-                  onClick={addVideo}
-                  isDisabled={
-                    isAddingVideo ||
-                    !videoTitle.trim() ||
-                    (videoMode === "url" ? !videoUrl.trim() : !videoFile)
-                  }
-                >
-                  {isAddingVideo ? "Adicionando..." : "Adicionar Vídeo"}
-                </ButtonComponent>
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
+                <div className="flex-1">
+                  <ButtonComponent
+                    onClick={() => setShowVideoModal(false)}
+                    isDisabled={isAddingVideo}
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    Cancelar
+                  </ButtonComponent>
+                </div>
+                <div className="flex-1">
+                  <ButtonComponent
+                    onClick={addVideo}
+                    isDisabled={
+                      isAddingVideo ||
+                      !videoTitle.trim() ||
+                      (videoMode === "url" ? !videoUrl.trim() : !videoFile)
+                    }
+                    className="w-full"
+                  >
+                    {isAddingVideo ? "Adicionando..." : "Adicionar Vídeo"}
+                  </ButtonComponent>
+                </div>
               </div>
             </div>
           </div>
@@ -1311,7 +1340,7 @@ export function TeacherLessons() {
           onClick={() => setShowAttachmentModal(false)}
         >
           <div
-            className="w-full max-w-md p-6 rounded-2xl border"
+            className="w-full max-w-md p-4 sm:p-6 rounded-2xl border max-h-[90vh] overflow-y-auto"
             style={{
               backgroundColor: "var(--color-surface)",
               borderColor: "var(--color-border)",
@@ -1325,9 +1354,9 @@ export function TeacherLessons() {
               Adicionar Anexo
             </h3>
 
-            <div className="flex gap-2 mb-4">
+            <div className="flex flex-col sm:flex-row gap-2 mb-4">
               <Button
-                className="flex-1 px-4 py-2 rounded-lg transition-all font-semibold"
+                className="flex-1 px-4 py-2 flex justify-center items-center rounded-lg transition-all font-semibold"
                 style={{
                   backgroundColor:
                     attachmentMode === "upload"
@@ -1340,11 +1369,11 @@ export function TeacherLessons() {
                 }}
                 onClick={() => setAttachmentMode("upload")}
               >
-                <Upload size={16} className="inline mr-2" />
+                <Upload size={16} className="mr-2" />
                 Upload Arquivo
               </Button>
               <Button
-                className="flex-1 px-4 py-2 rounded-lg transition-all font-semibold"
+                className="flex-1 px-4 py-2 flex justify-center items-center rounded-lg transition-all font-semibold"
                 style={{
                   backgroundColor:
                     attachmentMode === "url"
@@ -1357,7 +1386,7 @@ export function TeacherLessons() {
                 }}
                 onClick={() => setAttachmentMode("url")}
               >
-                <Globe size={16} className="inline mr-2" />
+                <Globe size={16} className="mr-2" />
                 Link URL
               </Button>
             </div>
@@ -1415,7 +1444,7 @@ export function TeacherLessons() {
                     accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png"
                     onChange={handleAttachmentFileChange}
                     disabled={isAddingAttachment}
-                    className="w-full px-4 py-2 rounded-lg border file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold hover:file:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full px-4 py-2 rounded-lg border file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold hover:file:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                     style={{
                       backgroundColor: "var(--color-surface-secondary)",
                       borderColor: "var(--color-border)",
@@ -1424,7 +1453,7 @@ export function TeacherLessons() {
                   />
                   {attachmentFile && (
                     <p
-                      className="text-xs mt-1"
+                      className="text-xs mt-1 truncate"
                       style={{ color: "var(--color-text-secondary)" }}
                     >
                       Arquivo: {attachmentFile.name} (
@@ -1482,27 +1511,33 @@ export function TeacherLessons() {
                 />
               </div>
 
-              <div className="flex gap-3 pt-4">
-                <ButtonComponent
-                  onClick={() => setShowAttachmentModal(false)}
-                  isDisabled={isAddingAttachment}
-                  variant="secondary"
-                >
-                  Cancelar
-                </ButtonComponent>
-                <ButtonComponent
-                  onClick={addAttachment}
-                  isDisabled={
-                    isAddingAttachment ||
-                    !attachmentTitle.trim() ||
-                    !attachmentDescription.trim() ||
-                    (attachmentMode === "url"
-                      ? !attachmentFileUrl.trim()
-                      : !attachmentFile)
-                  }
-                >
-                  {isAddingAttachment ? "Adicionando..." : "Adicionar Anexo"}
-                </ButtonComponent>
+              <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
+                <div className="flex-1">
+                  <ButtonComponent
+                    onClick={() => setShowAttachmentModal(false)}
+                    isDisabled={isAddingAttachment}
+                    variant="secondary"
+                    className="w-full"
+                  >
+                    Cancelar
+                  </ButtonComponent>
+                </div>
+                <div className="flex-1">
+                  <ButtonComponent
+                    onClick={addAttachment}
+                    isDisabled={
+                      isAddingAttachment ||
+                      !attachmentTitle.trim() ||
+                      !attachmentDescription.trim() ||
+                      (attachmentMode === "url"
+                        ? !attachmentFileUrl.trim()
+                        : !attachmentFile)
+                    }
+                    className="w-full"
+                  >
+                    {isAddingAttachment ? "Adicionando..." : "Adicionar Anexo"}
+                  </ButtonComponent>
+                </div>
               </div>
             </div>
           </div>

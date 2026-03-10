@@ -27,8 +27,6 @@ public class VideoService {
 
     @Transactional
     public VideoDTO uploadVideo(Long lessonId, String title, MultipartFile file) throws IOException {
-        log.info("Iniciando upload de vídeo para aula ID: {}", lessonId);
-
         // Validar tamanho do arquivo
         if (file.getSize() > MAX_VIDEO_SIZE) {
             throw new LessonException("Arquivo muito grande. Tamanho máximo: 900MB");
@@ -42,7 +40,7 @@ public class VideoService {
 
         // Buscar aula e validar permissão
         Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new LessonException("Aula não encontrada com ID: " + lessonId));
+                .orElseThrow(() -> new LessonException("Aula não encontrada"));
 
         securityService.validateCourseOwner(lesson.getModule().getCourse().getId());
 
@@ -55,17 +53,15 @@ public class VideoService {
                 .build();
 
         Video saved = videoRepository.save(video);
-        log.info("Vídeo salvo com sucesso. ID: {}, Tamanho: {} bytes", saved.getId(), file.getSize());
 
         return videoMapper.toDTO(saved);
     }
 
     @Transactional
     public VideoDTO addVideoUrl(Long lessonId, String title, String url) {
-        log.info("Adicionando vídeo URL à aula ID: {}", lessonId);
 
         Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new LessonException("Aula não encontrada com ID: " + lessonId));
+                .orElseThrow(() -> new LessonException("Aula não encontrada"));
 
         securityService.validateCourseOwner(lesson.getModule().getCourse().getId());
 
@@ -77,14 +73,12 @@ public class VideoService {
                 .build();
 
         Video saved = videoRepository.save(video);
-        log.info("Vídeo URL adicionado com sucesso. ID: {}", saved.getId());
 
         return videoMapper.toDTO(saved);
     }
 
     @Transactional(readOnly = true)
     public VideoDTO getById(Long videoId) {
-        log.info("Buscando vídeo ID: {}", videoId);
 
         Video video = videoRepository.findById(videoId)
                 .orElseThrow(() -> new LessonException("Vídeo não encontrado com ID: " + videoId));
@@ -98,7 +92,6 @@ public class VideoService {
 
     @Transactional(readOnly = true)
     public VideoDownloadDTO downloadVideo(Long videoId) {
-        log.info("Baixando vídeo ID: {}", videoId);
 
         Video video = videoRepository.findById(videoId)
                 .orElseThrow(() -> new LessonException("Vídeo não encontrado com ID: " + videoId));
@@ -125,7 +118,7 @@ public class VideoService {
     @Transactional(readOnly = true)
     public List<VideoDTO> listVideosByLesson(Long lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId)
-                .orElseThrow(() -> new LessonException("Aula não encontrada com ID: " + lessonId));
+                .orElseThrow(() -> new LessonException("Aula não encontrada"));
 
         securityService.validateCourseOwner(lesson.getModule().getCourse().getId());
 
@@ -137,16 +130,14 @@ public class VideoService {
 
     @Transactional
     public void deleteVideo(Long videoId) {
-        log.info("Excluindo vídeo ID: {}", videoId);
 
         Video video = videoRepository.findById(videoId)
-                .orElseThrow(() -> new LessonException("Vídeo não encontrado com ID: " + videoId));
+                .orElseThrow(() -> new LessonException("Vídeo não encontrado"));
 
         securityService.validateCourseOwner(
                 video.getLesson().getModule().getCourse().getId()
         );
 
         videoRepository.delete(video);
-        log.info("Vídeo excluído com sucesso. ID: {}", videoId);
     }
 }

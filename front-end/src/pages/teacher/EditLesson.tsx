@@ -87,7 +87,7 @@ export function EditLesson() {
   };
 
   const validate = (): boolean => {
-    const newErrors: { title?: string; description?: string } = {};
+    const newErrors: { title?: string; description?: string, duration?: string } = {};
 
     if (!title.trim()) {
       newErrors.title = "O título é obrigatório";
@@ -99,6 +99,10 @@ export function EditLesson() {
       newErrors.description = "A descrição é obrigatória";
     } else if (description.trim().length < 10) {
       newErrors.description = "A descrição deve ter pelo menos 10 caracteres";
+    }
+
+    if(durationMinutes > 6000){
+      newErrors.duration = "O curso não pode ter mais de 100 horas (6000 min)";
     }
 
     setErrors(newErrors);
@@ -130,7 +134,7 @@ export function EditLesson() {
 
       setNotification({
         type: "success",
-        message: "✅ Aula atualizada com sucesso!",
+        message: "Aula atualizada com sucesso!",
       });
 
       setHasChanges(false);
@@ -368,6 +372,7 @@ export function EditLesson() {
                     Título da Aula *
                   </Label>
                   <InputComponent
+                    maxLength={100}
                     value={title}
                     onChange={(e) =>
                       setTitle((e.target as HTMLInputElement).value)
@@ -406,6 +411,7 @@ export function EditLesson() {
                     placeholder="Descreva o conteúdo que será abordado nesta aula..."
                     disabled={isSaving}
                     rows={6}
+                    maxLength={1000}
                     className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 resize-none disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                     style={{
                       backgroundColor: "var(--color-surface-secondary)",
@@ -449,7 +455,7 @@ export function EditLesson() {
                     <InputComponent
                       type="number"
                       min={0}
-                      max={999}
+                      max={6000}
                       value={durationMinutes}
                       onChange={(e) =>
                         setDurationMinutes(
@@ -658,7 +664,7 @@ export function EditLesson() {
                 className="font-bold text-sm mb-3"
                 style={{ color: accentColor }}
               >
-                <div className="flex text-">
+                <div className="flex text-xs">
                   <LucideAlertOctagon size={16} />
                   Dicas
                 </div>
