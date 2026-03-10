@@ -538,7 +538,7 @@ export function TeacherLessons() {
       <Header className="flex items-center justify-between">
         <div>
           <button
-            onClick={() => navigate(`/teacher/courses/${courseId}/modules`)}
+            onClick={() => navigate(`/teacher/modules`)}
             className="flex items-center gap-2 hover:opacity-80 transition-colors mb-2"
             style={{ color: "var(--color-text-secondary)" }}
           >
@@ -1147,7 +1147,6 @@ export function TeacherLessons() {
         </div>
       </section>
 
-      {/* MODAIS - SEM ALTERAÇÃO */}
       {/* Modal de Vídeo */}
       {showVideoModal && (
         <div

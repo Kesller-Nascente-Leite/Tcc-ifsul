@@ -9,13 +9,14 @@ import {
   Clock,
   AlertCircle,
   CheckCircle2,
+  LucideAlertOctagon,
 } from "lucide-react";
 import { InputComponent } from "../../components/ui/InputComponent";
 import { NotificationComponent } from "../../components/ui/NotificationComponent";
 import { LessonTeacherApi } from "../../api/lessonTeacher.api";
 import type { LessonDTO } from "../../types/LessonDTO";
 import { useTheme } from "../../context/ThemeContext";
-import { Label, TextArea } from "react-aria-components";
+import { Button, Label, TextArea } from "react-aria-components";
 
 export function EditLesson() {
   const { lessonId, courseId, moduleId } = useParams<{
@@ -138,7 +139,7 @@ export function EditLesson() {
       setTimeout(() => {
         goBack();
       }, 1500);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao salvar aula:", error);
       setNotification({
@@ -153,7 +154,7 @@ export function EditLesson() {
   const handleCancel = () => {
     if (hasChanges) {
       const confirm = window.confirm(
-        "Você tem alterações não salvas. Deseja realmente sair?"
+        "Você tem alterações não salvas. Deseja realmente sair?",
       );
       if (!confirm) return;
     }
@@ -229,7 +230,7 @@ export function EditLesson() {
           >
             A aula que você está tentando editar não existe ou foi removida.
           </p>
-          <button
+          <Button
             onClick={goBack}
             className="px-6 py-3 rounded-xl font-semibold transition-all hover:opacity-90"
             style={{
@@ -239,7 +240,7 @@ export function EditLesson() {
           >
             <ArrowLeft size={18} className="inline mr-2" />
             Voltar para aulas
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -268,15 +269,13 @@ export function EditLesson() {
       <div
         className="sticky top-0 z-10 backdrop-blur-md border-b"
         style={{
-          backgroundColor: isDark
-            ? "rgba(0,0,0,0.5)"
-            : "rgba(255,255,255,0.5)",
+          backgroundColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(255,255,255,0.5)",
           borderColor: "var(--color-border)",
         }}
       >
         <div className="max-w-5xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <button
+            <Button
               onClick={handleCancel}
               className="flex items-center gap-2 hover:gap-3 transition-all group"
               style={{ color: "var(--color-text-secondary)" }}
@@ -288,7 +287,7 @@ export function EditLesson() {
               <span className="text-sm font-medium group-hover:text-current transition-colors">
                 Voltar para aulas
               </span>
-            </button>
+            </Button>
 
             {hasChanges && (
               <div
@@ -454,7 +453,7 @@ export function EditLesson() {
                       value={durationMinutes}
                       onChange={(e) =>
                         setDurationMinutes(
-                          (e.target as HTMLInputElement).valueAsNumber || 0
+                          (e.target as HTMLInputElement).valueAsNumber || 0,
                         )
                       }
                       placeholder="0"
@@ -474,12 +473,14 @@ export function EditLesson() {
 
             {/* Botões de Ação */}
             <div className="flex items-center gap-4">
-              <button
+              <Button
                 onClick={handleSave}
-                disabled={isSaving || !hasChanges}
+                isDisabled={isSaving || !hasChanges}
                 className="flex-1 flex items-center justify-center gap-2 px-6 py-4 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg"
                 style={{
-                  backgroundColor: hasChanges ? accentColor : "var(--color-surface-secondary)",
+                  backgroundColor: hasChanges
+                    ? accentColor
+                    : "var(--color-surface-secondary)",
                   color: hasChanges ? "white" : "var(--color-text-secondary)",
                 }}
               >
@@ -494,11 +495,11 @@ export function EditLesson() {
                     Salvar Alterações
                   </>
                 )}
-              </button>
+              </Button>
 
-              <button
+              <Button
                 onClick={handleCancel}
-                disabled={isSaving}
+                isDisabled={isSaving}
                 className="px-6 py-4 rounded-xl font-semibold transition-all hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   backgroundColor: "var(--color-surface-secondary)",
@@ -507,7 +508,7 @@ export function EditLesson() {
               >
                 <X size={20} className="inline mr-2" />
                 Cancelar
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -599,7 +600,10 @@ export function EditLesson() {
                   {title.trim() ? (
                     <CheckCircle2 size={18} style={{ color: accentColor }} />
                   ) : (
-                    <AlertCircle size={18} style={{ color: "var(--color-error)" }} />
+                    <AlertCircle
+                      size={18}
+                      style={{ color: "var(--color-error)" }}
+                    />
                   )}
                 </div>
 
@@ -613,7 +617,10 @@ export function EditLesson() {
                   {description.trim() ? (
                     <CheckCircle2 size={18} style={{ color: accentColor }} />
                   ) : (
-                    <AlertCircle size={18} style={{ color: "var(--color-error)" }} />
+                    <AlertCircle
+                      size={18}
+                      style={{ color: "var(--color-error)" }}
+                    />
                   )}
                 </div>
 
@@ -630,7 +637,10 @@ export function EditLesson() {
                       style={{ backgroundColor: accentColor }}
                     />
                   ) : (
-                    <CheckCircle2 size={18} style={{ color: "var(--color-text-secondary)" }} />
+                    <CheckCircle2
+                      size={18}
+                      style={{ color: "var(--color-text-secondary)" }}
+                    />
                   )}
                 </div>
               </div>
@@ -648,9 +658,15 @@ export function EditLesson() {
                 className="font-bold text-sm mb-3"
                 style={{ color: accentColor }}
               >
-                💡 Dicas
+                <div className="flex text-">
+                  <LucideAlertOctagon size={16} />
+                  Dicas
+                </div>
               </h3>
-              <ul className="space-y-2 text-xs" style={{ color: "var(--color-text-primary)" }}>
+              <ul
+                className="space-y-2 text-xs"
+                style={{ color: "var(--color-text-primary)" }}
+              >
                 <li>• Use títulos claros e descritivos</li>
                 <li>• Descreva os objetivos de aprendizado</li>
                 <li>• Indique pré-requisitos se necessário</li>
