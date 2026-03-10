@@ -50,11 +50,6 @@ export function EditModule() {
 
   const loadModuleData = async () => {
     console.log("Carregando dados do módulo e curso...");
-    // if (!moduleId || !courseId) {
-    //   console.error("moduleId ou courseId ausente nos parâmetros da URL");
-    //   setIsLoading(false);
-    //   return;
-    // }
 
     if (!moduleId) {
       console.error("moduleId ausente nos parâmetros da URL");
@@ -166,7 +161,7 @@ export function EditModule() {
   };
 
   const handleCancel = () => {
-    navigate(`/teacher/courses/${courseId}/modules`);
+    navigate(`/teacher//modules`);
   };
 
   if (isLoading) {

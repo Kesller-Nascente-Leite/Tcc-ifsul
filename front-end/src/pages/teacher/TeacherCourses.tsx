@@ -195,10 +195,10 @@ export function TeacherCourse() {
     }
   }, [courses.length, currentPage, totalPages]);
 
-  return (
+return (
     <div className="space-y-6">
-      {/* Header */}
-      <header className="flex items-center justify-between">
+      {/* Header Responsivo */}
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Meus Cursos</h1>
           <p className="text-sm text-text-secondary">
@@ -208,12 +208,13 @@ export function TeacherCourse() {
         <ButtonComponent
           size="sm"
           onClick={() => navigate("/teacher/subjects")}
+          className="w-full sm:w-auto" // Botão ocupa a tela toda no mobile e se ajusta no desktop
         >
           Gerenciar Matérias
         </ButtonComponent>
       </header>
 
-      {/* Notificação */}
+      {/* Notificação (Mantida igual) */}
       {notification && (
         <div
           className={`p-4 rounded-xl border flex items-center gap-3 ${
@@ -287,6 +288,7 @@ export function TeacherCourse() {
               <ButtonComponent
                 onClick={saveCourse}
                 isDisabled={isCreating || !title.trim() || !description.trim()}
+                className="w-full"
               >
                 {isCreating ? "Criando..." : "Criar Curso"}
               </ButtonComponent>
@@ -299,11 +301,11 @@ export function TeacherCourse() {
         </div>
 
         {/* Lista de cursos */}
-        <div className="lg:col-span-2 p-6 rounded-2xl border bg-surface border-border flex flex-col">
+        <div className="lg:col-span-2 p-4 sm:p-6 rounded-2xl border bg-surface border-border flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-bold text-lg">Cursos Criados</h3>
             <div className="text-sm text-text-secondary">
-              {courses.length} curso(s) no total
+              {courses.length} curso(s)
             </div>
           </div>
 
@@ -330,46 +332,49 @@ export function TeacherCourse() {
             </div>
           ) : (
             <div className="flex flex-col flex-1 justify-between">
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {currentCourses.map((course) => (
                   <div
                     key={course.id}
-                    className="p-5 rounded-xl border bg-slate-50 dark:bg-slate-900/20 border-border hover:shadow-md transition-all"
+                    className="p-4 sm:p-5 rounded-xl border bg-slate-50 dark:bg-slate-900/20 border-border hover:shadow-md transition-all"
                   >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h4 className="font-bold text-lg text-text-primary">
-                            {course.title}
-                          </h4>
-                          {course.published ? (
-                            <span className="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 flex items-center gap-1">
-                              <CheckCircle size={12} />
-                              Publicado
-                            </span>
-                          ) : (
-                            <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300">
-                              Rascunho
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-text-secondary line-clamp-2">
-                          {course.description}
-                        </p>
+                    <div className="flex flex-col mb-4 gap-2">
+                      {/* Título e Status Responsivos */}
+                      <div className="flex flex-wrap items-center gap-3">
+                        <h4 className="font-bold text-lg text-text-primary break-all">
+                          {course.title}
+                        </h4>
+                        {course.published ? (
+                          <span className="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 flex items-center gap-1 shrink-0">
+                            <CheckCircle size={12} />
+                            Publicado
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 shrink-0">
+                            Rascunho
+                          </span>
+                        )}
                       </div>
+                      <p className="text-sm text-text-secondary line-clamp-2">
+                        {course.description}
+                      </p>
                     </div>
 
-                    <div className="flex items-center justify-between pt-3 border-t border-border">
-                      <div className="flex items-center gap-2">
+                    {/* Botões de Ação Responsivos */}
+                    <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between pt-4 border-t border-border gap-3">
+                      
+                      {/* Grupo 1: Ver, Alunos, Editar */}
+                      <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
                         <ButtonComponent
                           size="sm"
                           onClick={() =>
-                            navigate(`/teacher/subjects?course=${course.id}`)
+                            navigate(`/teacher/modules`)
                           }
+                          className="flex-1 sm:flex-none justify-center"
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-center gap-2">
                             <Eye size={16} />
-                            <span>Ver Matérias</span>
+                            <span>Módulos</span>
                           </div>
                         </ButtonComponent>
 
@@ -378,15 +383,16 @@ export function TeacherCourse() {
                           onClick={() =>
                             navigate(`/teacher/courses/${course.id}/students`)
                           }
+                          className="flex-1 sm:flex-none justify-center"
                         >
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-center gap-2">
                             <Users size={16} className="mr-1" />
                             <span>Alunos</span>
                           </div>
                         </ButtonComponent>
 
                         <button
-                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
+                          className="flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary flex-1 sm:flex-none"
                           onClick={() =>
                             navigate(`/teacher/courses/${course.id}/edit`)
                           }
@@ -396,9 +402,10 @@ export function TeacherCourse() {
                         </button>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      {/* Grupo 2: Publicar e Excluir */}
+                      <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto xl:justify-end">
                         <button
-                          className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+                          className={`flex-1 sm:flex-none flex items-center justify-center px-3 py-2 text-sm rounded-lg transition-colors ${
                             course.published
                               ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200"
                               : "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 hover:bg-green-200"
@@ -409,7 +416,7 @@ export function TeacherCourse() {
                         </button>
 
                         <button
-                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                           onClick={() => course.id && deleteCourse(course.id)}
                         >
                           <Trash2 size={16} />
@@ -421,19 +428,19 @@ export function TeacherCourse() {
                 ))}
               </div>
 
-              {/* CONTROLES DE PAGINAÇÃO */}
+              {/* Controles de Paginação Responsivos */}
               {totalPages > 1 && (
-                <div className="flex items-center justify-between pt-4 mt-4 border-t border-border">
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 mt-6 border-t border-border">
                   <span className="text-sm text-text-secondary font-medium">
                     Página {currentPage} de {totalPages}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
                     <button
                       onClick={() =>
                         setCurrentPage((prev) => Math.max(prev - 1, 1))
                       }
                       disabled={currentPage === 1}
-                      className="p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
+                      className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
                       title="Página Anterior"
                     >
                       <ChevronLeft size={18} />
@@ -443,7 +450,7 @@ export function TeacherCourse() {
                         setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                       }
                       disabled={currentPage === totalPages}
-                      className="p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
+                      className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
                       title="Próxima Página"
                     >
                       <ChevronRight size={18} />
@@ -458,28 +465,27 @@ export function TeacherCourse() {
 
       {/* Informações adicionais */}
       {courses.length > 0 && (
-        <section className="p-5 rounded-xl border bg-surface border-border">
-          <div className="flex items-start gap-3">
-            <div
-              className="p-2 rounded-lg mt-1"
-              style={{ backgroundColor: `${accentColor}15` }}
-            >
-              <BookOpen size={20} style={{ color: accentColor }} />
-            </div>
-            <div>
-              <h4 className="font-bold text-md text-text-primary mb-1">
-                Próximos passos
-              </h4>
-              <p className="text-sm text-text-secondary">
-                Após criar um curso, você pode adicionar matérias e conteúdos.
-                Cursos publicados ficam visíveis para os alunos na página de
-                "Cursos Disponíveis". Lembre-se de despublicar caso precise
-                fazer grandes alterações.
-              </p>
-            </div>
+        <section className="p-5 rounded-xl border bg-surface border-border flex flex-col sm:flex-row gap-3">
+          <div
+            className="p-2 rounded-lg shrink-0 self-start"
+            style={{ backgroundColor: `${accentColor}15` }}
+          >
+            <BookOpen size={20} style={{ color: accentColor }} />
+          </div>
+          <div>
+            <h4 className="font-bold text-md text-text-primary mb-1">
+              Próximos passos
+            </h4>
+            <p className="text-sm text-text-secondary">
+              Após criar um curso, você pode adicionar matérias e conteúdos.
+              Cursos publicados ficam visíveis para os alunos na página de
+              "Cursos Disponíveis". Lembre-se de despublicar caso precise
+              fazer grandes alterações.
+            </p>
           </div>
         </section>
       )}
+
       <ConfirmDialog
         isOpen={isOpen}
         onOpenChange={setIsOpen}

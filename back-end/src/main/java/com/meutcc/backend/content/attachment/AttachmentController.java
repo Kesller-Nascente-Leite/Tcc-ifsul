@@ -34,8 +34,11 @@ public class AttachmentController {
         return attachmentService.createWithUrl(attachmentDTO);
     }
 
-    @ResponseStatus(HttpStatus.CREATED)
+    @DeleteMapping("/teacher/attachments/{attachmentId}")
+
+
     @PostMapping("/teacher/lessons/{lessonId}/attachments/upload")
+    @ResponseStatus(HttpStatus.CREATED)
     public AttachmentDTO uploadFile(
             @PathVariable("lessonId") Long lessonId,
             @RequestParam("title") String title,

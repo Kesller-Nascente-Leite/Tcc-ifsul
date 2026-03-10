@@ -184,10 +184,10 @@ export function TeacherModules() {
     }
   };
 
-  return (
+ return (
     <div className="space-y-6">
-      {/* Header */}
-      <Header className="flex items-center justify-between">
+      {/* Header Responsivo */}
+      <Header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">
             Módulos do Curso
@@ -196,7 +196,11 @@ export function TeacherModules() {
             Organize o conteúdo do seu curso em módulos
           </p>
         </div>
-        <ButtonComponent size="sm" onClick={() => navigate("/teacher/course")}>
+        <ButtonComponent 
+          size="sm" 
+          onClick={() => navigate("/teacher/course")}
+          className="w-full sm:w-auto"
+        >
           Voltar para Cursos
         </ButtonComponent>
       </Header>
@@ -212,7 +216,7 @@ export function TeacherModules() {
       )}
 
       {/* Seletor de Curso */}
-      <section className="p-6 rounded-2xl border bg-surface border-border">
+      <section className="p-4 sm:p-6 rounded-2xl border bg-surface border-border">
         <h3 className="font-bold text-lg mb-4">1. Selecione o Curso</h3>
 
         {isLoadingCourses ? (
@@ -247,13 +251,13 @@ export function TeacherModules() {
               <Button
                 key={course.id}
                 onClick={() => setSelectedCourse(course)}
-                className={`p-4 rounded-xl border text-left transition-all ${
+                className={`p-4 rounded-xl border text-left transition-all outline-none ${
                   selectedCourse?.id === course.id
                     ? "border-primary bg-primary/5 ring-2 ring-primary/20"
                     : "border-border hover:border-primary/50 hover:shadow-md"
                 }`}
               >
-                <h4 className="font-bold text-text-primary mb-1">
+                <h4 className="font-bold text-text-primary mb-1 wrap-break-word">
                   {course.title}
                 </h4>
                 <p className="text-xs text-text-secondary line-clamp-2">
@@ -277,7 +281,7 @@ export function TeacherModules() {
       {selectedCourse && (
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Formulário de Criação */}
-          <div className="lg:col-span-1 p-6 rounded-2xl border bg-surface border-border">
+          <div className="lg:col-span-1 p-6 rounded-2xl border bg-surface border-border h-fit">
             <div className="flex items-center gap-3 mb-4">
               <div
                 className="p-2 rounded-lg"
@@ -321,6 +325,7 @@ export function TeacherModules() {
                 <ButtonComponent
                   onClick={createModule}
                   isDisabled={isCreating || !moduleTitle.trim()}
+                  className="w-full"
                 >
                   {isCreating ? "Criando..." : "Criar Módulo"}
                 </ButtonComponent>
@@ -328,8 +333,8 @@ export function TeacherModules() {
             </div>
           </div>
 
-          {/* Lista de Módulos */}
-          <div className="lg:col-span-2 p-6 rounded-2xl border bg-surface border-border">
+          {/* Lista de Módulos Responsiva */}
+          <div className="lg:col-span-2 p-4 sm:p-6 rounded-2xl border bg-surface border-border">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-lg">3. Módulos do Curso</h3>
               <div className="text-sm text-text-secondary">
@@ -361,19 +366,19 @@ export function TeacherModules() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {modules.map((module, index) => (
                   <div
                     key={module.id}
-                    className="p-5 rounded-xl border bg-slate-50 dark:bg-slate-900/20 border-border hover:shadow-md transition-all"
+                    className="p-4 sm:p-5 rounded-xl border bg-slate-50 dark:bg-slate-900/20 border-border hover:shadow-md transition-all"
                   >
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold">
+                          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold shrink-0">
                             {index + 1}
                           </span>
-                          <h4 className="font-bold text-lg text-text-primary">
+                          <h4 className="font-bold text-lg text-text-primary wrap-break-word">
                             {module.title}
                           </h4>
                         </div>
@@ -382,47 +387,43 @@ export function TeacherModules() {
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      {/* Botões de Ação do Módulo - Stack no mobile */}
+                      <div className="flex flex-wrap items-center gap-2">
                         <Button
-                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
                           onClick={() => {
                             if (selectedCourse?.id && module.id) {
                               navigate(
                                 `/teacher/courses/${selectedCourse.id}/modules/${module.id}/edit`,
-                                {
-                                  state: { module },
-                                },
-                              );
-                            } else {
-                              showNotification(
-                                "error",
-                                "Dados incompletos para edição do módulo",
+                                { state: { module } }
                               );
                             }
                           }}
                         >
                           <Edit2 size={16} />
-                          Editar
+                          <span className="sm:inline">Editar</span>
                         </Button>
+                        
                         <Button
-                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                           onClick={() => {
                             if (selectedCourse?.id && module.id) {
                               navigate(
-                                `/teacher/courses/${selectedCourse.id}/modules/${module.id}/lessons`,
+                                `/teacher/courses/${selectedCourse.id}/modules/${module.id}/lessons`
                               );
                             }
                           }}
                         >
                           <PlayCircle size={16} />
-                          Gerenciar Aulas
+                          <span>Aulas</span>
                         </Button>
+
                         <Button
-                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                           onClick={() => handleDeleteModule(module)}
                         >
                           <Trash2 size={16} />
-                          Excluir
+                          <span className="sm:inline">Excluir</span>
                         </Button>
                       </div>
                     </div>
