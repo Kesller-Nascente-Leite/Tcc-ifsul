@@ -9,13 +9,13 @@ import {
   ArrowLeft,
   Link as LinkIcon,
   FileVideo,
-  Upload,
   Download,
   Globe,
   Play,
   FileText,
   ExternalLink,
   Calendar,
+  Upload,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
@@ -971,18 +971,36 @@ export function TeacherLessons() {
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <a
-                                href={attachment.fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="p-2 rounded-lg transition-colors hover:opacity-80"
-                                style={{
-                                  backgroundColor: `${accentColor}15`,
-                                  color: accentColor,
-                                }}
-                              >
-                                <ExternalLink size={16} />
-                              </a>
+                              {attachment.type === "FILE" ? (
+                                <a
+                                  href={attachment.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  download={attachment.type}
+                                  className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                  title="Baixar arquivo"
+                                  style={{
+                                    backgroundColor: `${accentColor}15`,
+                                    color: accentColor,
+                                  }}
+                                >
+                                  <Download size={16} />
+                                </a>
+                              ) : (
+                                <a
+                                  href={attachment.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                  title="Abrir link externo"
+                                  style={{
+                                    backgroundColor: `${accentColor}15`,
+                                    color: accentColor,
+                                  }}
+                                >
+                                  <ExternalLink size={16} />
+                                </a>
+                              )}
                               <Button
                                 className="p-2 rounded-lg transition-colors"
                                 style={{
