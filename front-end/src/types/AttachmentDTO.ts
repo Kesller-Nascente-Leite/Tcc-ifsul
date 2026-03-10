@@ -2,7 +2,7 @@ export interface AttachmentDTO {
   id?: number;
   title: string;
   description: string;
-  fileNamePdf?: string;
+  fileName?: string;
   type?: "FILE" | "LINK";
   fileUrl: string;
   deliveryDate?: string; 

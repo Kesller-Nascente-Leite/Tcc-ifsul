@@ -16,6 +16,9 @@ import {
   ExternalLink,
   Calendar,
   Upload,
+  ChevronDown,
+  ChevronUp,
+  DownloadIcon,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
@@ -46,6 +49,11 @@ export function TeacherLessons() {
   const [module, setModule] = useState<ModuleDTO | null>(null);
   const [lessons, setLessons] = useState<LessonDTO[]>([]);
 
+  // NOVO: Estado para controlar quais aulas estão expandidas
+  const [expandedLessons, setExpandedLessons] = useState<Set<number>>(
+    new Set(),
+  );
+
   // Formulário de Aula
   const [lessonTitle, setLessonTitle] = useState("");
   const [lessonDescription, setLessonDescription] = useState("");
@@ -63,7 +71,7 @@ export function TeacherLessons() {
   const [isCreating, setIsCreating] = useState(false);
   const [isAddingVideo, setIsAddingVideo] = useState(false);
 
-  // Modal de Anexo,com modo upload/url
+  // Modal de Anexo
   const [showAttachmentModal, setShowAttachmentModal] = useState(false);
   const [attachmentMode, setAttachmentMode] = useState<"url" | "upload">(
     "upload",
@@ -71,18 +79,18 @@ export function TeacherLessons() {
   const [attachmentTitle, setAttachmentTitle] = useState("");
   const [attachmentDescription, setAttachmentDescription] = useState("");
   const [attachmentFileUrl, setAttachmentFileUrl] = useState("");
-  const [attachmentFile, setAttachmentFile] = useState<File | null>(null); // NOVO!
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [attachmentDeliveryDate, setAttachmentDeliveryDate] = useState("");
   const [isAddingAttachment, setIsAddingAttachment] = useState(false);
 
   const openAttachmentModal = (lesson: LessonDTO) => {
     setSelectedLesson(lesson);
     setShowAttachmentModal(true);
-    setAttachmentMode("upload"); // Modo padrão: upload
+    setAttachmentMode("upload");
     setAttachmentTitle("");
     setAttachmentDescription("");
     setAttachmentFileUrl("");
-    setAttachmentFile(null); // Limpar arquivo
+    setAttachmentFile(null);
     setAttachmentDeliveryDate("");
   };
 
@@ -90,6 +98,26 @@ export function TeacherLessons() {
     type: "success" | "error" | "info";
     message: string;
   } | null>(null);
+
+  // NOVA FUNÇÃO: Alternar expansão de aula
+  const toggleLessonExpansion = (lessonId: number | undefined) => {
+    if (!lessonId) return;
+
+    setExpandedLessons((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(lessonId)) {
+        newSet.delete(lessonId);
+      } else {
+        newSet.add(lessonId);
+      }
+      return newSet;
+    });
+  };
+
+  // NOVA FUNÇÃO: Verificar se aula está expandida
+  const isLessonExpanded = (lessonId: number | undefined): boolean => {
+    return lessonId ? expandedLessons.has(lessonId) : false;
+  };
 
   useEffect(() => {
     if (!moduleId) return;
@@ -109,7 +137,6 @@ export function TeacherLessons() {
 
       setModule(moduleResponse.data);
 
-      // Carregar vídeos E anexos para cada aula
       const lessonsWithContent = await Promise.all(
         lessonsResponse.data.map(async (lesson) => {
           if (lesson.id) {
@@ -239,13 +266,11 @@ export function TeacherLessons() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validar tamanho (900MB)
       if (file.size > 900 * 1024 * 1024) {
         showNotification("error", "Arquivo muito grande. Máximo: 900MB");
         return;
       }
 
-      // Validar tipo
       if (!file.type.startsWith("video/")) {
         showNotification("error", "Apenas arquivos de vídeo são permitidos");
         return;
@@ -258,19 +283,16 @@ export function TeacherLessons() {
     }
   };
 
-  // NOVA FUNÇÃO: Handle de arquivo de anexo
   const handleAttachmentFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Validar tamanho (50MB para documentos)
       if (file.size > 50 * 1024 * 1024) {
         showNotification("error", "Arquivo muito grande. Máximo: 50MB");
         return;
       }
 
-      // Validar tipo
       const allowedTypes = [
         "application/pdf",
         "application/msword",
@@ -295,7 +317,6 @@ export function TeacherLessons() {
 
       setAttachmentFile(file);
       if (!attachmentTitle.trim()) {
-        // Remover extensão do nome
         setAttachmentTitle(file.name.replace(/\.[^/.]+$/, ""));
       }
     }
@@ -336,7 +357,6 @@ export function TeacherLessons() {
         );
       }
 
-      // Recarregar aulas
       await loadModuleData();
 
       setShowVideoModal(false);
@@ -412,6 +432,7 @@ export function TeacherLessons() {
       </div>
     );
   }
+
   const addAttachment = async () => {
     if (!attachmentTitle.trim()) {
       showNotification("error", "Título do anexo é obrigatório");
@@ -442,7 +463,6 @@ export function TeacherLessons() {
           attachmentFile,
         );
       } else {
-        // enviar link, url.
         if (!attachmentFileUrl.trim()) {
           showNotification("error", "URL do anexo é obrigatória");
           return;
@@ -495,6 +515,20 @@ export function TeacherLessons() {
         console.error("Erro ao excluir anexo:", error);
         showNotification("error", "Erro ao excluir anexo");
       }
+    }
+  };
+
+  const downloadAttachment = async (attachment: AttachmentDTO) => {
+    if (!attachment.id) return;
+    try {
+      showNotification("info", "Iniciando download...");
+      const fileName = attachment.fileName || attachment.title || "Arquivo";
+      await AttachmentTeacherApi.downloadFile(attachment.id, fileName);
+      showNotification("success", "Download concluído");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Erro ao baixar anexo:", error);
+      showNotification("error", "Erro ao baixar anexo");
     }
   };
 
@@ -680,352 +714,431 @@ export function TeacherLessons() {
               {lessons.map((lesson, index) => (
                 <div
                   key={lesson.id}
-                  className="p-5 rounded-xl border hover:shadow-md transition-all"
+                  className="rounded-xl border hover:shadow-md transition-all"
                   style={{
                     backgroundColor: "var(--color-surface-secondary)",
                     borderColor: "var(--color-border)",
                   }}
                 >
                   {/* Header da Aula */}
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span
-                          className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold"
-                          style={{ backgroundColor: accentColor }}
+                  <div
+                    className="p-5 cursor-pointer select-none"
+                    onClick={() => toggleLessonExpansion(lesson.id)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span
+                            className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold shrink-0"
+                            style={{ backgroundColor: accentColor }}
+                          >
+                            {index + 1}
+                          </span>
+                          <h4
+                            className="font-bold text-lg"
+                            style={{ color: "var(--color-text-primary)" }}
+                          >
+                            {lesson.title}
+                          </h4>
+                          {lesson.durationMinutes && (
+                            <div
+                              className="flex items-center gap-1 text-xs"
+                              style={{ color: "var(--color-text-secondary)" }}
+                            >
+                              <Clock size={14} />
+                              <span>{lesson.durationMinutes} min</span>
+                            </div>
+                          )}
+
+                          {/* Badge de contadores */}
+                          <div className="flex items-center gap-2 ml-auto">
+                            <span
+                              className="text-xs px-2 py-1 rounded-full"
+                              style={{
+                                backgroundColor: `${accentColor}15`,
+                                color: accentColor,
+                              }}
+                            >
+                              {lesson.videos?.length || 0} vídeos
+                            </span>
+                            <span
+                              className="text-xs px-2 py-1 rounded-full"
+                              style={{
+                                backgroundColor: `${accentColor}15`,
+                                color: accentColor,
+                              }}
+                            >
+                              {lesson.attachments?.length || 0} anexos
+                            </span>
+                          </div>
+
+                          {/* Ícone de expandir/colapsar */}
+                          <button
+                            className="p-1 rounded-lg hover:bg-opacity-10 transition-all"
+                            style={{
+                              backgroundColor: `${accentColor}10`,
+                              color: accentColor,
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleLessonExpansion(lesson.id);
+                            }}
+                          >
+                            {isLessonExpanded(lesson.id) ? (
+                              <ChevronUp size={20} />
+                            ) : (
+                              <ChevronDown size={20} />
+                            )}
+                          </button>
+                        </div>
+                        <p
+                          className="text-sm"
+                          style={{ color: "var(--color-text-secondary)" }}
                         >
-                          {index + 1}
-                        </span>
-                        <h4
-                          className="font-bold text-lg"
-                          style={{ color: "var(--color-text-primary)" }}
+                          {lesson.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Conteúdo Expansível - ANIMADO */}
+                  <div
+                    className="overflow-hidden transition-all duration-300 ease-in-out"
+                    style={{
+                      maxHeight: isLessonExpanded(lesson.id) ? "2000px" : "0",
+                      opacity: isLessonExpanded(lesson.id) ? 1 : 0,
+                    }}
+                  >
+                    <div className="px-5 pb-5">
+                      {/* Botões de Ação */}
+                      <div
+                        className="flex items-center gap-2 mb-4 pb-4 border-b"
+                        style={{ borderColor: "var(--color-border)" }}
+                      >
+                        <Button
+                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors"
+                          style={{
+                            backgroundColor: "var(--color-surface-hover)",
+                            color: "var(--color-text-primary)",
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(
+                              `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/edit`,
+                            );
+                          }}
                         >
-                          {lesson.title}
-                        </h4>
-                        {lesson.durationMinutes && (
-                          <div
-                            className="flex items-center gap-1 text-xs"
+                          <Edit2 size={16} />
+                          Editar
+                        </Button>
+
+                        <Button
+                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors"
+                          style={{
+                            backgroundColor: "var(--color-error-light)",
+                            color: "var(--color-error)",
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteLesson(lesson);
+                          }}
+                        >
+                          <Trash2 size={16} />
+                          Excluir
+                        </Button>
+                      </div>
+
+                      {/* Vídeos */}
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h5
+                            className="font-semibold text-sm flex items-center gap-2"
+                            style={{ color: "var(--color-text-primary)" }}
+                          >
+                            <PlayCircle size={16} />
+                            Vídeos ({lesson.videos?.length || 0})
+                          </h5>
+                          <Button
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
+                            style={{
+                              backgroundColor: `${accentColor}15`,
+                              color: accentColor,
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openVideoModal(lesson);
+                            }}
+                          >
+                            <Plus size={14} />
+                            Adicionar Vídeo
+                          </Button>
+                        </div>
+
+                        {lesson.videos && lesson.videos.length > 0 ? (
+                          <div className="space-y-2">
+                            {lesson.videos.map((video) => (
+                              <div
+                                key={video.id}
+                                className="flex items-center justify-between p-3 rounded-lg"
+                                style={{
+                                  backgroundColor: "var(--color-surface-hover)",
+                                }}
+                              >
+                                <div className="flex items-center gap-3 flex-1">
+                                  <div
+                                    className="p-2 rounded-lg"
+                                    style={{
+                                      backgroundColor: `${accentColor}15`,
+                                      color: accentColor,
+                                    }}
+                                  >
+                                    {video.storageType === "URL" ? (
+                                      <Globe size={16} />
+                                    ) : (
+                                      <FileVideo size={16} />
+                                    )}
+                                  </div>
+                                  <div className="flex-1">
+                                    <p
+                                      className="text-sm font-medium"
+                                      style={{
+                                        color: "var(--color-text-primary)",
+                                      }}
+                                    >
+                                      {video.title}
+                                    </p>
+                                    {video.storageType === "URL" &&
+                                      video.url && (
+                                        <a
+                                          href={video.url}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="text-xs flex items-center gap-1 hover:underline"
+                                          style={{ color: accentColor }}
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          <LinkIcon size={12} />
+                                          Ver vídeo
+                                        </a>
+                                      )}
+                                    {video.storageType === "DATABASE" && (
+                                      <span
+                                        className="text-xs"
+                                        style={{
+                                          color: "var(--color-text-secondary)",
+                                        }}
+                                      >
+                                        Armazenado no banco de dados
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {video.storageType === "DATABASE" && (
+                                    <>
+                                      <Button
+                                        className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                        style={{
+                                          backgroundColor: `${accentColor}15`,
+                                          color: accentColor,
+                                        }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          navigate(
+                                            `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/videos/${video.id}/watch`,
+                                          );
+                                        }}
+                                      >
+                                        <Play size={16} />
+                                      </Button>
+                                      <Button
+                                        className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                        style={{
+                                          backgroundColor: `${accentColor}15`,
+                                          color: accentColor,
+                                        }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          downloadVideo(video);
+                                        }}
+                                      >
+                                        <Download size={16} />
+                                      </Button>
+                                    </>
+                                  )}
+                                  <Button
+                                    className="p-2 rounded-lg transition-colors"
+                                    style={{
+                                      backgroundColor:
+                                        "var(--color-error-light)",
+                                      color: "var(--color-error)",
+                                    }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+                                      video.id && deleteVideo(video.id);
+                                    }}
+                                  >
+                                    <Trash2 size={16} />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p
+                            className="text-xs text-center py-2"
                             style={{ color: "var(--color-text-secondary)" }}
                           >
-                            <Clock size={14} />
-                            <span>{lesson.durationMinutes} min</span>
-                          </div>
+                            Nenhum vídeo adicionado
+                          </p>
                         )}
                       </div>
-                      <p
-                        className="text-sm"
-                        style={{ color: "var(--color-text-secondary)" }}
-                      >
-                        {lesson.description}
-                      </p>
-                    </div>
 
-                    <div className="flex items-center gap-2">
-                      <Button
-                        className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors"
-                        style={{
-                          backgroundColor: "var(--color-surface-hover)",
-                          color: "var(--color-text-primary)",
-                        }}
-                        onClick={() =>
-                          navigate(
-                            `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/edit`,
-                          )
-                        }
-                      >
-                        <Edit2 size={16} />
-                        Editar
-                      </Button>
-
-                      <Button
-                        className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg transition-colors"
-                        style={{
-                          backgroundColor: "var(--color-error-light)",
-                          color: "var(--color-error)",
-                        }}
-                        onClick={() => deleteLesson(lesson)}
-                      >
-                        <Trash2 size={16} />
-                        Excluir
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Vídeos da Aula */}
-                  <div
-                    className="mt-4 pt-4 border-t"
-                    style={{ borderColor: "var(--color-border)" }}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h5
-                        className="font-semibold text-sm flex items-center gap-2"
-                        style={{ color: "var(--color-text-primary)" }}
-                      >
-                        <PlayCircle size={16} />
-                        Vídeos ({lesson.videos?.length || 0})
-                      </h5>
-                      <Button
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
-                        style={{
-                          backgroundColor: `${accentColor}15`,
-                          color: accentColor,
-                        }}
-                        onClick={() => openVideoModal(lesson)}
-                      >
-                        <Plus size={14} />
-                        Adicionar Vídeo
-                      </Button>
-                    </div>
-
-                    {lesson.videos && lesson.videos.length > 0 ? (
-                      <div className="space-y-2">
-                        {lesson.videos.map((video) => (
-                          <div
-                            key={video.id}
-                            className="flex items-center justify-between p-3 rounded-lg"
+                      {/* Anexos */}
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <h5
+                            className="font-semibold text-sm flex items-center gap-2"
+                            style={{ color: "var(--color-text-primary)" }}
+                          >
+                            <FileText size={16} />
+                            Anexos ({lesson.attachments?.length || 0})
+                          </h5>
+                          <Button
+                            className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
                             style={{
-                              backgroundColor: "var(--color-surface-hover)",
+                              backgroundColor: `${accentColor}15`,
+                              color: accentColor,
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openAttachmentModal(lesson);
                             }}
                           >
-                            <div className="flex items-center gap-3 flex-1">
-                              <div
-                                className="p-2 rounded-lg"
-                                style={{
-                                  backgroundColor: `${accentColor}15`,
-                                  color: accentColor,
-                                }}
-                              >
-                                {video.storageType === "URL" ? (
-                                  <Globe size={16} />
-                                ) : (
-                                  <FileVideo size={16} />
-                                )}
-                              </div>
-                              <div className="flex-1">
-                                <p
-                                  className="text-sm font-medium"
-                                  style={{
-                                    color: "var(--color-text-primary)",
-                                  }}
-                                >
-                                  {video.title}
-                                </p>
-                                {video.storageType === "URL" && video.url && (
-                                  <a
-                                    href={video.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs flex items-center gap-1 hover:underline"
-                                    style={{ color: accentColor }}
-                                  >
-                                    <LinkIcon size={12} />
-                                    Ver vídeo
-                                  </a>
-                                )}
-                                {video.storageType === "DATABASE" && (
-                                  <span
-                                    className="text-xs"
-                                    style={{
-                                      color: "var(--color-text-secondary)",
-                                    }}
-                                  >
-                                    Armazenado no banco de dados
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {video.storageType === "DATABASE" && (
-                                <>
-                                  <Button
-                                    className="p-2 rounded-lg transition-colors hover:opacity-80"
-                                    style={{
-                                      backgroundColor: `${accentColor}15`,
-                                      color: accentColor,
-                                    }}
-                                    onClick={() =>
-                                      navigate(
-                                        `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/videos/${video.id}/watch`,
-                                      )
-                                    }
-                                  >
-                                    <Play size={16} />
-                                  </Button>
-                                  <Button
-                                    className="p-2 rounded-lg transition-colors hover:opacity-80"
-                                    style={{
-                                      backgroundColor: `${accentColor}15`,
-                                      color: accentColor,
-                                    }}
-                                    onClick={() => downloadVideo(video)}
-                                  >
-                                    <Download size={16} />
-                                  </Button>
-                                </>
-                              )}
-                              <Button
-                                className="p-2 rounded-lg transition-colors"
-                                style={{
-                                  backgroundColor: "var(--color-error-light)",
-                                  color: "var(--color-error)",
-                                }}
-                                onClick={() =>
-                                  video.id && deleteVideo(video.id)
-                                }
-                              >
-                                <Trash2 size={16} />
-                              </Button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p
-                        className="text-xs text-center py-2"
-                        style={{ color: "var(--color-text-secondary)" }}
-                      >
-                        Nenhum vídeo adicionado
-                      </p>
-                    )}
-                  </div>
+                            <Plus size={14} />
+                            Adicionar Anexo
+                          </Button>
+                        </div>
 
-                  {/* Anexos */}
-                  <div
-                    className="mt-4 pt-4 border-t"
-                    style={{ borderColor: "var(--color-border)" }}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <h5
-                        className="font-semibold text-sm flex items-center gap-2"
-                        style={{ color: "var(--color-text-primary)" }}
-                      >
-                        <FileText size={16} />
-                        Anexos ({lesson.attachments?.length || 0})
-                      </h5>
-                      <Button
-                        className="flex items-center gap-2 px-3 py-1.5 text-xs rounded-lg transition-colors"
-                        style={{
-                          backgroundColor: `${accentColor}15`,
-                          color: accentColor,
-                        }}
-                        onClick={() => openAttachmentModal(lesson)}
-                      >
-                        <Plus size={14} />
-                        Adicionar Anexo
-                      </Button>
-                    </div>
-
-                    {lesson.attachments && lesson.attachments.length > 0 ? (
-                      <div className="space-y-2">
-                        {lesson.attachments.map((attachment) => (
-                          <div
-                            key={attachment.id}
-                            className="flex items-center justify-between p-3 rounded-lg"
-                            style={{
-                              backgroundColor: "var(--color-surface-hover)",
-                            }}
-                          >
-                            <div className="flex items-center gap-3 flex-1">
+                        {lesson.attachments && lesson.attachments.length > 0 ? (
+                          <div className="space-y-2">
+                            {lesson.attachments.map((attachment) => (
                               <div
-                                className="p-2 rounded-lg"
+                                key={attachment.id}
+                                className="flex items-center justify-between p-3 rounded-lg"
                                 style={{
-                                  backgroundColor: `${accentColor}15`,
-                                  color: accentColor,
+                                  backgroundColor: "var(--color-surface-hover)",
                                 }}
                               >
-                                <FileText size={16} />
-                              </div>
-                              <div className="flex-1">
-                                <p
-                                  className="text-sm font-medium"
-                                  style={{
-                                    color: "var(--color-text-primary)",
-                                  }}
-                                >
-                                  {attachment.title}
-                                </p>
-                                <p
-                                  className="text-xs line-clamp-1"
-                                  style={{
-                                    color: "var(--color-text-secondary)",
-                                  }}
-                                >
-                                  {attachment.description}
-                                </p>
-                                {attachment.deliveryDate && (
+                                <div className="flex items-center gap-3 flex-1">
                                   <div
-                                    className="flex items-center gap-1 text-xs mt-1"
+                                    className="p-2 rounded-lg"
                                     style={{
-                                      color: "var(--color-text-secondary)",
+                                      backgroundColor: `${accentColor}15`,
+                                      color: accentColor,
                                     }}
                                   >
-                                    <Calendar size={12} />
-                                    <span>
-                                      Entrega:{" "}
-                                      {new Date(
-                                        attachment.deliveryDate,
-                                      ).toLocaleDateString("pt-BR")}
-                                    </span>
+                                    <FileText size={16} />
                                   </div>
-                                )}
+                                  <div className="flex-1">
+                                    <p
+                                      className="text-sm font-medium"
+                                      style={{
+                                        color: "var(--color-text-primary)",
+                                      }}
+                                    >
+                                      {attachment.title}
+                                    </p>
+                                    <p
+                                      className="text-xs line-clamp-1"
+                                      style={{
+                                        color: "var(--color-text-secondary)",
+                                      }}
+                                    >
+                                      {attachment.description}
+                                    </p>
+                                    {attachment.deliveryDate && (
+                                      <div
+                                        className="flex items-center gap-1 text-xs mt-1"
+                                        style={{
+                                          color: "var(--color-text-secondary)",
+                                        }}
+                                      >
+                                        <Calendar size={12} />
+                                        <span>
+                                          Entrega:{" "}
+                                          {new Date(
+                                            attachment.deliveryDate,
+                                          ).toLocaleDateString("pt-BR")}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {attachment.type === "LINK" ? (
+                                    <a
+                                      href={attachment.fileUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                      style={{
+                                        backgroundColor: `${accentColor}15`,
+                                        color: accentColor,
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <ExternalLink size={16} />
+                                    </a>
+                                  ) : (
+                                    <a
+                                      href={attachment.fileUrl}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="p-2 rounded-lg transition-colors hover:opacity-80"
+                                      style={{
+                                        backgroundColor: `${accentColor}15`,
+                                        color: accentColor,
+                                      }}
+                                      onClick={(e) => {
+                                          e.stopPropagation();
+                                          downloadAttachment(attachment);
+                                      }}
+                                    >
+                                      <DownloadIcon size={16} />
+                                    </a>
+                                  )}
+                                  <Button
+                                    className="p-2 rounded-lg transition-colors"
+                                    style={{
+                                      backgroundColor:
+                                        "var(--color-error-light)",
+                                      color: "var(--color-error)",
+                                    }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+                                      attachment.id &&
+                                        deleteAttachment(attachment.id);
+                                    }}
+                                  >
+                                    <Trash2 size={16} />
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {attachment.type === "FILE" ? (
-                                <a
-                                  href={attachment.fileUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  download={attachment.type}
-                                  className="p-2 rounded-lg transition-colors hover:opacity-80"
-                                  title="Baixar arquivo"
-                                  style={{
-                                    backgroundColor: `${accentColor}15`,
-                                    color: accentColor,
-                                  }}
-                                >
-                                  <Download size={16} />
-                                </a>
-                              ) : (
-                                <a
-                                  href={attachment.fileUrl}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-2 rounded-lg transition-colors hover:opacity-80"
-                                  title="Abrir link externo"
-                                  style={{
-                                    backgroundColor: `${accentColor}15`,
-                                    color: accentColor,
-                                  }}
-                                >
-                                  <ExternalLink size={16} />
-                                </a>
-                              )}
-                              <Button
-                                className="p-2 rounded-lg transition-colors"
-                                style={{
-                                  backgroundColor: "var(--color-error-light)",
-                                  color: "var(--color-error)",
-                                }}
-                                onClick={() =>
-                                  attachment.id &&
-                                  deleteAttachment(attachment.id)
-                                }
-                              >
-                                <Trash2 size={16} />
-                              </Button>
-                            </div>
+                            ))}
                           </div>
-                        ))}
+                        ) : (
+                          <p
+                            className="text-xs text-center py-2"
+                            style={{ color: "var(--color-text-secondary)" }}
+                          >
+                            Nenhum anexo adicionado
+                          </p>
+                        )}
                       </div>
-                    ) : (
-                      <p
-                        className="text-xs text-center py-2"
-                        style={{ color: "var(--color-text-secondary)" }}
-                      >
-                        Nenhum anexo adicionado
-                      </p>
-                    )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1034,7 +1147,8 @@ export function TeacherLessons() {
         </div>
       </section>
 
-      {/* Modal de Adicionar Vídeo */}
+      {/* MODAIS - SEM ALTERAÇÃO */}
+      {/* Modal de Vídeo */}
       {showVideoModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -1056,7 +1170,6 @@ export function TeacherLessons() {
               Adicionar Vídeo
             </h3>
 
-            {/* Seletor de Modo */}
             <div className="flex gap-2 mb-4">
               <Button
                 className="flex-1 px-4 py-2 rounded-lg transition-all font-semibold"
@@ -1191,7 +1304,7 @@ export function TeacherLessons() {
         </div>
       )}
 
-      {/* MODAL DE ANEXO ATUALIZADO - COM UPLOAD E URL */}
+      {/* Modal de Anexo */}
       {showAttachmentModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
@@ -1213,7 +1326,6 @@ export function TeacherLessons() {
               Adicionar Anexo
             </h3>
 
-            {/* Seletor de Modo - UPLOAD OU URL */}
             <div className="flex gap-2 mb-4">
               <Button
                 className="flex-1 px-4 py-2 rounded-lg transition-all font-semibold"
@@ -1291,7 +1403,6 @@ export function TeacherLessons() {
                 />
               </div>
 
-              {/* CONDICIONAL: UPLOAD OU URL */}
               {attachmentMode === "upload" ? (
                 <div>
                   <Label

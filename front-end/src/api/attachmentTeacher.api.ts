@@ -3,7 +3,6 @@ import type { AxiosResponse } from "axios";
 import type { AttachmentDTO } from "../types/AttachmentDTO";
 
 export const AttachmentTeacherApi = {
-  
   async createWithUrl(
     attachment: AttachmentDTO,
   ): Promise<AxiosResponse<AttachmentDTO>> {
@@ -17,15 +16,14 @@ export const AttachmentTeacherApi = {
     description: string,
     deliveryDate: string | null,
     file: File,
-  ): Promise<AxiosResponse<AttachmentDTO>>{
+  ): Promise<AxiosResponse<AttachmentDTO>> {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
-    if(deliveryDate){
-      formData.append("deliveryDate",deliveryDate);
+    if (deliveryDate) {
+      formData.append("deliveryDate", deliveryDate);
     }
-    formData.append("file", file)
-
+    formData.append("file", file);
 
     return api.post(
       `/teacher/lessons/${lessonId}/attachments/upload`,
@@ -36,6 +34,23 @@ export const AttachmentTeacherApi = {
         },
       },
     );
+  },
+
+  async downloadFile(attachmentId: number, fileName: string): Promise<void> {
+    const response = await api.get(
+      `/teacher/attachments/${attachmentId}/download`,
+      {
+        responseType: "blob",
+      },
+    );
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click(); // Disparar download
+    link.remove();
+    window.URL.revokeObjectURL(url);
   },
 
   async remove(attachmentId: number): Promise<AxiosResponse<void>> {

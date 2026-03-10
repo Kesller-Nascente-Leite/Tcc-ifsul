@@ -2,8 +2,13 @@ package com.meutcc.backend.content.attachment;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -42,7 +47,19 @@ public class AttachmentController {
         return attachmentService.uploadFile(lessonId, title, description, deliveryDate, file);
     }
 
+    @GetMapping("/teacher/attachments/{attachmentsId}/download")
+    public ResponseEntity<Resource> download(@PathVariable("attachmentsId") Long attachmentsId) throws IOException {
+        AttachmentDownloadDTO download = attachmentService.downloadFileAttachment(attachmentsId);
 
+        ByteArrayResource resource = new ByteArrayResource(download.data());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(download.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + download.filename() + "\"")
+                .contentLength(download.data().length)
+                .body(resource);
+    }
 
 
 }
