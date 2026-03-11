@@ -51,6 +51,5 @@ public class CourseMapper {
         course.setTitle(dto.title());
         course.setDescription(dto.description());
         course.setPublished(dto.published());
-        // Teacher não é atualizado
     }
 }

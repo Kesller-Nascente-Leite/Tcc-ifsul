@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { useTheme } from "../../context/ThemeContext";
-import { CourseStudentApi, type CourseDTO } from "../../api/courseStudent.api";
+import { CourseStudentApi } from "../../api/courseStudent.api";
+import { type CourseDTO } from "../../types/CourseDTO";
 
 interface CourseCardProps {
   course: CourseDTO;
@@ -71,7 +72,7 @@ function CourseCard({ course, onEnroll, isEnrolling }: CourseCardProps) {
         <ButtonComponent
           size="sm"
           onClick={() => course.id && onEnroll(course.id)}
-          disabled={!course.published || isEnrolling}
+          isDisabled={!course.published || isEnrolling}
         >
           {isEnrolling ? "Inscrevendo..." : "Inscrever-se"}
         </ButtonComponent>

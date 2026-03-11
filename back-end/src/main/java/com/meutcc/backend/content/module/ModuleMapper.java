@@ -1,0 +1,36 @@
+package com.meutcc.backend.content.module;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.factory.Mappers;
+
+import java.util.List;
+
+@Mapper(componentModel = "spring")
+public interface ModuleMapper {
+    ModuleMapper INSTANCE = Mappers.getMapper(ModuleMapper.class);
+
+    // Entity(Module) -> ModuleDTO
+    @Mapping(source = "course.id", target = "courseId")
+    ModuleDTO toDTO(Module module);
+
+    // DTO(ModuleDTO) -> Entity(Module)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "course", ignore = true)
+    @Mapping(target = "lessons", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    Module toEntity(ModuleDTO dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "course", ignore = true)
+    @Mapping(target = "lessons", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    void updateEntityFromDTO(ModuleDTO dto, @MappingTarget Module module);
+
+    // Converte lista de Entity -> lista de ModuleDTO
+    List<ModuleDTO> toDTOs(List<Module> modules);
+
+}

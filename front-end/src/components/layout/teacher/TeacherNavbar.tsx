@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { AuthApi, type AuthUser } from "../../../api/auth.api";
 import { useTheme } from "../../../context/ThemeContext";
 import { InputComponent } from "../../ui/InputComponent";
+import { Button } from "react-aria-components";
 
 interface TeacherNavbarProps {
   onMenuClick: () => void;
@@ -57,13 +58,13 @@ export default function TeacherNavbar({ onMenuClick, isSidebarOpen }: TeacherNav
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <div className="flex items-center gap-4">
-            <button
+            <Button
               className="md:hidden p-2 -ml-2 text-text-secondary hover:text-primary hover:bg-primary/5 rounded-lg transition-colors focus:outline-hidden"
               onClick={onMenuClick}
               aria-label={isSidebarOpen ? "Fechar menu" : "Abrir menu"}
             >
               {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            </Button>
           </div>
 
           <div className="hidden md:flex flex-1 max-w-lg mx-8 relative group">

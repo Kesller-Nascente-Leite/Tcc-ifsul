@@ -2,10 +2,7 @@ package com.meutcc.backend.content.lesson;
 
 import com.meutcc.backend.common.model.BaseEntity;
 import com.meutcc.backend.student.Student;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,14 +18,15 @@ import java.time.LocalDateTime;
 @Setter
 public class LessonProgress extends BaseEntity {
 
-    @ManyToOne
-    @JoinColumn(name = "student_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "student_id", nullable = false)
     private Student student;
 
-    @ManyToOne
-    @JoinColumn(name = "lesson_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lesson_id", nullable = false)
     private Lesson lesson;
 
-    private boolean isCompleted = false;
+    private boolean completed = false;
+
     private LocalDateTime completedAt;
 }

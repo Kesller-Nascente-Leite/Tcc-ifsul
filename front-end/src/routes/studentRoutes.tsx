@@ -2,7 +2,7 @@ import type { RouteObject } from "react-router";
 import { Navigate } from "react-router";
 import { StudentDashboard } from "../pages/students/StudentDashboard";
 import { StudentLayout } from "../components/layout/student/StudentLayout";
-import Settings from "../pages/Settings.";
+import Settings from "../pages/Settings";
 import { AvailableCourses } from "../pages/students/AvailableCourses";
 
 export const StudentRoutes: RouteObject[] = [

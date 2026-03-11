@@ -7,39 +7,30 @@ import {
   BookOpen,
   List,
   CheckCircle,
-  XCircle,
-  Info,
+  PlayCircle,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
+import { NotificationComponent } from "../../components/ui/NotificationComponent";
+import {
+  ConfirmDialog,
+  useConfirmDialog,
+} from "../../components/ui/ConfirmDialog";
 import { CourseTeacherApi } from "../../api/courseTeacher.api";
 import { ModuleTeacherApi } from "../../api/moduleTeacher.api";
+import type { ModuleDTO } from "../../types/ModuleDTO";
 import { useTheme } from "../../context/ThemeContext";
-
-interface CourseDTO {
-  id?: number | null;
-  title: string;
-  description: string;
-  published: boolean;
-  teacherId: number;
-  teacherName: string;
-}
-
-interface ModuleItem {
-  id?: number | null;
-  title: string;
-  description: string;
-  orderIndex: number;
-  courseId?: number;
-}
+import { type CourseDTO } from "../../types/CourseDTO";
+import { Button, Header, Label, TextArea } from "react-aria-components";
 
 export function TeacherModules() {
-  const { accentColor } = useTheme();
+  const { accentColor, isDark } = useTheme();
   const navigate = useNavigate();
+  const { isOpen, setIsOpen, confirm, dialogConfig } = useConfirmDialog();
 
   const [courses, setCourses] = useState<CourseDTO[]>([]);
   const [selectedCourse, setSelectedCourse] = useState<CourseDTO | null>(null);
-  const [modules, setModules] = useState<ModuleItem[]>([]);
+  const [modules, setModules] = useState<ModuleDTO[]>([]);
 
   const [moduleTitle, setModuleTitle] = useState("");
   const [moduleDescription, setModuleDescription] = useState("");
@@ -61,8 +52,8 @@ export function TeacherModules() {
 
   // Carregar módulos quando um curso é selecionado
   useEffect(() => {
-    if (selectedCourse) {
-      loadModules(selectedCourse.id!);
+    if (selectedCourse?.id) {
+      loadModules(selectedCourse.id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCourse]);
@@ -92,7 +83,8 @@ export function TeacherModules() {
           "Nenhum módulo encontrado. Crie o primeiro módulo!",
         );
       }
-    } catch (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
       console.error("Erro ao carregar módulos:", error);
       showNotification("error", "Erro ao carregar módulos");
     } finally {
@@ -105,7 +97,6 @@ export function TeacherModules() {
     message: string,
   ) => {
     setNotification({ type, message });
-    setTimeout(() => setNotification(null), 3000);
   };
 
   const createModule = async () => {
@@ -119,26 +110,29 @@ export function TeacherModules() {
       return;
     }
 
-    const payload: ModuleItem = {
+    const payload: ModuleDTO = {
       title: moduleTitle.trim(),
       description: moduleDescription.trim(),
       orderIndex: modules.length + 1,
       courseId: selectedCourse.id!,
     };
 
-    // Melhor e mais pratico para fazer validações específicas do formulário, evitando muitos ifs aninhados
-    const valideForm = () => {
+    const validateForm = () => {
       if (!moduleTitle.trim()) return "O título do módulo é obrigatório";
       if (moduleTitle.trim().length < 3)
         return "O título deve conter no mínimo 3 caracteres";
       if (moduleTitle.trim().length > 100)
         return "O título deve conter no máximo 100 caracteres";
-      if (moduleDescription.trim().length > 255)
-        return "A descrição deve conter no máximo 255 caracteres";
+      if (moduleDescription.trim().length > 500)
+        return "A descrição deve conter no máximo 500 caracteres";
+      if (moduleDescription.trim().length === 0)
+        return "A descrição do módulo é obrigatória";
+      if (moduleDescription.trim().length < 10)
+        return "A descrição deve conter no mínimo 10 caracteres";
       return null;
     };
 
-    const error = valideForm();
+    const error = validateForm();
     if (error) return showNotification("error", error);
 
     try {
@@ -162,66 +156,38 @@ export function TeacherModules() {
     }
   };
 
-  const deleteModule = async (id: number) => {
-    if (!confirm("Tem certeza que deseja excluir este módulo?")) {
-      return;
-    }
+  const handleDeleteModule = async (module: ModuleDTO) => {
+    const confirmed = await confirm({
+      title: "Confirmar exclusão",
+      message: (
+        <div className="space-y-2">
+          <p>Tem certeza que deseja excluir o módulo:</p>
+          <p className="font-semibold text-text-primary">"{module.title}"?</p>
+          <p className="text-xs">Esta ação não pode ser desfeita.</p>
+        </div>
+      ),
+      confirmText: "Sim, excluir",
+      cancelText: "Cancelar",
+      variant: "danger",
+      isDark,
+    });
 
-    try {
-      await ModuleTeacherApi.remove(id);
-      setModules((prev) => prev.filter((m) => m.id !== id));
-      showNotification("success", "Módulo excluído com sucesso!");
-    } catch (error) {
-      console.error("Erro ao excluir módulo:", error);
-      showNotification("error", "Erro ao excluir módulo");
-    }
-  };
-
-  // Função auxiliar para obter estilos da notificação
-  const getNotificationStyles = () => {
-    switch (notification?.type) {
-      case "success":
-        return {
-          bg: "bg-green-50 dark:bg-green-900/20",
-          border: "border-green-200 dark:border-green-800",
-          text: "text-green-800 dark:text-green-200",
-          icon: (
-            <CheckCircle
-              size={20}
-              className="text-green-600 dark:text-green-400"
-            />
-          ),
-        };
-      case "error":
-        return {
-          bg: "bg-red-50 dark:bg-red-900/20",
-          border: "border-red-200 dark:border-red-800",
-          text: "text-red-800 dark:text-red-200",
-          icon: (
-            <XCircle size={20} className="text-red-600 dark:text-red-400" />
-          ),
-        };
-      case "info":
-        return {
-          bg: "bg-blue-50 dark:bg-blue-900/20",
-          border: "border-blue-200 dark:border-blue-800",
-          text: "text-blue-800 dark:text-blue-200",
-          icon: <Info size={20} className="text-blue-600 dark:text-blue-400" />,
-        };
-      default:
-        return {
-          bg: "",
-          border: "",
-          text: "",
-          icon: null,
-        };
+    if (confirmed && module.id) {
+      try {
+        await ModuleTeacherApi.remove(module.id);
+        setModules((prev) => prev.filter((m) => m.id !== module.id));
+        showNotification("success", "Módulo excluído com sucesso!");
+      } catch (error) {
+        console.error("Erro ao excluir módulo:", error);
+        showNotification("error", "Erro ao excluir módulo");
+      }
     }
   };
 
-  return (
+ return (
     <div className="space-y-6">
-      {/* Header */}
-      <header className="flex items-center justify-between">
+      {/* Header Responsivo */}
+      <Header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">
             Módulos do Curso
@@ -230,25 +196,27 @@ export function TeacherModules() {
             Organize o conteúdo do seu curso em módulos
           </p>
         </div>
-        <ButtonComponent size="sm" onClick={() => navigate("/teacher/courses")}>
+        <ButtonComponent 
+          size="sm" 
+          onClick={() => navigate("/teacher/course")}
+          className="w-full sm:w-auto"
+        >
           Voltar para Cursos
         </ButtonComponent>
-      </header>
+      </Header>
 
       {/* Notificação */}
       {notification && (
-        <div
-          className={`p-4 rounded-xl border flex items-center gap-3 ${getNotificationStyles().bg} ${getNotificationStyles().border}`}
-        >
-          {getNotificationStyles().icon}
-          <p className={`text-sm font-medium ${getNotificationStyles().text}`}>
-            {notification.message}
-          </p>
-        </div>
+        <NotificationComponent
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+          duration={3000}
+        />
       )}
 
       {/* Seletor de Curso */}
-      <section className="p-6 rounded-2xl border bg-surface border-border">
+      <section className="p-4 sm:p-6 rounded-2xl border bg-surface border-border">
         <h3 className="font-bold text-lg mb-4">1. Selecione o Curso</h3>
 
         {isLoadingCourses ? (
@@ -280,16 +248,16 @@ export function TeacherModules() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {courses.map((course) => (
-              <button
+              <Button
                 key={course.id}
                 onClick={() => setSelectedCourse(course)}
-                className={`p-4 rounded-xl border text-left transition-all ${
+                className={`p-4 rounded-xl border text-left transition-all outline-none ${
                   selectedCourse?.id === course.id
                     ? "border-primary bg-primary/5 ring-2 ring-primary/20"
                     : "border-border hover:border-primary/50 hover:shadow-md"
                 }`}
               >
-                <h4 className="font-bold text-text-primary mb-1">
+                <h4 className="font-bold text-text-primary mb-1 wrap-break-word">
                   {course.title}
                 </h4>
                 <p className="text-xs text-text-secondary line-clamp-2">
@@ -303,7 +271,7 @@ export function TeacherModules() {
                     </span>
                   </div>
                 )}
-              </button>
+              </Button>
             ))}
           </div>
         )}
@@ -313,7 +281,7 @@ export function TeacherModules() {
       {selectedCourse && (
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Formulário de Criação */}
-          <div className="lg:col-span-1 p-6 rounded-2xl border bg-surface border-border">
+          <div className="lg:col-span-1 p-6 rounded-2xl border bg-surface border-border h-fit">
             <div className="flex items-center gap-3 mb-4">
               <div
                 className="p-2 rounded-lg"
@@ -326,9 +294,9 @@ export function TeacherModules() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">
+                <Label className="block text-sm font-medium text-text-secondary mb-2">
                   Título do Módulo *
-                </label>
+                </Label>
                 <InputComponent
                   value={moduleTitle}
                   onChange={(e) =>
@@ -340,10 +308,10 @@ export function TeacherModules() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">
+                <Label className="block text-sm font-medium text-text-secondary mb-2">
                   Descrição
-                </label>
-                <textarea
+                </Label>
+                <TextArea
                   value={moduleDescription}
                   onChange={(e) => setModuleDescription(e.target.value)}
                   placeholder="Descreva o conteúdo deste módulo..."
@@ -356,7 +324,8 @@ export function TeacherModules() {
               <div className="pt-2">
                 <ButtonComponent
                   onClick={createModule}
-                  disabled={isCreating || !moduleTitle.trim()}
+                  isDisabled={isCreating || !moduleTitle.trim()}
+                  className="w-full"
                 >
                   {isCreating ? "Criando..." : "Criar Módulo"}
                 </ButtonComponent>
@@ -364,8 +333,8 @@ export function TeacherModules() {
             </div>
           </div>
 
-          {/* Lista de Módulos */}
-          <div className="lg:col-span-2 p-6 rounded-2xl border bg-surface border-border">
+          {/* Lista de Módulos Responsiva */}
+          <div className="lg:col-span-2 p-4 sm:p-6 rounded-2xl border bg-surface border-border">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-lg">3. Módulos do Curso</h3>
               <div className="text-sm text-text-secondary">
@@ -397,19 +366,19 @@ export function TeacherModules() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {modules.map((module, index) => (
                   <div
                     key={module.id}
-                    className="p-5 rounded-xl border bg-slate-50 dark:bg-slate-900/20 border-border hover:shadow-md transition-all"
+                    className="p-4 sm:p-5 rounded-xl border bg-slate-50 dark:bg-slate-900/20 border-border hover:shadow-md transition-all"
                   >
-                    <div className="flex items-start justify-between">
+                    <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold">
+                          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold shrink-0">
                             {index + 1}
                           </span>
-                          <h4 className="font-bold text-lg text-text-primary">
+                          <h4 className="font-bold text-lg text-text-primary wrap-break-word">
                             {module.title}
                           </h4>
                         </div>
@@ -418,24 +387,44 @@ export function TeacherModules() {
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <button
-                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
+                      {/* Botões de Ação do Módulo - Stack no mobile */}
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary"
                           onClick={() => {
-                            /* TODO: Implementar edição */
+                            if (selectedCourse?.id && module.id) {
+                              navigate(
+                                `/teacher/courses/${selectedCourse.id}/modules/${module.id}/edit`,
+                                { state: { module } }
+                              );
+                            }
                           }}
                         >
                           <Edit2 size={16} />
-                          Editar
-                        </button>
+                          <span className="sm:inline">Editar</span>
+                        </Button>
+                        
+                        <Button
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                          onClick={() => {
+                            if (selectedCourse?.id && module.id) {
+                              navigate(
+                                `/teacher/courses/${selectedCourse.id}/modules/${module.id}/lessons`
+                              );
+                            }
+                          }}
+                        >
+                          <PlayCircle size={16} />
+                          <span>Aulas</span>
+                        </Button>
 
-                        <button
-                          className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-                          onClick={() => module.id && deleteModule(module.id)}
+                        <Button
+                          className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                          onClick={() => handleDeleteModule(module)}
                         >
                           <Trash2 size={16} />
-                          Excluir
-                        </button>
+                          <span className="sm:inline">Excluir</span>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -445,6 +434,14 @@ export function TeacherModules() {
           </div>
         </section>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        isDark={isDark}
+        {...dialogConfig}
+      />
     </div>
   );
 }

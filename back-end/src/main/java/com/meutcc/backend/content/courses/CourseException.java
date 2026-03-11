@@ -1,4 +1,4 @@
-package com.meutcc.backend.common.exceptions;
+package com.meutcc.backend.content.courses;
 
 public class CourseException extends RuntimeException {
     public CourseException(String message) {
