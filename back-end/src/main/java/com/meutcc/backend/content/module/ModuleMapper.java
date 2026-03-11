@@ -18,7 +18,6 @@ public interface ModuleMapper {
     // DTO(ModuleDTO) -> Entity(Module)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "course", ignore = true)
-    @Mapping(target = "subject", ignore = true)
     @Mapping(target = "lessons", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
@@ -26,7 +25,6 @@ public interface ModuleMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "course", ignore = true)
-    @Mapping(target = "subject", ignore = true)
     @Mapping(target = "lessons", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

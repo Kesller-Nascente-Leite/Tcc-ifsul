@@ -11,6 +11,7 @@ export interface LessonDTO {
   attachments?: AttachmentDTO[];  
 }
 export interface VideoDTO {
+  duration: number;
   id?: number;
   title: string;
   url?: string;

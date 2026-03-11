@@ -81,14 +81,13 @@ public class AttachmentService {
 
     }
 
-    //para aluno tbm.
     @Transactional(readOnly = true)
     public AttachmentDownloadDTO downloadFileAttachment(Long attachmentsId) {
         Attachment attachment = attachmentRepository.findById(attachmentsId)
                 .orElseThrow(()
                         -> new LessonException("Anexo não encontrado")
                 );
-        /* somente o dono do curso por enquanto, dps tenho que criar um metodo para isso */
+        /* Somente o dono do curso por enquanto, dps tenho que criar um metodo para isso */
         securityService.validateCourseOwner(attachment.getLesson().getModule().getCourse().getId());
 
         if (attachment.getType() != AttachmentType.FILE) {

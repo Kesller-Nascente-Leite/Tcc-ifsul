@@ -9,12 +9,25 @@ import {
   Clock,
   CheckCircle2,
   XCircle,
+  BookmarkCheck,
+  MessageSquare,
+  Award,
+  Eye,
 } from "lucide-react";
 import { VideoPlayer } from "../../components/VideoPlayer";
 import { VideoTeacherApi } from "../../api/videoTeacher.api";
 import { NotificationComponent } from "../../components/ui/NotificationComponent";
 import type { VideoDTO } from "../../types/LessonDTO";
 import { useTheme } from "../../context/ThemeContext";
+
+interface VideoStats {
+  totalWatchTime: number;
+  completionCount: number;
+  lastWatched: Date | null;
+  averageCompletionRate: number;
+  bookmarksCount: number;
+  annotationsCount: number;
+}
 
 export function VideoPlayerPage() {
   const { videoId, courseId, moduleId } = useParams<{
@@ -31,6 +44,14 @@ export function VideoPlayerPage() {
   const [progress, setProgress] = useState(0);
   const [isCompleted, setIsCompleted] = useState(false);
   const [watchTime, setWatchTime] = useState(0);
+  const [stats, setStats] = useState<VideoStats>({
+    totalWatchTime: 0,
+    completionCount: 0,
+    lastWatched: null,
+    averageCompletionRate: 0,
+    bookmarksCount: 0,
+    annotationsCount: 0,
+  });
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";
     message: string;
@@ -38,6 +59,7 @@ export function VideoPlayerPage() {
 
   useEffect(() => {
     loadVideo();
+    loadStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [videoId]);
 
@@ -57,6 +79,18 @@ export function VideoPlayerPage() {
         const blob = await VideoTeacherApi.getVideoBlob(Number(videoId));
         setVideoBlob(blob);
       }
+
+      // Carregar progresso salvo
+      const savedProgress = localStorage.getItem(`video_progress_${videoId}`);
+      if (savedProgress) {
+        setProgress(parseFloat(savedProgress) || 0);
+      }
+
+      // Verificar se foi concluído
+      const completedFlag = localStorage.getItem(`video_completed_${videoId}`);
+      if (completedFlag === "true") {
+        setIsCompleted(true);
+      }
     } catch (error) {
       console.error("Erro ao carregar vídeo:", error);
       setNotification({
@@ -68,22 +102,71 @@ export function VideoPlayerPage() {
     }
   };
 
+  const loadStats = () => {
+    if (!videoId) return;
+
+    // Carregar estatísticas do localStorage
+    const totalTime = localStorage.getItem(`video_total_time_${videoId}`);
+    const completions = localStorage.getItem(`video_completions_${videoId}`);
+    const lastWatch = localStorage.getItem(`video_last_watch_${videoId}`);
+    const avgCompletion = localStorage.getItem(`video_avg_completion_${videoId}`);
+    
+    const markers = localStorage.getItem(`video_markers_${videoId}`);
+    const annotations = localStorage.getItem(`video_annotations_${videoId}`);
+
+    setStats({
+      totalWatchTime: totalTime ? parseInt(totalTime) : 0,
+      completionCount: completions ? parseInt(completions) : 0,
+      lastWatched: lastWatch ? new Date(lastWatch) : null,
+      averageCompletionRate: avgCompletion ? parseFloat(avgCompletion) : 0,
+      bookmarksCount: markers ? JSON.parse(markers).length : 0,
+      annotationsCount: annotations ? JSON.parse(annotations).length : 0,
+    });
+  };
+
   const handleTimeUpdate = (currentTime: number, duration: number) => {
     const percentage = (currentTime / duration) * 100;
     setProgress(percentage);
     setWatchTime(Math.floor(currentTime));
 
-    // Aqui você pode salvar o progresso no backend
-    console.log("Progresso:", percentage.toFixed(1), "%");
+    // Atualizar tempo total assistido
+    const currentTotal = stats.totalWatchTime;
+    localStorage.setItem(`video_total_time_${videoId}`, (currentTotal + 1).toString());
+
+    // Atualizar última visualização
+    localStorage.setItem(`video_last_watch_${videoId}`, new Date().toISOString());
   };
 
   const handleComplete = () => {
-    setIsCompleted(true);
-    setNotification({
-      type: "success",
-      message: "🎉 Vídeo concluído com sucesso!",
-    });
-    // Aqui você pode marcar como concluído no backend
+    if (!isCompleted) {
+      setIsCompleted(true);
+      
+      // Salvar conclusão
+      localStorage.setItem(`video_completed_${videoId}`, "true");
+      
+      // Incrementar contador de conclusões
+      const completions = stats.completionCount + 1;
+      localStorage.setItem(`video_completions_${videoId}`, completions.toString());
+      
+      setNotification({
+        type: "success",
+        message: "🎉 Parabéns! Vídeo concluído com sucesso!",
+      });
+
+      // Atualizar stats
+      loadStats();
+    }
+  };
+
+  const handleProgressSave = (time: number) => {
+    // Salvar progresso
+    localStorage.setItem(`video_progress_${videoId}`, time.toString());
+    
+    // Atualizar taxa média de conclusão
+    if (video) {
+      const completionRate = (time / video.duration) * 100;
+      localStorage.setItem(`video_avg_completion_${videoId}`, completionRate.toString());
+    }
   };
 
   const goBack = () => {
@@ -94,6 +177,24 @@ export function VideoPlayerPage() {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const formatDate = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "Agora mesmo";
+    if (diffMins < 60) return `${diffMins} min atrás`;
+    if (diffHours < 24) return `${diffHours}h atrás`;
+    if (diffDays < 7) return `${diffDays}d atrás`;
+    
+    return date.toLocaleDateString("pt-BR", {
+      day: "2-digit",
+      month: "short",
+    });
   };
 
   if (isLoading) {
@@ -238,15 +339,19 @@ export function VideoPlayerPage() {
               <VideoPlayer
                 videoUrl={video.url}
                 title={video.title}
+                videoId={Number(videoId)}
                 onTimeUpdate={handleTimeUpdate}
                 onComplete={handleComplete}
+                onProgressSave={handleProgressSave}
               />
             ) : videoBlob ? (
               <VideoPlayer
                 videoBlob={videoBlob}
                 title={video.title}
+                videoId={Number(videoId)}
                 onTimeUpdate={handleTimeUpdate}
                 onComplete={handleComplete}
+                onProgressSave={handleProgressSave}
               />
             ) : (
               <div className="flex items-center justify-center h-96">
@@ -263,39 +368,6 @@ export function VideoPlayerPage() {
               </div>
             )}
           </div>
-
-          {/* Progress Bar */}
-          {progress > 0 && !isCompleted && (
-            <div className="mt-4">
-              <div className="flex items-center justify-between mb-2">
-                <span
-                  className="text-xs font-medium"
-                  style={{ color: "var(--color-text-secondary)" }}
-                >
-                  Progresso do vídeo
-                </span>
-                <span
-                  className="text-xs font-bold"
-                  style={{ color: accentColor }}
-                >
-                  {progress.toFixed(1)}%
-                </span>
-              </div>
-              <div
-                className="h-1.5 rounded-full overflow-hidden"
-                style={{ backgroundColor: `${accentColor}20` }}
-              >
-                <div
-                  className="h-full rounded-full transition-all duration-300"
-                  style={{
-                    width: `${progress}%`,
-                    backgroundColor: accentColor,
-                    boxShadow: `0 0 10px ${accentColor}60`,
-                  }}
-                />
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Grid de Informações */}
@@ -374,7 +446,7 @@ export function VideoPlayerPage() {
                           style={{ color: "var(--color-text-secondary)" }}
                         />
                         <span style={{ color: "var(--color-text-secondary)" }}>
-                          {formatTime(watchTime)} assistido
+                          {formatTime(watchTime)} nesta sessão
                         </span>
                       </div>
                     )}
@@ -417,6 +489,137 @@ export function VideoPlayerPage() {
                 </div>
               </div>
             )}
+
+            {/* Estatísticas Detalhadas */}
+            <div
+              className="p-6 rounded-2xl border"
+              style={{
+                backgroundColor: "var(--color-surface)",
+                borderColor: "var(--color-border)",
+              }}
+            >
+              <h3
+                className="font-bold text-sm mb-4 uppercase tracking-wider"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                Estatísticas de Aprendizado
+              </h3>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div
+                  className="p-4 rounded-xl text-center"
+                  style={{ backgroundColor: "var(--color-surface-secondary)" }}
+                >
+                  <div
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-full mb-2"
+                    style={{ backgroundColor: `${accentColor}20` }}
+                  >
+                    <Clock size={20} style={{ color: accentColor }} />
+                  </div>
+                  <p
+                    className="text-2xl font-bold mb-1"
+                    style={{ color: "var(--color-text-primary)" }}
+                  >
+                    {formatTime(stats.totalWatchTime)}
+                  </p>
+                  <p
+                    className="text-xs"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    Tempo total
+                  </p>
+                </div>
+
+                <div
+                  className="p-4 rounded-xl text-center"
+                  style={{ backgroundColor: "var(--color-surface-secondary)" }}
+                >
+                  <div
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-full mb-2"
+                    style={{ backgroundColor: `${accentColor}20` }}
+                  >
+                    <Award size={20} style={{ color: accentColor }} />
+                  </div>
+                  <p
+                    className="text-2xl font-bold mb-1"
+                    style={{ color: "var(--color-text-primary)" }}
+                  >
+                    {stats.completionCount}x
+                  </p>
+                  <p
+                    className="text-xs"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    Conclusões
+                  </p>
+                </div>
+
+                <div
+                  className="p-4 rounded-xl text-center"
+                  style={{ backgroundColor: "var(--color-surface-secondary)" }}
+                >
+                  <div
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-full mb-2"
+                    style={{ backgroundColor: `${accentColor}20` }}
+                  >
+                    <BookmarkCheck size={20} style={{ color: accentColor }} />
+                  </div>
+                  <p
+                    className="text-2xl font-bold mb-1"
+                    style={{ color: "var(--color-text-primary)" }}
+                  >
+                    {stats.bookmarksCount}
+                  </p>
+                  <p
+                    className="text-xs"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    Marcadores
+                  </p>
+                </div>
+
+                <div
+                  className="p-4 rounded-xl text-center"
+                  style={{ backgroundColor: "var(--color-surface-secondary)" }}
+                >
+                  <div
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-full mb-2"
+                    style={{ backgroundColor: `${accentColor}20` }}
+                  >
+                    <MessageSquare size={20} style={{ color: accentColor }} />
+                  </div>
+                  <p
+                    className="text-2xl font-bold mb-1"
+                    style={{ color: "var(--color-text-primary)" }}
+                  >
+                    {stats.annotationsCount}
+                  </p>
+                  <p
+                    className="text-xs"
+                    style={{ color: "var(--color-text-secondary)" }}
+                  >
+                    Anotações
+                  </p>
+                </div>
+              </div>
+
+              {stats.lastWatched && (
+                <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--color-border)" }}>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Eye
+                      size={16}
+                      style={{ color: "var(--color-text-secondary)" }}
+                    />
+                    <span style={{ color: "var(--color-text-secondary)" }}>
+                      Última visualização:{" "}
+                      <span style={{ color: "var(--color-text-primary)" }}>
+                        {formatDate(stats.lastWatched)}
+                      </span>
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Sidebar com Estatísticas */}
@@ -433,7 +636,7 @@ export function VideoPlayerPage() {
                 className="font-bold text-sm mb-4 uppercase tracking-wider"
                 style={{ color: "var(--color-text-secondary)" }}
               >
-                Seu Progresso
+                Progresso Atual
               </h3>
 
               {/* Círculo de Progresso */}
@@ -488,7 +691,7 @@ export function VideoPlayerPage() {
                     className="text-sm"
                     style={{ color: "var(--color-text-secondary)" }}
                   >
-                    Tempo assistido
+                    Tempo nesta sessão
                   </span>
                   <span
                     className="text-sm font-bold"
@@ -520,6 +723,23 @@ export function VideoPlayerPage() {
                         : "Não iniciado"}
                   </span>
                 </div>
+
+                {stats.averageCompletionRate > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span
+                      className="text-sm"
+                      style={{ color: "var(--color-text-secondary)" }}
+                    >
+                      Taxa média
+                    </span>
+                    <span
+                      className="text-sm font-bold"
+                      style={{ color: "var(--color-text-primary)" }}
+                    >
+                      {stats.averageCompletionRate.toFixed(0)}%
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -538,76 +758,37 @@ export function VideoPlayerPage() {
                 Atalhos do Teclado
               </h3>
               <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <span style={{ color: "var(--color-text-secondary)" }}>
-                    Play/Pause
-                  </span>
-                  <kbd
-                    className="px-2 py-1 rounded font-mono text-xs"
-                    style={{
-                      backgroundColor: "var(--color-surface-secondary)",
-                      color: "var(--color-text-primary)",
-                    }}
-                  >
-                    Espaço
-                  </kbd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span style={{ color: "var(--color-text-secondary)" }}>
-                    Tela cheia
-                  </span>
-                  <kbd
-                    className="px-2 py-1 rounded font-mono text-xs"
-                    style={{
-                      backgroundColor: "var(--color-surface-secondary)",
-                      color: "var(--color-text-primary)",
-                    }}
-                  >
-                    F
-                  </kbd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span style={{ color: "var(--color-text-secondary)" }}>
-                    Avançar 10s
-                  </span>
-                  <kbd
-                    className="px-2 py-1 rounded font-mono text-xs"
-                    style={{
-                      backgroundColor: "var(--color-surface-secondary)",
-                      color: "var(--color-text-primary)",
-                    }}
-                  >
-                    →
-                  </kbd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span style={{ color: "var(--color-text-secondary)" }}>
-                    Voltar 10s
-                  </span>
-                  <kbd
-                    className="px-2 py-1 rounded font-mono text-xs"
-                    style={{
-                      backgroundColor: "var(--color-surface-secondary)",
-                      color: "var(--color-text-primary)",
-                    }}
-                  >
-                    ←
-                  </kbd>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span style={{ color: "var(--color-text-secondary)" }}>
-                    Mute
-                  </span>
-                  <kbd
-                    className="px-2 py-1 rounded font-mono text-xs"
-                    style={{
-                      backgroundColor: "var(--color-surface-secondary)",
-                      color: "var(--color-text-primary)",
-                    }}
-                  >
-                    M
-                  </kbd>
-                </div>
+                {[
+                  { label: "Play/Pause", key: "Espaço" },
+                  { label: "Tela cheia", key: "F" },
+                  { label: "Avançar 10s", key: "→" },
+                  { label: "Voltar 10s", key: "←" },
+                  { label: "Volume +", key: "↑" },
+                  { label: "Volume -", key: "↓" },
+                  { label: "Mute", key: "M" },
+                  { label: "PiP", key: "P" },
+                  { label: "Loop", key: "L" },
+                  { label: "Teatro", key: "T" },
+                  { label: "Screenshot", key: "S" },
+                  { label: "Marcador", key: "B" },
+                  { label: "Anotações", key: "N" },
+                  { label: "Capítulos", key: "C" },
+                ].map((shortcut, idx) => (
+                  <div key={idx} className="flex items-center justify-between">
+                    <span style={{ color: "var(--color-text-secondary)" }}>
+                      {shortcut.label}
+                    </span>
+                    <kbd
+                      className="px-2 py-1 rounded font-mono text-xs"
+                      style={{
+                        backgroundColor: "var(--color-surface-secondary)",
+                        color: "var(--color-text-primary)",
+                      }}
+                    >
+                      {shortcut.key}
+                    </kbd>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

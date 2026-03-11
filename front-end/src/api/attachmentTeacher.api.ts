@@ -67,10 +67,4 @@ export const AttachmentTeacherApi = {
     return await api.get(`/teacher/attachments/lessons/${lessonId}`);
   },
 
-  async update(
-    attachmentId: number,
-    attachment: AttachmentDTO,
-  ): Promise<AxiosResponse<AttachmentDTO>> {
-    return await api.put(`/teacher/attachments/${attachmentId}`, attachment);
-  },
 };

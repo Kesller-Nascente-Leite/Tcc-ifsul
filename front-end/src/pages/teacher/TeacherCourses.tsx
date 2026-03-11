@@ -39,7 +39,7 @@ export function TeacherCourse() {
 
   //  estado da paginação
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 5; // Quantidade de cursos por página
+  const ITEMS_PER_PAGE = 3; // Quantidade de cursos por página
 
   // Carregar cursos existentes
   useEffect(() => {
@@ -114,7 +114,6 @@ export function TeacherCourse() {
       setTitle("");
       setDescription("");
 
-      // Volta para a página 1 para o professor ver o curso que acabou de criar
       setCurrentPage(1);
       showNotification("success", "Curso criado com sucesso!");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -185,10 +184,8 @@ export function TeacherCourse() {
   const indexOfLastCourse = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstCourse = indexOfLastCourse - ITEMS_PER_PAGE;
 
-  // "Fatia" o array original para pegar apenas os 5 da página atual
   const currentCourses = courses.slice(indexOfFirstCourse, indexOfLastCourse);
 
-  // Efeito para garantir que a página atual não fique num "limbo" se o usuário deletar o último item da última página
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
       setCurrentPage(totalPages);
