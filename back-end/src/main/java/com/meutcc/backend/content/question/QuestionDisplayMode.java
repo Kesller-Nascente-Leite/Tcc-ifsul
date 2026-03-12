@@ -1,4 +1,4 @@
-package com.meutcc.backend.content.Exercise;
+package com.meutcc.backend.content.question;
 
 public enum QuestionDisplayMode {
     SEQUENTIAL,     // Sequencial (uma por vez)

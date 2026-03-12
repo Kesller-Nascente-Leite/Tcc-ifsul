@@ -1,8 +1,8 @@
 package com.meutcc.backend.content.question;
 
 import com.meutcc.backend.common.model.BaseEntity;
-import com.meutcc.backend.content.Exercise.Answer;
-import com.meutcc.backend.content.Exercise.Exercise;
+import com.meutcc.backend.content.answer.Answer;
+import com.meutcc.backend.content.exercise.Exercise;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

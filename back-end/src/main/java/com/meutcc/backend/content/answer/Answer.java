@@ -1,6 +1,7 @@
-package com.meutcc.backend.content.Exercise;
+package com.meutcc.backend.content.answer;
 
 import com.meutcc.backend.common.model.BaseEntity;
+import com.meutcc.backend.content.attempt.ExerciseAttempt;
 import com.meutcc.backend.content.question.Question;
 import com.meutcc.backend.content.question.QuestionOption;
 import jakarta.persistence.*;

@@ -1,8 +1,10 @@
-package com.meutcc.backend.content.Exercise;
+package com.meutcc.backend.content.exercise;
 
 import com.meutcc.backend.common.model.BaseEntity;
+import com.meutcc.backend.content.attempt.ExerciseAttempt;
 import com.meutcc.backend.content.lesson.Lesson;
 import com.meutcc.backend.content.question.Question;
+import com.meutcc.backend.content.question.QuestionDisplayMode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

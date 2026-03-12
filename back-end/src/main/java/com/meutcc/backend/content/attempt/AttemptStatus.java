@@ -1,4 +1,4 @@
-package com.meutcc.backend.content.Exercise;
+package com.meutcc.backend.content.attempt;
 
 public enum AttemptStatus {
     IN_PROGRESS,    // Em andamento
