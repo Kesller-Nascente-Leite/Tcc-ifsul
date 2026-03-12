@@ -3,6 +3,7 @@ import { Menu, X, Moon, Sun } from "lucide-react";
 import Logo from "../../../assets/Logo.png";
 import { useTheme } from "../../../context/ThemeContext";
 import { Button } from "react-aria-components";
+import { useNavigate } from "react-router";
 
 interface PublicNavbarProps {
   onMenuClick?: () => void;
@@ -11,6 +12,7 @@ interface PublicNavbarProps {
 export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
+  const navigate = useNavigate();
 
   return (
     <nav
@@ -21,11 +23,12 @@ export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
       {/* Adicionado w-full aqui também para garantir o limite do contêiner */}
       <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div className="flex justify-between h-16 items-center">
-          
           {/* Esquerda - Logo (shrink-0 impede que ele seja esmagado) */}
           <div className="flex items-center gap-2 text-primary font-bold text-xl shrink-0">
             <img src={Logo} className="max-w-14 h-auto" alt="Logo" />
-            <span className="text-text-primary whitespace-nowrap">Estuda Fácil</span>
+            <span className="text-text-primary whitespace-nowrap">
+              Estuda Fácil
+            </span>
           </div>
 
           {/* Direita - Desktop (gap flexível e shrink-0) */}
@@ -37,7 +40,14 @@ export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
             >
               {isDark ? <Sun size={20} /> : <Moon size={20} />}
             </Button>
-            <Button className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-primary-hover transition-all shadow-md shadow-primary/20 outline-none cursor-pointer">
+            <Button
+              className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-primary-hover transition-all shadow-md shadow-primary/20 outline-none cursor-pointer"
+              onClick={() => {
+                navigate(
+                  "/login"
+                );
+              }}
+            >
               Começar
             </Button>
           </div>
@@ -59,7 +69,6 @@ export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </Button>
           </div>
-
         </div>
       </div>
 

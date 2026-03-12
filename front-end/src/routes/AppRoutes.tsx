@@ -1,4 +1,9 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
+import {
+  createBrowserRouter,
+  Outlet,
+  RouterProvider,
+  ScrollRestoration,
+} from "react-router";
 import { Login } from "../pages/auth/Login";
 import { Register } from "../pages/auth/Register";
 import { HomePage } from "../pages/HomePage";
@@ -16,47 +21,60 @@ import { StudentRoutes } from "./studentRoutes";
 import { FeaturesPage } from "../pages/FeaturesPage";
 import { PricingPage } from "../pages/PricingPage";
 
+const RootLayout = () => {
+  return (
+    <>
+      <ScrollRestoration />
+      <Outlet />
+    </>
+  );
+};
 const router = createBrowserRouter([
   {
-    element: <AuthGuard />,
+    element: <RootLayout />,
     children: [
       {
-        element: <PublicMainLayout />,
+        element: <AuthGuard />,
         children: [
           {
-            element: <GuestRoutes />,
+            element: <PublicMainLayout />,
             children: [
-              { path: "/", element: <HomePage /> },
-              { path: "/features", element: <FeaturesPage  /> },
-              { path: "/pricing", element: <PricingPage  /> },
-              { path: "/about", element: <AboutPage /> },
-              { path: "/login", element: <Login /> },
-              { path: "/register", element: <Register /> },
+              {
+                element: <GuestRoutes />,
+                children: [
+                  { path: "/", element: <HomePage /> },
+                  { path: "/features", element: <FeaturesPage /> },
+                  { path: "/pricing", element: <PricingPage /> },
+                  { path: "/about", element: <AboutPage /> },
+                  { path: "/login", element: <Login /> },
+                  { path: "/register", element: <Register /> },
+                ],
+              },
             ],
           },
+
+          {
+            element: <ProtectedRoute allowedRoles={[ROLES.STUDENT]} />,
+            children: [...StudentRoutes],
+          },
+          {
+            element: <ProtectedRoute allowedRoles={[ROLES.TEACHER]} />,
+            children: [...TeacherRoutes],
+          },
+          {
+            element: <ProtectedRoute allowedRoles={[ROLES.ADMIN]} />,
+            children: [...AdminRoutes],
+          },
+
+          {
+            path: "*",
+            element: <h1>404 - Página não encontrada</h1>,
+          },
+          {
+            path: "/unauthorized",
+            element: <Unauthorized />,
+          },
         ],
-      },
-
-      {
-        element: <ProtectedRoute allowedRoles={[ROLES.STUDENT]} />,
-        children: [...StudentRoutes],
-      },
-      {
-        element: <ProtectedRoute allowedRoles={[ROLES.TEACHER]} />,
-        children: [...TeacherRoutes],
-      },
-      {
-        element: <ProtectedRoute allowedRoles={[ROLES.ADMIN]} />,
-        children: [...AdminRoutes],
-      },
-
-      {
-        path: "*",
-        element: <h1>404 - Página não encontrada</h1>,
-      },
-      {
-        path: "/unauthorized",
-        element: <Unauthorized />,
       },
     ],
   },

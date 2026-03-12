@@ -130,7 +130,6 @@ export function VideoPlayer({
 
       const savedMarkers = localStorage.getItem(`video_markers_${videoId}`);
       if (savedMarkers) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setMarkers(JSON.parse(savedMarkers));
       }
 
@@ -173,7 +172,6 @@ export function VideoPlayer({
   useEffect(() => {
     if (videoBlob) {
       const url = URL.createObjectURL(videoBlob);
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVideoSource(url);
       return () => URL.revokeObjectURL(url);
     } else if (videoUrl) {

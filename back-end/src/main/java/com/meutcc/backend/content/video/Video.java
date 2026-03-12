@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "videos")
+@Table(name = "tb_videos")
 @Getter
 @Setter
 @Builder
