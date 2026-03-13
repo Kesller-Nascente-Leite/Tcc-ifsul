@@ -11,6 +11,7 @@ import { EditModule } from "../pages/teacher/EditModule";
 import { TeacherLessons } from "../pages/teacher/TeacherLesson";
 import { VideoPlayerPage } from "../pages/videoplayer/VideoPlayerPage";
 import { EditLesson } from "../pages/teacher/EditLesson";
+import TeacherExercises from "../pages/teacher/exercise/TeacherExercises";
 
 export const TeacherRoutes: RouteObject[] = [
   {
@@ -60,6 +61,10 @@ export const TeacherRoutes: RouteObject[] = [
       {
         path: "courses/:courseId/modules/:moduleId/lessons/:lessonId/videos/:videoId/watch",
         element: <VideoPlayerPage />,
+      },
+      {
+        path: "/teacher/lessons/:lessonId/exercises",
+        element: <TeacherExercises />,
       },
     ],
   },

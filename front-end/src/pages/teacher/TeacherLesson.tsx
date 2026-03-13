@@ -20,6 +20,7 @@ import {
   ChevronUp,
   DownloadIcon,
   NotebookText,
+  ClipboardList,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
@@ -192,8 +193,11 @@ export function TeacherLessons() {
 
     if (!moduleId) return;
 
-    if(lessonDuration > 6000){
-      showNotification("error"," Não é permitido um curso com mais de 100 horas")
+    if (lessonDuration > 6000) {
+      showNotification(
+        "error",
+        " Não é permitido um curso com mais de 100 horas",
+      );
       return;
     }
 
@@ -996,8 +1000,7 @@ export function TeacherLessons() {
                                       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
                                       video.id && deleteVideo(video.id);
                                     }}
-                                    >
-
+                                  >
                                     <Trash2 size={16} />
                                   </Button>
                                 </div>
@@ -1158,6 +1161,146 @@ export function TeacherLessons() {
                             style={{ color: "var(--color-text-secondary)" }}
                           >
                             Nenhum anexo adicionado
+                          </p>
+                        )}
+                      </div>
+                      {/* SEÇÃO: Atividades / Exercícios */}
+                      <div
+                        className="mt-6 border-t pt-6"
+                        style={{ borderColor: "var(--color-border)" }}
+                      >
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
+                          <h5
+                            className="font-semibold text-sm flex items-center gap-2"
+                            style={{ color: "var(--color-text-primary)" }}
+                          >
+                            <ClipboardList size={16} />
+                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any*/}
+                            Atividades ({(lesson as any).exercises?.length || 0}
+                            )
+                          </h5>
+                          <Button
+                            className="w-full sm:w-auto flex justify-center items-center gap-2 px-3 py-2 sm:py-1.5 text-sm sm:text-xs rounded-lg transition-colors"
+                            style={{
+                              backgroundColor: `${accentColor}15`,
+                              color: accentColor,
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Redireciona para a página de gestão de exercícios desta aula
+                              navigate(
+                                `/teacher/lessons/${lesson.id}/exercises`,
+                              );
+                            }}
+                          >
+                            <Plus size={14} />
+                            Nova Atividade
+                          </Button>
+                        </div>
+
+                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any*/}
+                        {(lesson as any).exercises && (lesson as any).exercises.length > 0 ? (
+                          <div className="space-y-2">
+                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any*/}
+                            {(lesson as any).exercises.map((exercise: any) => (
+                              <div
+                                key={exercise.id}
+                                className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg gap-3"
+                                style={{
+                                  backgroundColor: "var(--color-surface-hover)",
+                                }}
+                              >
+                                <div className="flex items-start sm:items-center gap-3 w-full sm:w-auto flex-1 min-w-0">
+                                  <div
+                                    className="p-2 rounded-lg shrink-0"
+                                    style={{
+                                      backgroundColor: `${accentColor}15`,
+                                      color: accentColor,
+                                    }}
+                                  >
+                                    <ClipboardList size={16} />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p
+                                      className="text-sm font-medium truncate"
+                                      style={{
+                                        color: "var(--color-text-primary)",
+                                      }}
+                                    >
+                                      {exercise.title}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <span
+                                        className="text-xs"
+                                        style={{
+                                          color: "var(--color-text-secondary)",
+                                        }}
+                                      >
+                                        {exercise.totalPoints} pontos
+                                      </span>
+                                      <span
+                                        style={{
+                                          color: "var(--color-text-secondary)",
+                                        }}
+                                      >
+                                        •
+                                      </span>
+                                      <span
+                                        className="text-xs"
+                                        style={{
+                                          color: "var(--color-text-secondary)",
+                                        }}
+                                      >
+                                        {exercise.questions?.length || 0}{" "}
+                                        questões
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 border-border pt-2 sm:pt-0">
+                                  <Button
+                                    className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg transition-colors hover:opacity-80"
+                                    style={{
+                                      backgroundColor: `${accentColor}15`,
+                                      color: accentColor,
+                                    }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate(
+                                        `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/exercises/${exercise.id}/edit`,
+                                      );
+                                    }}
+                                  >
+                                    <Edit2 size={16} />
+                                  </Button>
+                                  <Button
+                                    className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg transition-colors"
+                                    style={{
+                                      backgroundColor:
+                                        "var(--color-error-light)",
+                                      color: "var(--color-error)",
+                                    }}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      // Chame sua função de deletar exercício aqui futuramente
+                                      console.log(
+                                        "Deletar exercício",
+                                        exercise.id,
+                                      );
+                                    }}
+                                  >
+                                    <Trash2 size={16} />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p
+                            className="text-xs text-center py-4 bg-surface-hover rounded-lg"
+                            style={{ color: "var(--color-text-secondary)" }}
+                          >
+                            Nenhuma atividade cadastrada
                           </p>
                         )}
                       </div>

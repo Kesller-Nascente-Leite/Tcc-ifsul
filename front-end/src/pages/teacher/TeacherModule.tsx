@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState} from 'react';
 import { useNavigate } from "react-router";
 import {
   Plus,
@@ -184,7 +184,7 @@ export function TeacherModules() {
     }
   };
 
- return (
+  return (
     <div className="space-y-6">
       {/* Header Responsivo */}
       <Header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -196,8 +196,8 @@ export function TeacherModules() {
             Organize o conteúdo do seu curso em módulos
           </p>
         </div>
-        <ButtonComponent 
-          size="sm" 
+        <ButtonComponent
+          size="sm"
           onClick={() => navigate("/teacher/course")}
           className="w-full sm:w-auto"
         >
@@ -317,6 +317,7 @@ export function TeacherModules() {
                   placeholder="Descreva o conteúdo deste módulo..."
                   disabled={isCreating}
                   rows={4}
+                  minLength={10}
                   className="w-full px-4 py-2 rounded-lg border bg-background border-border text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
@@ -395,7 +396,7 @@ export function TeacherModules() {
                             if (selectedCourse?.id && module.id) {
                               navigate(
                                 `/teacher/courses/${selectedCourse.id}/modules/${module.id}/edit`,
-                                { state: { module } }
+                                { state: { module } },
                               );
                             }
                           }}
@@ -403,13 +404,13 @@ export function TeacherModules() {
                           <Edit2 size={16} />
                           <span className="sm:inline">Editar</span>
                         </Button>
-                        
+
                         <Button
                           className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
                           onClick={() => {
                             if (selectedCourse?.id && module.id) {
                               navigate(
-                                `/teacher/courses/${selectedCourse.id}/modules/${module.id}/lessons`
+                                `/teacher/courses/${selectedCourse.id}/modules/${module.id}/lessons`,
                               );
                             }
                           }}
