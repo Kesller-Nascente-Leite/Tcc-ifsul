@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import {
   Plus,
   Edit3,
@@ -8,191 +9,311 @@ import {
   Clock,
   Award,
   CheckCircle,
-  Eye,
-  Copy,
+  XCircle,
+  ArrowLeft,
   MoreVertical,
   FileText,
   TrendingUp,
+  ClipboardList,
+  Copy,
 } from "lucide-react";
-
-// Tipos
-interface Exercise {
-  id: number;
-  title: string;
-  description: string;
-  totalPoints: number;
-  passingScore: number;
-  timeLimit: number | null;
-  questionsCount: number;
-  isActive: boolean;
-  availableFrom: string | null;
-  availableUntil: string | null;
-  createdAt: string;
-  statistics: {
-    totalAttempts: number;
-    totalStudents: number;
-    averagePercentage: number;
-    passedCount: number;
-    failedCount: number;
-  };
-}
+import { ButtonComponent } from "../../../components/ui/ButtonComponent";
+import { NotificationComponent } from "../../../components/ui/NotificationComponent";
+import {
+  ConfirmDialog,
+  useConfirmDialog,
+} from "../../../components/ui/ConfirmDialog";
+import { ExerciseTeacherApi } from "../../../api/exerciseTeacher.api";
+import { LessonTeacherApi } from "../../../api/lessonTeacher.api";
+import type { ExerciseResponseDTO } from "../../../types/ExerciseTypes";
+import type { LessonDTO } from "../../../types/LessonDTO";
+import { useTheme } from "../../../context/ThemeContext";
+import { Header, Button } from "react-aria-components";
 
 export default function TeacherExercises() {
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  //   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
-  //   const [view, setView] = useState<"grid" | "list">("grid");
-  const [setSelectedExercise] = useState<Exercise | null>(null);
+  const { lessonId, moduleId, courseId } = useParams<{
+    lessonId: string;
+    moduleId: string;
+    courseId: string;
+  }>();
+  const { accentColor, isDark } = useTheme();
+  const navigate = useNavigate();
+  const { isOpen, setIsOpen, confirm, dialogConfig } = useConfirmDialog();
+
+  const [lesson, setLesson] = useState<LessonDTO | null>(null);
+  const [exercises, setExercises] = useState<ExerciseResponseDTO[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const [notification, setNotification] = useState<{
+    type: "success" | "error" | "info";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
-    // Simular fetch de exercícios
-    setTimeout(() => {
-      setExercises([
-        {
-          id: 1,
-          title: "Quiz - Introdução ao React",
-          description: "Teste seus conhecimentos sobre React básico",
-          totalPoints: 100,
-          passingScore: 70,
-          timeLimit: 30,
-          questionsCount: 10,
-          isActive: true,
-          availableFrom: null,
-          availableUntil: null,
-          createdAt: "2024-03-10T10:00:00",
-          statistics: {
-            totalAttempts: 45,
-            totalStudents: 32,
-            averagePercentage: 78.5,
-            passedCount: 28,
-            failedCount: 4,
-          },
-        },
-        {
-          id: 2,
-          title: "Prova - Hooks Avançados",
-          description: "Avaliação completa sobre hooks customizados",
-          totalPoints: 150,
-          passingScore: 80,
-          timeLimit: 60,
-          questionsCount: 15,
-          isActive: true,
-          availableFrom: "2024-03-15T09:00:00",
-          availableUntil: "2024-03-22T23:59:59",
-          createdAt: "2024-03-08T14:30:00",
-          statistics: {
-            totalAttempts: 18,
-            totalStudents: 18,
-            averagePercentage: 72.3,
-            passedCount: 12,
-            failedCount: 6,
-          },
-        },
+    if (!lessonId) return;
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lessonId]);
+
+  const loadData = async () => {
+    if (!lessonId) return;
+
+    try {
+      setIsLoading(true);
+      const [lessonResponse, exercisesResponse] = await Promise.all([
+        LessonTeacherApi.getById(Number(lessonId)),
+        ExerciseTeacherApi.listByLesson(Number(lessonId)),
       ]);
-      setLoading(false);
-    }, 800);
-  }, []);
+
+      setLesson(lessonResponse.data);
+      setExercises(exercisesResponse.data || []);
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
+      showNotification("error", "Erro ao carregar exercícios");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const showNotification = (
+    type: "success" | "error" | "info",
+    message: string
+  ) => {
+    setNotification({ type, message });
+  };
+
+  const deleteExercise = async (exercise: ExerciseResponseDTO) => {
+    const confirmed = await confirm({
+      title: "Confirmar exclusão",
+      message: (
+        <div className="space-y-2">
+          <p>Tem certeza que deseja excluir o exercício:</p>
+          <p
+            className="font-semibold"
+            style={{ color: "var(--color-text-primary)" }}
+          >
+            "{exercise.title}"?
+          </p>
+          <p className="text-xs">Esta ação não pode ser desfeita.</p>
+        </div>
+      ),
+      confirmText: "Sim, excluir",
+      cancelText: "Cancelar",
+      variant: "danger",
+      isDark,
+    });
+
+    if (confirmed) {
+      try {
+        await ExerciseTeacherApi.remove(exercise.id);
+        setExercises((prev) => prev.filter((e) => e.id !== exercise.id));
+        showNotification("success", "Exercício excluído com sucesso!");
+      } catch (error) {
+        console.error("Erro ao excluir exercício:", error);
+        showNotification("error", "Erro ao excluir exercício");
+      }
+    }
+  };
+
+  const duplicateExercise = async (exercise: ExerciseResponseDTO) => {
+    try {
+      const response = await ExerciseTeacherApi.duplicate(exercise.id);
+      setExercises((prev) => [...prev, response.data]);
+      showNotification("success", "Exercício duplicado com sucesso!");
+    } catch (error) {
+      console.error("Erro ao duplicar exercício:", error);
+      showNotification("error", "Erro ao duplicar exercício");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div
+        className="flex items-center justify-center min-h-screen"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin"
+            style={{
+              borderColor: accentColor,
+              color: "var(--color-text-secondary)",
+            }}
+          />
+          <span style={{ color: "var(--color-text-secondary)" }}>
+            Carregando...
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="space-y-6 pb-12">
       {/* Header */}
-      <header className="border-b border-zinc-200 bg-white">
-        <div className="max-w-7xl mx-auto px-6 py-8">
-          <div className="flex items-start justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-zinc-900 tracking-tight mb-2">
-                Exercícios
-              </h1>
-              <p className="text-zinc-600 text-lg">
-                Gerencie quizzes, provas e atividades da sua disciplina
-              </p>
-            </div>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-lg shadow-blue-600/20"
-            >
-              <Plus size={20} />
-              Novo Exercício
-            </button>
-          </div>
+      <Header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <button
+            onClick={() =>
+              navigate(
+                `/teacher/courses/${courseId}/modules/${moduleId}/lessons`
+              )
+            }
+            className="flex items-center gap-2 hover:opacity-80 transition-colors mb-2"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            <ArrowLeft size={20} />
+            <span className="text-sm">Voltar para Aulas</span>
+          </button>
+          <h1
+            className="text-2xl font-bold"
+            style={{ color: "var(--color-text-primary)" }}
+          >
+            Exercícios
+          </h1>
+          <p
+            className="text-sm"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            {lesson?.title || "Carregando..."}
+          </p>
+        </div>
 
-          {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-8">
-            <StatCard
-              icon={<FileText size={20} />}
-              label="Total de Exercícios"
-              value={exercises.length.toString()}
-              color="blue"
-            />
-            <StatCard
-              icon={<Users size={20} />}
-              label="Média de Alunos"
-              value={Math.round(
-                exercises.reduce(
-                  (acc, ex) => acc + ex.statistics.totalStudents,
-                  0,
-                ) / exercises.length,
-              ).toString()}
-              color="purple"
-            />
-            <StatCard
-              icon={<CheckCircle size={20} />}
-              label="Taxa de Aprovação"
-              value={`${Math.round(
-                exercises.reduce(
-                  (acc, ex) =>
-                    acc +
-                    (ex.statistics.passedCount /
-                      (ex.statistics.passedCount + ex.statistics.failedCount)) *
-                      100,
-                  0,
-                ) / exercises.length,
-              )}%`}
-              color="green"
-            />
-            <StatCard
-              icon={<TrendingUp size={20} />}
-              label="Média Geral"
-              value={`${Math.round(
-                exercises.reduce(
-                  (acc, ex) => acc + ex.statistics.averagePercentage,
-                  0,
-                ) / exercises.length,
-              )}%`}
-              color="amber"
-            />
+        <ButtonComponent
+          onClick={() =>
+            navigate(
+              `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/create`
+            )
+          }
+          className="w-full sm:w-auto"
+        >
+          <Plus size={20} className="mr-2" />
+          Novo Exercício
+        </ButtonComponent>
+      </Header>
+
+      {/* Notificação */}
+      {notification && (
+        <NotificationComponent
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+          duration={3000}
+        />
+      )}
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <StatCard
+          icon={<FileText size={20} />}
+          label="Total de Exercícios"
+          value={exercises.length.toString()}
+          color={accentColor}
+        />
+        <StatCard
+          icon={<Users size={20} />}
+          label="Média de Alunos"
+          value={Math.round(
+            exercises.reduce((acc, ex) => acc + (ex.statistics?.totalStudents || 0), 0) /
+              (exercises.length || 1)
+          ).toString()}
+          color={accentColor}
+        />
+        <StatCard
+          icon={<CheckCircle size={20} />}
+          label="Taxa de Aprovação"
+          value={`${Math.round(
+            exercises.reduce(
+              (acc, ex) =>
+                acc +
+                ((ex.statistics?.passRate || 0)),
+              0
+            ) / (exercises.length || 1)
+          )}%`}
+          color={accentColor}
+        />
+        <StatCard
+          icon={<TrendingUp size={20} />}
+          label="Média Geral"
+          value={`${Math.round(
+            exercises.reduce((acc, ex) => acc + (ex.statistics?.averagePercentage || 0), 0) /
+              (exercises.length || 1)
+          )}%`}
+          color={accentColor}
+        />
+      </div>
+
+      {/* Lista de Exercícios */}
+      <div
+        className="p-4 sm:p-6 rounded-2xl border"
+        style={{
+          backgroundColor: "var(--color-surface)",
+          borderColor: "var(--color-border)",
+        }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h3
+            className="font-bold text-lg"
+            style={{ color: "var(--color-text-primary)" }}
+          >
+            Exercícios Criados
+          </h3>
+          <div
+            className="text-sm"
+            style={{ color: "var(--color-text-secondary)" }}
+          >
+            {exercises.length} exercício(s)
           </div>
         </div>
-      </header>
 
-      {/* Content */}
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        {exercises.length === 0 ? (
+          <div className="text-center py-12">
+            <ClipboardList
+              size={48}
+              className="mx-auto mb-4 opacity-50"
+              style={{ color: "var(--color-text-secondary)" }}
+            />
+            <p style={{ color: "var(--color-text-secondary)" }}>
+              Nenhum exercício criado ainda.
+            </p>
+            <p
+              className="text-sm mt-2"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              Crie seu primeiro exercício clicando no botão acima
+            </p>
           </div>
-        ) : exercises.length === 0 ? (
-          <EmptyState onCreateClick={() => setShowCreateModal(true)} />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {exercises.map((exercise) => (
               <ExerciseCard
                 key={exercise.id}
                 exercise={exercise}
-                onEdit={() => setSelectedExercise(exercise)}
-                onDelete={() => {}}
-                onViewStats={() => {}}
+                accentColor={accentColor}
+                onEdit={() =>
+                  navigate(
+                    `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/${exercise.id}/edit`
+                  )
+                }
+                onDelete={() => deleteExercise(exercise)}
+                onViewStats={() =>
+                  navigate(
+                    `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/${exercise.id}/stats`
+                  )
+                }
+                onDuplicate={() => duplicateExercise(exercise)}
               />
             ))}
           </div>
         )}
-      </main>
+      </div>
 
-      {/* Create Modal */}
-      {showCreateModal && (
-        <CreateExerciseModal onClose={() => setShowCreateModal(false)} />
-      )}
+      <ConfirmDialog
+        isOpen={isOpen}
+        onOpenChange={setIsOpen}
+        isDark={isDark}
+        {...dialogConfig}
+      />
     </div>
   );
 }
@@ -207,70 +328,190 @@ function StatCard({
   icon: React.ReactNode;
   label: string;
   value: string;
-  color: "blue" | "purple" | "green" | "amber";
+  color: string;
 }) {
-  const colors = {
-    blue: "bg-blue-50 text-blue-600 border-blue-100",
-    purple: "bg-purple-50 text-purple-600 border-purple-100",
-    green: "bg-green-50 text-green-600 border-green-100",
-    amber: "bg-amber-50 text-amber-600 border-amber-100",
-  };
-
   return (
-    <div className="bg-white border border-zinc-200 rounded-xl p-5">
-      <div className={`inline-flex p-2.5 rounded-lg ${colors[color]} mb-3`}>
+    <div
+      className="p-5 rounded-xl border"
+      style={{
+        backgroundColor: "var(--color-surface)",
+        borderColor: "var(--color-border)",
+      }}
+    >
+      <div
+        className="inline-flex p-2.5 rounded-lg mb-3"
+        style={{ backgroundColor: `${color}15`, color }}
+      >
         {icon}
       </div>
-      <p className="text-sm text-zinc-600 mb-1">{label}</p>
-      <p className="text-2xl font-bold text-zinc-900">{value}</p>
+      <p className="text-sm mb-1" style={{ color: "var(--color-text-secondary)" }}>
+        {label}
+      </p>
+      <p className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+        {value}
+      </p>
     </div>
   );
 }
 
 function ExerciseCard({
   exercise,
+  accentColor,
   onEdit,
   onDelete,
   onViewStats,
+  onDuplicate,
 }: {
-  exercise: Exercise;
+  exercise: ExerciseResponseDTO;
+  accentColor: string;
   onEdit: () => void;
   onDelete: () => void;
   onViewStats: () => void;
+  onDuplicate: () => void;
 }) {
-  const passRate =
-    (exercise.statistics.passedCount /
-      (exercise.statistics.passedCount + exercise.statistics.failedCount)) *
-    100;
+  const [showMenu, setShowMenu] = useState(false);
+  const passRate = exercise.statistics?.passRate || 0;
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden hover:shadow-xl hover:border-zinc-300 transition-all duration-300 group">
+    <div
+      className="rounded-xl border hover:shadow-md transition-all overflow-hidden"
+      style={{
+        backgroundColor: "var(--color-surface-secondary)",
+        borderColor: "var(--color-border)",
+      }}
+    >
       {/* Header */}
-      <div className="p-6 border-b border-zinc-100">
+      <div
+        className="p-5 border-b"
+        style={{ borderColor: "var(--color-border)" }}
+      >
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <h3 className="text-xl font-bold text-zinc-900 group-hover:text-blue-600 transition-colors">
+              <h3
+                className="text-xl font-bold"
+                style={{ color: "var(--color-text-primary)" }}
+              >
                 {exercise.title}
               </h3>
               {exercise.isActive && (
-                <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                <span
+                  className="px-2 py-0.5 text-xs font-semibold rounded-full"
+                  style={{
+                    backgroundColor: `${accentColor}15`,
+                    color: accentColor,
+                  }}
+                >
                   Ativo
                 </span>
               )}
             </div>
-            <p className="text-zinc-600 text-sm line-clamp-2">
-              {exercise.description}
+            <p
+              className="text-sm line-clamp-2"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              {exercise.description || "Sem descrição"}
             </p>
           </div>
-          <DropdownMenu onEdit={onEdit} onDelete={onDelete} />
+
+          {/* Menu */}
+          <div className="relative ml-2">
+            <Button
+              className="p-2 hover:bg-opacity-10 rounded-lg transition-colors"
+              style={{ backgroundColor: `${accentColor}10` }}
+              onClick={() => setShowMenu(!showMenu)}
+            >
+              <MoreVertical size={18} style={{ color: accentColor }} />
+            </Button>
+
+            {showMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setShowMenu(false)}
+                />
+                <div
+                  className="absolute right-0 top-full mt-2 w-48 rounded-lg border shadow-xl z-20 overflow-hidden"
+                  style={{
+                    backgroundColor: "var(--color-surface)",
+                    borderColor: "var(--color-border)",
+                  }}
+                >
+                  <button
+                    onClick={() => {
+                      onEdit();
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors"
+                    style={{
+                      color: "var(--color-text-primary)",
+                      backgroundColor: "transparent",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "var(--color-surface-hover)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
+                  >
+                    <Edit3 size={16} />
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => {
+                      onDuplicate();
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors"
+                    style={{
+                      color: "var(--color-text-primary)",
+                      backgroundColor: "transparent",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "var(--color-surface-hover)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
+                  >
+                    <Copy size={16} />
+                    Duplicar
+                  </button>
+                  <div
+                    className="border-t"
+                    style={{ borderColor: "var(--color-border)" }}
+                  />
+                  <button
+                    onClick={() => {
+                      onDelete();
+                      setShowMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors"
+                    style={{
+                      color: "var(--color-error)",
+                      backgroundColor: "transparent",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "var(--color-error-light)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
+                  >
+                    <Trash2 size={16} />
+                    Excluir
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Meta info */}
-        <div className="flex flex-wrap gap-4 text-sm text-zinc-600">
+        <div className="flex flex-wrap gap-4 text-sm" style={{ color: "var(--color-text-secondary)" }}>
           <div className="flex items-center gap-1.5">
             <FileText size={16} />
-            <span>{exercise.questionsCount} questões</span>
+            <span>{exercise.questionsCount || 0} questões</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Award size={16} />
@@ -286,182 +527,117 @@ function ExerciseCard({
       </div>
 
       {/* Stats */}
-      <div className="p-6 bg-zinc-50">
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <p className="text-xs text-zinc-500 mb-1">Tentativas</p>
-            <p className="text-2xl font-bold text-zinc-900">
-              {exercise.statistics.totalAttempts}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-zinc-500 mb-1">Alunos</p>
-            <p className="text-2xl font-bold text-zinc-900">
-              {exercise.statistics.totalStudents}
-            </p>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-zinc-600">Taxa de Aprovação</span>
-              <span className="text-sm font-semibold text-zinc-900">
-                {Math.round(passRate)}%
-              </span>
+      {exercise.statistics && (
+        <div
+          className="p-5"
+          style={{ backgroundColor: "var(--color-surface-hover)" }}
+        >
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div>
+              <p className="text-xs mb-1" style={{ color: "var(--color-text-secondary)" }}>
+                Tentativas
+              </p>
+              <p className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+                {exercise.statistics.totalAttempts}
+              </p>
             </div>
-            <div className="h-2 bg-zinc-200 rounded-full overflow-hidden">
+            <div>
+              <p className="text-xs mb-1" style={{ color: "var(--color-text-secondary)" }}>
+                Alunos
+              </p>
+              <p className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+                {exercise.statistics.totalStudents}
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                  Taxa de Aprovação
+                </span>
+                <span className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                  {Math.round(passRate)}%
+                </span>
+              </div>
               <div
-                className="h-full bg-linear-to-r from-green-500 to-green-600 transition-all duration-500"
-                style={{ width: `${passRate}%` }}
-              />
+                className="h-2 rounded-full overflow-hidden"
+                style={{ backgroundColor: "var(--color-border)" }}
+              >
+                <div
+                  className="h-full transition-all duration-500"
+                  style={{
+                    width: `${passRate}%`,
+                    background: `linear-gradient(to right, ${accentColor}, ${accentColor}dd)`,
+                  }}
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-zinc-600">Média de Notas</span>
-              <span className="text-sm font-semibold text-zinc-900">
-                {Math.round(exercise.statistics.averagePercentage)}%
-              </span>
-            </div>
-            <div className="h-2 bg-zinc-200 rounded-full overflow-hidden">
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                  Média de Notas
+                </span>
+                <span className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                  {Math.round(exercise.statistics.averagePercentage)}%
+                </span>
+              </div>
               <div
-                className="h-full bg-linear-to-r from-blue-500 to-blue-600 transition-all duration-500"
-                style={{ width: `${exercise.statistics.averagePercentage}%` }}
-              />
+                className="h-2 rounded-full overflow-hidden"
+                style={{ backgroundColor: "var(--color-border)" }}
+              >
+                <div
+                  className="h-full transition-all duration-500"
+                  style={{
+                    width: `${exercise.statistics.averagePercentage}%`,
+                    background: `linear-gradient(to right, ${accentColor}, ${accentColor}dd)`,
+                  }}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex gap-2 mt-5">
-          <button
-            onClick={onViewStats}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-zinc-300 text-zinc-700 rounded-lg hover:bg-zinc-50 hover:border-zinc-400 transition-colors font-medium text-sm"
-          >
-            <BarChart3 size={16} />
-            Estatísticas
-          </button>
-          <button
-            onClick={onEdit}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium text-sm"
-          >
-            <Edit3 size={16} />
-            Editar
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DropdownMenu({
-  onEdit,
-  onDelete,
-}: {
-  onEdit: () => void;
-  onDelete: () => void;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div className="relative">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="p-2 hover:bg-zinc-100 rounded-lg transition-colors"
-      >
-        <MoreVertical size={18} className="text-zinc-600" />
-      </button>
-
-      {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-          />
-          <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-zinc-200 rounded-lg shadow-xl z-20 overflow-hidden">
+          <div className="flex gap-2 mt-5">
             <button
-              onClick={() => {
-                onEdit();
-                setIsOpen(false);
+              onClick={onViewStats}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm rounded-lg font-medium transition-colors"
+              style={{
+                backgroundColor: "var(--color-surface)",
+                color: "var(--color-text-primary)",
+                border: `1px solid var(--color-border)`,
               }}
-              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 text-zinc-700 text-sm font-medium transition-colors"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--color-surface-hover)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "var(--color-surface)";
+              }}
+            >
+              <BarChart3 size={16} />
+              Estatísticas
+            </button>
+            <button
+              onClick={onEdit}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm rounded-lg font-medium transition-colors"
+              style={{
+                backgroundColor: accentColor,
+                color: "white",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.opacity = "0.9";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.opacity = "1";
+              }}
             >
               <Edit3 size={16} />
               Editar
             </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 text-zinc-700 text-sm font-medium transition-colors">
-              <Copy size={16} />
-              Duplicar
-            </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-zinc-50 text-zinc-700 text-sm font-medium transition-colors">
-              <Eye size={16} />
-              Visualizar
-            </button>
-            <div className="border-t border-zinc-200" />
-            <button
-              onClick={() => {
-                onDelete();
-                setIsOpen(false);
-              }}
-              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-red-50 text-red-600 text-sm font-medium transition-colors"
-            >
-              <Trash2 size={16} />
-              Excluir
-            </button>
           </div>
-        </>
+        </div>
       )}
-    </div>
-  );
-}
-
-function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-96 text-center">
-      <div className="w-20 h-20 bg-zinc-100 rounded-2xl flex items-center justify-center mb-6">
-        <FileText size={40} className="text-zinc-400" />
-      </div>
-      <h3 className="text-2xl font-bold text-zinc-900 mb-2">
-        Nenhum exercício criado
-      </h3>
-      <p className="text-zinc-600 mb-8 max-w-md">
-        Comece criando seu primeiro quiz, prova ou atividade para seus alunos
-      </p>
-      <button
-        onClick={onCreateClick}
-        className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-      >
-        <Plus size={20} />
-        Criar Primeiro Exercício
-      </button>
-    </div>
-  );
-}
-
-function CreateExerciseModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
-        <div className="p-6 border-b border-zinc-200">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-zinc-900">
-              Criar Novo Exercício
-            </h2>
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-zinc-100 rounded-lg transition-colors"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-        <div className="p-6">
-          <p className="text-zinc-600">
-            Modal de criação será implementado no próximo arquivo...
-          </p>
-        </div>
-      </div>
     </div>
   );
 }
