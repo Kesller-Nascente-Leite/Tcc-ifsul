@@ -1,4 +1,5 @@
 import type { AttachmentDTO } from "./AttachmentDTO";
+import type { ExerciseResponseDTO } from "./ExerciseResponseDTO";
 
 export interface LessonDTO {
   id?: number;
@@ -8,7 +9,8 @@ export interface LessonDTO {
   durationMinutes?: number;
   moduleId: number;
   videos?: VideoDTO[];
-  attachments?: AttachmentDTO[];  
+  attachments?: AttachmentDTO[];
+  exercises?: ExerciseResponseDTO[]; 
 }
 export interface VideoDTO {
   duration: number;

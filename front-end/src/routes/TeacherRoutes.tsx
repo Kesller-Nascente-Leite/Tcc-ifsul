@@ -11,7 +11,9 @@ import { EditModule } from "../pages/teacher/EditModule";
 import { TeacherLessons } from "../pages/teacher/TeacherLesson";
 import { VideoPlayerPage } from "../pages/videoplayer/VideoPlayerPage";
 import { EditLesson } from "../pages/teacher/EditLesson";
-import TeacherExercises from "../pages/teacher/exercise/TeacherExercises";
+import { TeacherExercises } from "../pages/teacher/exercise/TeacherExercises";
+import { ExerciseStatistics } from "../pages/teacher/exercise/ExerciseStatistics";
+import { CreateExercise } from "../pages/teacher/exercise/CreateExercise";
 
 export const TeacherRoutes: RouteObject[] = [
   {
@@ -65,6 +67,28 @@ export const TeacherRoutes: RouteObject[] = [
       {
         path: "/teacher/lessons/:lessonId/exercises",
         element: <TeacherExercises />,
+      },
+      {
+        path: "courses/:courseId/modules/:moduleId/lessons/:lessonId/exercises",
+        element: <TeacherExercises />,
+      },
+
+      // // Criar novo exercício
+      {
+        path: "courses/:courseId/modules/:moduleId/lessons/:lessonId/exercises/create",
+        element: <CreateExercise />,
+      },
+
+      // // Editar exercício existente
+      // {
+      //   path: "courses/:courseId/modules/:moduleId/lessons/:lessonId/exercises/:exerciseId/edit",
+      //   element: <EditExercise />,
+      // },
+
+      // Ver estatísticas do exercício
+      {
+        path: "courses/:courseId/modules/:moduleId/lessons/:lessonId/exercises/:exerciseId/stats",
+        element: <ExerciseStatistics />,
       },
     ],
   },

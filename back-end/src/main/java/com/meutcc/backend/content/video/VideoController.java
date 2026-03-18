@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping("/api/teacher")
+@RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:5173", "http://10.0.0.109:5173"})
 @RequiredArgsConstructor
 public class VideoController {
@@ -20,7 +20,7 @@ public class VideoController {
     private final VideoService videoService;
 
     // Upload de vídeo para o bd
-    @PostMapping("/lessons/{lessonId}/videos/upload")
+    @PostMapping("/teacher/lessons/{lessonId}/videos/upload")
     @ResponseStatus(HttpStatus.CREATED)
     public VideoDTO uploadVideo(
             @PathVariable Long lessonId,
@@ -31,7 +31,7 @@ public class VideoController {
     }
 
     // Adicionar vídeo por URL
-    @PostMapping("/lessons/{lessonId}/videos/url")
+    @PostMapping("/teacher/lessons/{lessonId}/videos/url")
     @ResponseStatus(HttpStatus.CREATED)
     public VideoDTO addVideoUrl(
             @PathVariable Long lessonId,
@@ -42,21 +42,21 @@ public class VideoController {
     }
 
     // Listar vídeos de uma aula
-    @GetMapping("/lessons/{lessonId}/videos")
+    @GetMapping("/teacher/lessons/{lessonId}/videos")
     @ResponseStatus(HttpStatus.OK)
     public List<VideoDTO> listVideos(@PathVariable Long lessonId) {
         return videoService.listVideosByLesson(lessonId);
     }
 
     // Buscar vídeo por ID
-    @GetMapping("/videos/{id}")
+    @GetMapping("/teacher/videos/{id}")
     public ResponseEntity<VideoDTO> getById(@PathVariable Long id) {
         VideoDTO video = videoService.getById(id);
         return ResponseEntity.ok(video);
     }
 
     // Stream de vídeo
-    @GetMapping("/videos/{id}/stream")
+    @GetMapping("/teacher/videos/{id}/stream")
     public ResponseEntity<byte[]> streamVideo(@PathVariable Long id) {
         VideoDownloadDTO download = videoService.downloadVideo(id);
 
@@ -75,7 +75,7 @@ public class VideoController {
     }
 
     // Download de vídeo do bd
-    @GetMapping("/videos/{videoId}/download")
+    @GetMapping("/teacher/videos/{videoId}/download")
     public ResponseEntity<Resource> downloadVideo(@PathVariable Long videoId) {
         VideoDownloadDTO download = videoService.downloadVideo(videoId);
 
@@ -89,7 +89,7 @@ public class VideoController {
                 .body(resource);
     }
 
-    @DeleteMapping("/videos/{videoId}")
+    @DeleteMapping("/teacher/videos/{videoId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteVideo(@PathVariable Long videoId) {
         videoService.deleteVideo(videoId);

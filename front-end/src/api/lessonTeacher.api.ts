@@ -3,8 +3,8 @@ import type { LessonDTO } from "../types/LessonDTO";
 
 export const LessonTeacherApi = {
   // Listar aulas de um módulo
-  listByModule: (moduleId: number) =>
-    api.get<LessonDTO[]>(`/teacher/modules/${moduleId}/lessons`),
+  listByModule: (moduleId: number, config?: { signal?: AbortSignal }) =>
+    api.get<LessonDTO[]>(`/teacher/modules/${moduleId}/lessons`, config),
 
   // Buscar aula por ID
   getById: (id: number) => api.get<LessonDTO>(`/teacher/lessons/${id}`),
@@ -19,5 +19,4 @@ export const LessonTeacherApi = {
 
   // Deletar aula
   remove: (id: number) => api.delete(`/teacher/lessons/${id}`),
-  
-};  
+};

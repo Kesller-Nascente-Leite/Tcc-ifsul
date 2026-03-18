@@ -9,7 +9,6 @@ import {
   Clock,
   Award,
   CheckCircle,
-  XCircle,
   ArrowLeft,
   MoreVertical,
   FileText,
@@ -25,12 +24,12 @@ import {
 } from "../../../components/ui/ConfirmDialog";
 import { ExerciseTeacherApi } from "../../../api/exerciseTeacher.api";
 import { LessonTeacherApi } from "../../../api/lessonTeacher.api";
-import type { ExerciseResponseDTO } from "../../../types/ExerciseTypes";
+import type { ExerciseResponseDTO } from "../../../types/ExerciseResponseDTO";
 import type { LessonDTO } from "../../../types/LessonDTO";
 import { useTheme } from "../../../context/ThemeContext";
 import { Header, Button } from "react-aria-components";
 
-export default function TeacherExercises() {
+export function TeacherExercises() {
   const { lessonId, moduleId, courseId } = useParams<{
     lessonId: string;
     moduleId: string;
@@ -77,7 +76,7 @@ export default function TeacherExercises() {
 
   const showNotification = (
     type: "success" | "error" | "info",
-    message: string
+    message: string,
   ) => {
     setNotification({ type, message });
   };
@@ -103,7 +102,7 @@ export default function TeacherExercises() {
       isDark,
     });
 
-    if (confirmed) {
+    if (confirmed && exercise.id) {
       try {
         await ExerciseTeacherApi.remove(exercise.id);
         setExercises((prev) => prev.filter((e) => e.id !== exercise.id));
@@ -116,6 +115,8 @@ export default function TeacherExercises() {
   };
 
   const duplicateExercise = async (exercise: ExerciseResponseDTO) => {
+    if (!exercise.id) return;
+
     try {
       const response = await ExerciseTeacherApi.duplicate(exercise.id);
       setExercises((prev) => [...prev, response.data]);
@@ -150,13 +151,13 @@ export default function TeacherExercises() {
 
   return (
     <div className="space-y-6 pb-12">
-      {/* Header */}
+      {/* Header Responsivo */}
       <Header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+        <div className="flex-1 min-w-0">
           <button
             onClick={() =>
               navigate(
-                `/teacher/courses/${courseId}/modules/${moduleId}/lessons`
+                `/teacher/courses/${courseId}/modules/${moduleId}/lessons`,
               )
             }
             className="flex items-center gap-2 hover:opacity-80 transition-colors mb-2"
@@ -166,13 +167,13 @@ export default function TeacherExercises() {
             <span className="text-sm">Voltar para Aulas</span>
           </button>
           <h1
-            className="text-2xl font-bold"
+            className="text-xl sm:text-2xl font-bold truncate"
             style={{ color: "var(--color-text-primary)" }}
           >
             Exercícios
           </h1>
           <p
-            className="text-sm"
+            className="text-sm truncate"
             style={{ color: "var(--color-text-secondary)" }}
           >
             {lesson?.title || "Carregando..."}
@@ -182,13 +183,16 @@ export default function TeacherExercises() {
         <ButtonComponent
           onClick={() =>
             navigate(
-              `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/create`
+              `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/create`,
             )
           }
-          className="w-full sm:w-auto"
+          className="w-full sm:w-auto shrink-0"
         >
-          <Plus size={20} className="mr-2" />
-          Novo Exercício
+          <div className="flex">
+            <Plus size={20} className="mr-2" />
+            <span className="hidden sm:inline">Novo Exercício</span>
+            <span className="sm:hidden">Novo</span>
+          </div>
         </ButtonComponent>
       </Header>
 
@@ -202,48 +206,50 @@ export default function TeacherExercises() {
         />
       )}
 
-      {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Stats Overview - Responsivo */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <StatCard
-          icon={<FileText size={20} />}
-          label="Total de Exercícios"
+          icon={<FileText size={18} />}
+          label="Total"
           value={exercises.length.toString()}
           color={accentColor}
         />
         <StatCard
-          icon={<Users size={20} />}
-          label="Média de Alunos"
+          icon={<Users size={18} />}
+          label="Média Alunos"
           value={Math.round(
-            exercises.reduce((acc, ex) => acc + (ex.statistics?.totalStudents || 0), 0) /
-              (exercises.length || 1)
+            exercises.reduce(
+              (acc, ex) => acc + (ex.statistics?.totalStudents || 0),
+              0,
+            ) / (exercises.length || 1),
           ).toString()}
           color={accentColor}
         />
         <StatCard
-          icon={<CheckCircle size={20} />}
-          label="Taxa de Aprovação"
+          icon={<CheckCircle size={18} />}
+          label="Aprovação"
           value={`${Math.round(
             exercises.reduce(
-              (acc, ex) =>
-                acc +
-                ((ex.statistics?.passRate || 0)),
-              0
-            ) / (exercises.length || 1)
+              (acc, ex) => acc + (ex.statistics?.passRate || 0),
+              0,
+            ) / (exercises.length || 1),
           )}%`}
           color={accentColor}
         />
         <StatCard
-          icon={<TrendingUp size={20} />}
-          label="Média Geral"
+          icon={<TrendingUp size={18} />}
+          label="Média"
           value={`${Math.round(
-            exercises.reduce((acc, ex) => acc + (ex.statistics?.averagePercentage || 0), 0) /
-              (exercises.length || 1)
+            exercises.reduce(
+              (acc, ex) => acc + (ex.statistics?.averagePercentage || 0),
+              0,
+            ) / (exercises.length || 1),
           )}%`}
           color={accentColor}
         />
       </div>
 
-      {/* Lista de Exercícios */}
+      {/* Lista de Exercícios - Responsivo */}
       <div
         className="p-4 sm:p-6 rounded-2xl border"
         style={{
@@ -251,9 +257,9 @@ export default function TeacherExercises() {
           borderColor: "var(--color-border)",
         }}
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
           <h3
-            className="font-bold text-lg"
+            className="font-bold text-base sm:text-lg"
             style={{ color: "var(--color-text-primary)" }}
           >
             Exercícios Criados
@@ -267,7 +273,7 @@ export default function TeacherExercises() {
         </div>
 
         {exercises.length === 0 ? (
-          <div className="text-center py-12">
+          <div className="text-center py-8 sm:py-12">
             <ClipboardList
               size={48}
               className="mx-auto mb-4 opacity-50"
@@ -292,13 +298,13 @@ export default function TeacherExercises() {
                 accentColor={accentColor}
                 onEdit={() =>
                   navigate(
-                    `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/${exercise.id}/edit`
+                    `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/${exercise.id}/edit`,
                   )
                 }
                 onDelete={() => deleteExercise(exercise)}
                 onViewStats={() =>
                   navigate(
-                    `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/${exercise.id}/stats`
+                    `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/${exercise.id}/stats`,
                   )
                 }
                 onDuplicate={() => duplicateExercise(exercise)}
@@ -318,7 +324,7 @@ export default function TeacherExercises() {
   );
 }
 
-// Componentes auxiliares
+// Componente StatCard - Responsivo
 function StatCard({
   icon,
   label,
@@ -332,28 +338,35 @@ function StatCard({
 }) {
   return (
     <div
-      className="p-5 rounded-xl border"
+      className="p-3 sm:p-5 rounded-xl border"
       style={{
         backgroundColor: "var(--color-surface)",
         borderColor: "var(--color-border)",
       }}
     >
       <div
-        className="inline-flex p-2.5 rounded-lg mb-3"
+        className="inline-flex p-2 sm:p-2.5 rounded-lg mb-2 sm:mb-3"
         style={{ backgroundColor: `${color}15`, color }}
       >
         {icon}
       </div>
-      <p className="text-sm mb-1" style={{ color: "var(--color-text-secondary)" }}>
+      <p
+        className="text-xs sm:text-sm mb-1 truncate"
+        style={{ color: "var(--color-text-secondary)" }}
+      >
         {label}
       </p>
-      <p className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+      <p
+        className="text-xl sm:text-2xl font-bold truncate"
+        style={{ color: "var(--color-text-primary)" }}
+      >
         {value}
       </p>
     </div>
   );
 }
 
+// Componente ExerciseCard - Totalmente Responsivo
 function ExerciseCard({
   exercise,
   accentColor,
@@ -371,6 +384,7 @@ function ExerciseCard({
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const passRate = exercise.statistics?.passRate || 0;
+  const avgPercentage = exercise.statistics?.averagePercentage || 0;
 
   return (
     <div
@@ -380,23 +394,23 @@ function ExerciseCard({
         borderColor: "var(--color-border)",
       }}
     >
-      {/* Header */}
+      {/* Header - Responsivo */}
       <div
-        className="p-5 border-b"
+        className="p-4 sm:p-5 border-b"
         style={{ borderColor: "var(--color-border)" }}
       >
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
               <h3
-                className="text-xl font-bold"
+                className="text-base sm:text-lg font-bold truncate"
                 style={{ color: "var(--color-text-primary)" }}
               >
                 {exercise.title}
               </h3>
               {exercise.isActive && (
                 <span
-                  className="px-2 py-0.5 text-xs font-semibold rounded-full"
+                  className="px-2 py-0.5 text-xs font-semibold rounded-full shrink-0"
                   style={{
                     backgroundColor: `${accentColor}15`,
                     color: accentColor,
@@ -407,15 +421,15 @@ function ExerciseCard({
               )}
             </div>
             <p
-              className="text-sm line-clamp-2"
+              className="text-xs sm:text-sm line-clamp-2"
               style={{ color: "var(--color-text-secondary)" }}
             >
               {exercise.description || "Sem descrição"}
             </p>
           </div>
 
-          {/* Menu */}
-          <div className="relative ml-2">
+          {/* Menu - Responsivo */}
+          <div className="relative shrink-0">
             <Button
               className="p-2 hover:bg-opacity-10 rounded-lg transition-colors"
               style={{ backgroundColor: `${accentColor}10` }}
@@ -431,7 +445,7 @@ function ExerciseCard({
                   onClick={() => setShowMenu(false)}
                 />
                 <div
-                  className="absolute right-0 top-full mt-2 w-48 rounded-lg border shadow-xl z-20 overflow-hidden"
+                  className="absolute right-0 top-full mt-2 w-40 sm:w-48 rounded-lg border shadow-xl z-20 overflow-hidden"
                   style={{
                     backgroundColor: "var(--color-surface)",
                     borderColor: "var(--color-border)",
@@ -442,13 +456,14 @@ function ExerciseCard({
                       onEdit();
                       setShowMenu(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors"
+                    className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-medium transition-colors"
                     style={{
                       color: "var(--color-text-primary)",
                       backgroundColor: "transparent",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "var(--color-surface-hover)";
+                      e.currentTarget.style.backgroundColor =
+                        "var(--color-surface-hover)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "transparent";
@@ -462,13 +477,14 @@ function ExerciseCard({
                       onDuplicate();
                       setShowMenu(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors"
+                    className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-medium transition-colors"
                     style={{
                       color: "var(--color-text-primary)",
                       backgroundColor: "transparent",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "var(--color-surface-hover)";
+                      e.currentTarget.style.backgroundColor =
+                        "var(--color-surface-hover)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "transparent";
@@ -486,13 +502,14 @@ function ExerciseCard({
                       onDelete();
                       setShowMenu(false);
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors"
+                    className="w-full flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 text-sm font-medium transition-colors"
                     style={{
                       color: "var(--color-error)",
                       backgroundColor: "transparent",
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "var(--color-error-light)";
+                      e.currentTarget.style.backgroundColor =
+                        "var(--color-error-light)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.backgroundColor = "transparent";
@@ -507,45 +524,60 @@ function ExerciseCard({
           </div>
         </div>
 
-        {/* Meta info */}
-        <div className="flex flex-wrap gap-4 text-sm" style={{ color: "var(--color-text-secondary)" }}>
+        {/* Meta info - Responsivo */}
+        <div
+          className="flex flex-wrap gap-3 sm:gap-4 text-xs sm:text-sm"
+          style={{ color: "var(--color-text-secondary)" }}
+        >
           <div className="flex items-center gap-1.5">
-            <FileText size={16} />
+            <FileText size={14} />
             <span>{exercise.questionsCount || 0} questões</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Award size={16} />
-            <span>{exercise.totalPoints} pontos</span>
+            <Award size={14} />
+            <span>{exercise.totalPoints} pts</span>
           </div>
           {exercise.timeLimit && (
             <div className="flex items-center gap-1.5">
-              <Clock size={16} />
+              <Clock size={14} />
               <span>{exercise.timeLimit} min</span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats - Responsivo */}
       {exercise.statistics && (
         <div
-          className="p-5"
+          className="p-4 sm:p-5"
           style={{ backgroundColor: "var(--color-surface-hover)" }}
         >
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4">
             <div>
-              <p className="text-xs mb-1" style={{ color: "var(--color-text-secondary)" }}>
+              <p
+                className="text-xs mb-1"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
                 Tentativas
               </p>
-              <p className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+              <p
+                className="text-xl sm:text-2xl font-bold truncate"
+                style={{ color: "var(--color-text-primary)" }}
+              >
                 {exercise.statistics.totalAttempts}
               </p>
             </div>
             <div>
-              <p className="text-xs mb-1" style={{ color: "var(--color-text-secondary)" }}>
+              <p
+                className="text-xs mb-1"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
                 Alunos
               </p>
-              <p className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+              <p
+                className="text-xl sm:text-2xl font-bold truncate"
+                style={{ color: "var(--color-text-primary)" }}
+              >
                 {exercise.statistics.totalStudents}
               </p>
             </div>
@@ -554,10 +586,16 @@ function ExerciseCard({
           <div className="space-y-3">
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                <span
+                  className="text-xs"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
                   Taxa de Aprovação
                 </span>
-                <span className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
                   {Math.round(passRate)}%
                 </span>
               </div>
@@ -577,11 +615,17 @@ function ExerciseCard({
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
+                <span
+                  className="text-xs"
+                  style={{ color: "var(--color-text-secondary)" }}
+                >
                   Média de Notas
                 </span>
-                <span className="text-sm font-semibold" style={{ color: "var(--color-text-primary)" }}>
-                  {Math.round(exercise.statistics.averagePercentage)}%
+                <span
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--color-text-primary)" }}
+                >
+                  {Math.round(avgPercentage)}%
                 </span>
               </div>
               <div
@@ -591,7 +635,7 @@ function ExerciseCard({
                 <div
                   className="h-full transition-all duration-500"
                   style={{
-                    width: `${exercise.statistics.averagePercentage}%`,
+                    width: `${avgPercentage}%`,
                     background: `linear-gradient(to right, ${accentColor}, ${accentColor}dd)`,
                   }}
                 />
@@ -599,7 +643,7 @@ function ExerciseCard({
             </div>
           </div>
 
-          <div className="flex gap-2 mt-5">
+          <div className="flex flex-col sm:flex-row gap-2 mt-5">
             <button
               onClick={onViewStats}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm rounded-lg font-medium transition-colors"
@@ -609,14 +653,16 @@ function ExerciseCard({
                 border: `1px solid var(--color-border)`,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "var(--color-surface-hover)";
+                e.currentTarget.style.backgroundColor =
+                  "var(--color-surface-hover)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = "var(--color-surface)";
               }}
             >
               <BarChart3 size={16} />
-              Estatísticas
+              <span className="hidden sm:inline">Estatísticas</span>
+              <span className="sm:hidden">Stats</span>
             </button>
             <button
               onClick={onEdit}

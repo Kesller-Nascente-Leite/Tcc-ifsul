@@ -6,7 +6,8 @@ export const ModuleTeacherApi = {
     api.get<ModuleDTO[]>(`/teacher/courses/${courseId}/modules`),
 
   // Busca módulo por ID
-  getById: (id: number) => api.get<ModuleDTO>(`/teacher/modules/${id}`),
+  getById: (id: number, config?: { signal?: AbortSignal }) =>
+    api.get<ModuleDTO>(`/teacher/modules/${id}`, config),
 
   create: (payload: ModuleDTO) =>
     api.post<ModuleDTO>("/teacher/modules/create", payload),

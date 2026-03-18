@@ -29,7 +29,7 @@ interface Attempt {
   pendingEssayCount?: number;
 }
 
-export default function ExerciseStatisticsPage() {
+export function ExerciseStatistics() {
   const [selectedTab, setSelectedTab] = useState<"overview" | "attempts" | "questions">("overview");
   const [selectedAttempt, setSelectedAttempt] = useState<Attempt | null>(null);
 

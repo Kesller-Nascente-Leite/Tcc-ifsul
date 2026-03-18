@@ -41,7 +41,6 @@ public class AttachmentService {
 
 
     public List<AttachmentDTO> listByLesson(Long lessonId) {
-
         List<Attachment> attachments = attachmentRepository.findByLessonId(lessonId);
         return attachmentMapper.toDTOs(attachments);
     }

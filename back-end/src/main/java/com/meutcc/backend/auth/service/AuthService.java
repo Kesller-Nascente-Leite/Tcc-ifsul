@@ -3,13 +3,13 @@ package com.meutcc.backend.auth.service;
 import com.meutcc.backend.auth.dto.*;
 import com.meutcc.backend.auth.mapper.UserMapper;
 import com.meutcc.backend.common.exceptions.UserAlreadyExistException;
-import com.meutcc.backend.user.UserException;
 import com.meutcc.backend.common.security.RoleIds;
 import com.meutcc.backend.role.RoleRepository;
 import com.meutcc.backend.role.Roles;
 import com.meutcc.backend.student.Student;
 import com.meutcc.backend.student.StudentRepository;
 import com.meutcc.backend.user.User;
+import com.meutcc.backend.user.UserException;
 import com.meutcc.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +45,7 @@ public class AuthService {
     public ApiResponse register(RegisterRequest dto) {
 
         existsByEmail(dto.email());
+        validatedEmail(dto.email());
 
         User user = mapper.toEntity(dto);
 
@@ -121,5 +122,15 @@ public class AuthService {
         }
     }
 
+    private void validatedEmail(String dataEmail) {
+        if (dataEmail == null || dataEmail.isBlank()) {
+            throw new UserException("Email não pode estar vazio");
+        }
+        int atIndex = dataEmail.indexOf("@");
+        int lastDotIndex = dataEmail.lastIndexOf(".");
+        if (atIndex < 1 || lastDotIndex <= atIndex + 1 || lastDotIndex == dataEmail.length() - 1) {
+            throw new UserException("Email inválido.");
+        }
+    }
 
 }

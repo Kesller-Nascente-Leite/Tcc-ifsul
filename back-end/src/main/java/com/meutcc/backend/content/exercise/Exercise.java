@@ -98,8 +98,10 @@ public class Exercise extends BaseEntity {
         question.setExercise(null);
     }
 
-    public boolean isAvailable() {
-        if (!isActive) {
+    // ✅ CORRIGIDO: Retorna Boolean em vez de boolean
+    @Transient
+    public Boolean isAvailable() {
+        if (Boolean.FALSE.equals(isActive)) {
             return false;
         }
 
@@ -116,7 +118,8 @@ public class Exercise extends BaseEntity {
         return true;
     }
 
-    public boolean hasTimeLimitExpired(LocalDateTime startTime) {
+    // ✅ CORRIGIDO: Retorna Boolean em vez de boolean
+    public Boolean hasTimeLimitExpired(LocalDateTime startTime) {
         if (timeLimit == null) {
             return false;
         }

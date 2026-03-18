@@ -1,6 +1,7 @@
 package com.meutcc.backend.content.lesson;
 
 import com.meutcc.backend.content.attachment.AttachmentDTO;
+import com.meutcc.backend.content.exercise.ExerciseResponseDTO;
 import com.meutcc.backend.content.video.VideoDTO;
 import jakarta.validation.constraints.Size;
 
@@ -17,7 +18,8 @@ public record LessonDTO(
         Long moduleId,
         String moduleName,
         List<VideoDTO> videos,
-        List<AttachmentDTO> attachments
+        List<AttachmentDTO> attachments,
+        List<ExerciseResponseDTO> exercises
 ) {
 
 }

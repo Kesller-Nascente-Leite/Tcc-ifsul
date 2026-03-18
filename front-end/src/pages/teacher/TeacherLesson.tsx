@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import {
@@ -21,6 +22,7 @@ import {
   DownloadIcon,
   NotebookText,
   ClipboardList,
+  BarChart3,
 } from "lucide-react";
 import { ButtonComponent } from "../../components/ui/ButtonComponent";
 import { InputComponent } from "../../components/ui/InputComponent";
@@ -38,6 +40,7 @@ import { useTheme } from "../../context/ThemeContext";
 import { Button, Header, Label, TextArea } from "react-aria-components";
 import { AttachmentTeacherApi } from "../../api/attachmentTeacher.api";
 import type { AttachmentDTO } from "../../types/AttachmentDTO";
+import { ExerciseTeacherApi } from "../../api/exerciseTeacher.api";
 
 export function TeacherLessons() {
   const { moduleId, courseId } = useParams<{
@@ -101,7 +104,7 @@ export function TeacherLessons() {
     message: string;
   } | null>(null);
 
-  // NOVA FUNÇÃO: Alternar expansão de aula
+  // Alternar expansão de aula
   const toggleLessonExpansion = (lessonId: number | undefined) => {
     if (!lessonId) return;
 
@@ -116,26 +119,37 @@ export function TeacherLessons() {
     });
   };
 
-  // NOVA FUNÇÃO: Verificar se aula está expandida
+  // Verificar se aula está expandida
   const isLessonExpanded = (lessonId: number | undefined): boolean => {
     return lessonId ? expandedLessons.has(lessonId) : false;
   };
 
   useEffect(() => {
     if (!moduleId) return;
-    loadModuleData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    const abortController = new AbortController();
+    loadModuleData(abortController.signal);
+
+    // Cleanup: cancela requisições ao desmontar
+    return () => {
+      abortController.abort();
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moduleId]);
 
-  const loadModuleData = async () => {
+  const loadModuleData = async (signal?: AbortSignal) => {
     if (!moduleId) return;
 
     try {
       setIsLoadingModule(true);
+
       const [moduleResponse, lessonsResponse] = await Promise.all([
-        ModuleTeacherApi.getById(Number(moduleId)),
-        LessonTeacherApi.listByModule(Number(moduleId)),
+        ModuleTeacherApi.getById(Number(moduleId), { signal }),
+        LessonTeacherApi.listByModule(Number(moduleId), { signal }),
       ]);
+
+      // Verificar se foi cancelado
+      if (signal?.aborted) return;
 
       setModule(moduleResponse.data);
 
@@ -143,29 +157,54 @@ export function TeacherLessons() {
         lessonsResponse.data.map(async (lesson) => {
           if (lesson.id) {
             try {
-              const [videosResponse, attachmentsResponse] = await Promise.all([
-                VideoTeacherApi.listVideos(lesson.id),
-                AttachmentTeacherApi.listByLesson(lesson.id),
-              ]);
+              const [videosResponse, attachmentsResponse, exercisesResponse] =
+                await Promise.all([
+                  VideoTeacherApi.listVideos(lesson.id),
+                  AttachmentTeacherApi.listByLesson(lesson.id),
+                  ExerciseTeacherApi.listByLesson(lesson.id),
+                ]);
               return {
                 ...lesson,
                 videos: videosResponse.data,
                 attachments: attachmentsResponse.data,
+                exercises: exercisesResponse.data,
               };
-            } catch (error) {
+            } catch (error: any) {
+              // Ignorar erros de cancelamento
+              if (
+                error.name === "CanceledError" ||
+                error.name === "AbortError"
+              ) {
+                return lesson;
+              }
               console.error(
                 `Erro ao carregar conteúdo da aula ${lesson.id}:`,
                 error,
               );
-              return { ...lesson, videos: [], attachments: [] };
+              return {
+                ...lesson,
+                videos: [],
+                attachments: [],
+                exercises: [],
+              };
             }
           }
           return lesson;
         }),
       );
 
+      // Verificar novamente antes de atualizar state
+      if (signal?.aborted) return;
+
       setLessons(lessonsWithContent || []);
-    } catch (error) {
+    } catch (error: any) {
+      // Não mostrar erro se foi cancelado
+      if (error.name === "CanceledError" || error.name === "AbortError") {
+        console.log(
+          "Requisições canceladas - componente desmontado ou moduleId mudou",
+        );
+        return;
+      }
       console.error("Erro ao carregar dados:", error);
       showNotification("error", "Erro ao carregar informações do módulo");
     } finally {
@@ -219,7 +258,6 @@ export function TeacherLessons() {
       setLessonDescription("");
       setLessonDuration(0);
       showNotification("success", "Aula criada com sucesso!");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao criar aula:", error);
       showNotification(
@@ -374,7 +412,6 @@ export function TeacherLessons() {
       setVideoUrl("");
       setVideoFile(null);
       showNotification("success", "Vídeo adicionado com sucesso!");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao adicionar vídeo:", error);
       showNotification(
@@ -494,7 +531,6 @@ export function TeacherLessons() {
       await loadModuleData();
       setShowAttachmentModal(false);
       showNotification("success", "Anexo adicionado com sucesso!");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao adicionar anexo:", error);
       showNotification(
@@ -535,7 +571,6 @@ export function TeacherLessons() {
       const fileName = attachment.fileName || attachment.title || "Arquivo";
       await AttachmentTeacherApi.downloadFile(attachment.id, fileName);
       showNotification("success", "Download concluído");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       console.error("Erro ao baixar anexo:", error);
       showNotification("error", "Erro ao baixar anexo");
@@ -776,7 +811,7 @@ export function TeacherLessons() {
                                 color: accentColor,
                               }}
                             >
-                              {lesson.videos?.length || 0} vídeos
+                              {lesson.videos?.length || 0} Vídeos
                             </span>
                             <span
                               className="text-xs px-2 py-1 rounded-full shrink-0"
@@ -785,7 +820,16 @@ export function TeacherLessons() {
                                 color: accentColor,
                               }}
                             >
-                              {lesson.attachments?.length || 0} anexos
+                              {lesson.attachments?.length || 0} Anexos
+                            </span>
+                            <span
+                              className="text-xs px-2 py-1 rounded-full shrink-0"
+                              style={{
+                                backgroundColor: `${accentColor}15`,
+                                color: accentColor,
+                              }}
+                            >
+                              {lesson.exercises?.length || 0} Exercícios
                             </span>
                           </div>
                           <p
@@ -1165,19 +1209,14 @@ export function TeacherLessons() {
                         )}
                       </div>
                       {/* SEÇÃO: Atividades / Exercícios */}
-                      <div
-                        className="mt-6 border-t pt-6"
-                        style={{ borderColor: "var(--color-border)" }}
-                      >
+                      <div className="mt-6">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
                           <h5
                             className="font-semibold text-sm flex items-center gap-2"
                             style={{ color: "var(--color-text-primary)" }}
                           >
                             <ClipboardList size={16} />
-                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any*/}
-                            Atividades ({(lesson as any).exercises?.length || 0}
-                            )
+                            Exercícios ({lesson.exercises?.length || 0})
                           </h5>
                           <Button
                             className="w-full sm:w-auto flex justify-center items-center gap-2 px-3 py-2 sm:py-1.5 text-sm sm:text-xs rounded-lg transition-colors"
@@ -1187,22 +1226,19 @@ export function TeacherLessons() {
                             }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              // Redireciona para a página de gestão de exercícios desta aula
                               navigate(
-                                `/teacher/lessons/${lesson.id}/exercises`,
+                                `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/exercises`,
                               );
                             }}
                           >
                             <Plus size={14} />
-                            Nova Atividade
+                            Gerenciar Exercícios
                           </Button>
                         </div>
 
-                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any*/}
-                        {(lesson as any).exercises && (lesson as any).exercises.length > 0 ? (
+                        {lesson.exercises && lesson.exercises.length > 0 ? (
                           <div className="space-y-2">
-                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any*/}
-                            {(lesson as any).exercises.map((exercise: any) => (
+                            {lesson.exercises.map((exercise) => (
                               <div
                                 key={exercise.id}
                                 className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 rounded-lg gap-3"
@@ -1210,7 +1246,7 @@ export function TeacherLessons() {
                                   backgroundColor: "var(--color-surface-hover)",
                                 }}
                               >
-                                <div className="flex items-start sm:items-center gap-3 w-full sm:w-auto flex-1 min-w-0">
+                                <div className="flex items-center gap-3 w-full sm:w-auto flex-1 min-w-0">
                                   <div
                                     className="p-2 rounded-lg shrink-0"
                                     style={{
@@ -1229,37 +1265,32 @@ export function TeacherLessons() {
                                     >
                                       {exercise.title}
                                     </p>
-                                    <div className="flex items-center gap-2 mt-1">
-                                      <span
-                                        className="text-xs"
-                                        style={{
-                                          color: "var(--color-text-secondary)",
-                                        }}
-                                      >
-                                        {exercise.totalPoints} pontos
+                                    <div
+                                      className="flex items-center gap-2 text-xs"
+                                      style={{
+                                        color: "var(--color-text-secondary)",
+                                      }}
+                                    >
+                                      <span>
+                                        {exercise.questionsCount || 0} questões
                                       </span>
-                                      <span
-                                        style={{
-                                          color: "var(--color-text-secondary)",
-                                        }}
-                                      >
-                                        •
-                                      </span>
-                                      <span
-                                        className="text-xs"
-                                        style={{
-                                          color: "var(--color-text-secondary)",
-                                        }}
-                                      >
-                                        {exercise.questions?.length || 0}{" "}
-                                        questões
-                                      </span>
+                                      <span>•</span>
+                                      <span>{exercise.totalPoints} pontos</span>
+                                      {exercise.statistics && (
+                                        <>
+                                          <span>•</span>
+                                          <span>
+                                            {exercise.statistics.totalAttempts}{" "}
+                                            tentativas
+                                          </span>
+                                        </>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2 w-full sm:w-auto justify-end border-t sm:border-t-0 border-border pt-2 sm:pt-0">
                                   <Button
-                                    className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg transition-colors hover:opacity-80"
+                                    className="flex-1 sm:flex-none flex justify-center items-center gap-1 px-3 py-2 rounded-lg transition-colors text-xs"
                                     style={{
                                       backgroundColor: `${accentColor}15`,
                                       color: accentColor,
@@ -1267,29 +1298,12 @@ export function TeacherLessons() {
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       navigate(
-                                        `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/exercises/${exercise.id}/edit`,
+                                        `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lesson.id}/exercises/${exercise.id}/stats`,
                                       );
                                     }}
                                   >
-                                    <Edit2 size={16} />
-                                  </Button>
-                                  <Button
-                                    className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg transition-colors"
-                                    style={{
-                                      backgroundColor:
-                                        "var(--color-error-light)",
-                                      color: "var(--color-error)",
-                                    }}
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      // Chame sua função de deletar exercício aqui futuramente
-                                      console.log(
-                                        "Deletar exercício",
-                                        exercise.id,
-                                      );
-                                    }}
-                                  >
-                                    <Trash2 size={16} />
+                                    <BarChart3 size={14} />
+                                    Stats
                                   </Button>
                                 </div>
                               </div>
@@ -1300,7 +1314,7 @@ export function TeacherLessons() {
                             className="text-xs text-center py-4 bg-surface-hover rounded-lg"
                             style={{ color: "var(--color-text-secondary)" }}
                           >
-                            Nenhuma atividade cadastrada
+                            Nenhum exercício criado
                           </p>
                         )}
                       </div>

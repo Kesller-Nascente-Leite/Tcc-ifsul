@@ -20,6 +20,7 @@ import java.util.List;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class AttachmentController {
+
     private final AttachmentService attachmentService;
 
     @GetMapping("/teacher/attachments/lessons/{lessonId}")
