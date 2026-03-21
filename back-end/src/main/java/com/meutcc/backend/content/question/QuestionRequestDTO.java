@@ -5,8 +5,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record QuestionResponseDTO(
+public record QuestionRequestDTO(
         Long id,
+        Long exerciseId,
         QuestionType type,
         String questionText,
         String explanation,

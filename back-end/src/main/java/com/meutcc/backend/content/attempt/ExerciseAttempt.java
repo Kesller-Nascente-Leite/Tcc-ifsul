@@ -31,6 +31,7 @@ public class ExerciseAttempt extends BaseEntity {
     @JoinColumn(name = "exercise_id", nullable = false)
     private Exercise exercise;
 
+    // acho que está errado e deveria ser Student student
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "student_id", nullable = false)
     private User student;

@@ -14,6 +14,7 @@ public record AttemptResponseDTO(
         String exerciseTitle,
         Long studentId,
         String studentName,
+        String studentEmail,
         Integer attemptNumber,
         String status,
         LocalDateTime startedAt,

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record CreateQuestionDTO(
+        Long exerciseId,
         @NotNull(message = "Tipo da questão é obrigatório")
         QuestionType type,
 

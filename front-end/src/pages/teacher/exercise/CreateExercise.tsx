@@ -17,7 +17,7 @@ import { ButtonComponent } from "../../../components/ui/ButtonComponent";
 import { InputComponent } from "../../../components/ui/InputComponent";
 import { NotificationComponent } from "../../../components/ui/NotificationComponent";
 import { useTheme } from "../../../context/ThemeContext";
-import { Label, TextArea } from "react-aria-components";
+import { Button, Label, TextArea } from "react-aria-components";
 import { ExerciseTeacherApi } from "../../../api/exerciseTeacher.api";
 import type { CreateQuestionDTO } from "../../../types/CreateQuestionDTO";
 import type { CreateQuestionOptionDTO } from "../../../types/CreateQuestionOptionDTO";
@@ -27,13 +27,11 @@ import type { CreateExerciseDTO } from "../../../types/CreateExerciseDTO";
 type WizardStep = 1 | 2 | 3;
 
 interface QuestionForm extends Omit<CreateQuestionDTO, "options"> {
-  orderIndex: any;
   tempId: string;
   options: QuestionOptionForm[];
 }
 
 interface QuestionOptionForm extends CreateQuestionOptionDTO {
-  orderIndex: any;
   tempId: string;
 }
 
@@ -91,7 +89,7 @@ export function CreateExercise() {
   // Estado do Wizard
   const [currentStep, setCurrentStep] = useState<WizardStep>(1);
 
-  // Estado do Formulário -
+  // Estado do Formulário
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [instructions, setInstructions] = useState("");
@@ -176,6 +174,11 @@ export function CreateExercise() {
         showNotification("error", `Questão ${i + 1}: Texto é obrigatório`);
         return false;
       }
+
+      if (q.points == null || q.points == undefined) {
+        showNotification("error", `Questão ${i + 1} deve ter uma pontuação`);
+      }
+
       if (q.points <= 0) {
         showNotification(
           "error",
@@ -442,7 +445,7 @@ export function CreateExercise() {
     <div className="min-h-screen pb-12">
       {/* Header */}
       <div className="mb-6">
-        <button
+        <Button
           onClick={() =>
             navigate(
               `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises`,
@@ -453,7 +456,7 @@ export function CreateExercise() {
         >
           <ArrowLeft size={20} />
           <span className="text-sm">Voltar para Exercícios</span>
-        </button>
+        </Button>
 
         <h1
           className="text-2xl sm:text-3xl font-bold"
@@ -484,7 +487,7 @@ export function CreateExercise() {
         <div className="flex items-center justify-between max-w-2xl mx-auto">
           {/* Step 1 */}
           <div className="flex flex-col items-center flex-1">
-            <button
+            <Button
               onClick={() => goToStep(1)}
               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                 currentStep >= 1
@@ -502,7 +505,7 @@ export function CreateExercise() {
               ) : (
                 <Settings size={20} />
               )}
-            </button>
+            </Button>
             <span
               className={`text-xs mt-2 font-medium ${currentStep === 1 ? "" : "opacity-60"}`}
               style={{ color: "var(--color-text-secondary)" }}
@@ -522,7 +525,7 @@ export function CreateExercise() {
 
           {/* Step 2 */}
           <div className="flex flex-col items-center flex-1">
-            <button
+            <Button
               onClick={() => currentStep > 2 && goToStep(2)}
               className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                 currentStep >= 2
@@ -534,14 +537,14 @@ export function CreateExercise() {
                 borderColor:
                   currentStep >= 2 ? accentColor : "var(--color-border)",
               }}
-              disabled={currentStep < 2}
+              isDisabled={currentStep < 2}
             >
               {currentStep > 2 ? (
                 <CheckCircle size={20} />
               ) : (
                 <ClipboardList size={20} />
               )}
-            </button>
+            </Button>
             <span
               className={`text-xs mt-2 font-medium ${currentStep === 2 ? "" : "opacity-60"}`}
               style={{ color: "var(--color-text-secondary)" }}
@@ -883,8 +886,10 @@ export function CreateExercise() {
                 onClick={() => setShowQuestionTypeModal(true)}
                 className="flex items-center gap-2"
               >
-                <Plus size={16} />
-                Adicionar Questão
+                <div className="flex">
+                  <Plus size={16} />
+                  Adicionar Questão
+                </div>
               </ButtonComponent>
             </div>
 
@@ -1139,8 +1144,10 @@ export function CreateExercise() {
                 onClick={goToNextStep}
                 className="flex items-center gap-2"
               >
-                Próximo
-                <ArrowRight size={16} />
+                <div className="flex justify-center">
+                  Próximo
+                  <ArrowRight size={16} />
+                </div>
               </ButtonComponent>
             ) : (
               <ButtonComponent
@@ -1148,8 +1155,10 @@ export function CreateExercise() {
                 isDisabled={isCreating}
                 className="flex items-center gap-2"
               >
-                {isCreating ? "Criando..." : "Criar Exercício"}
-                <CheckCircle size={16} />
+                <div className="flex">
+                  {isCreating ? "Criando..." : "Criar Exercício"}
+                  <CheckCircle size={16} />
+                </div>
               </ButtonComponent>
             )}
           </div>
@@ -1178,18 +1187,18 @@ export function CreateExercise() {
               >
                 Selecione o Tipo de Questão
               </h3>
-              <button
+              <Button
                 onClick={() => setShowQuestionTypeModal(false)}
                 className="p-2 rounded-lg hover:opacity-80 transition-opacity"
                 style={{ backgroundColor: "var(--color-surface-hover)" }}
               >
                 <X size={20} style={{ color: "var(--color-text-secondary)" }} />
-              </button>
+              </Button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {QUESTION_TYPES.map((type) => (
-                <button
+                <Button
                   key={type.value}
                   onClick={() => addQuestion(type.value)}
                   className="p-4 rounded-lg border text-left hover:shadow-md transition-all"
@@ -1210,7 +1219,7 @@ export function CreateExercise() {
                   >
                     {type.description}
                   </p>
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -1220,10 +1229,7 @@ export function CreateExercise() {
   );
 }
 
-// ===========================
 // COMPONENTE: EDITOR DE QUESTÃO
-// ===========================
-
 interface QuestionEditorProps {
   question: QuestionForm;
   index: number;
@@ -1290,7 +1296,7 @@ function QuestionEditor({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <button
+          <Button
             onClick={() => setIsExpanded(!isExpanded)}
             className="p-2 rounded-lg hover:opacity-80 transition-opacity"
             style={{ backgroundColor: "var(--color-surface-hover)" }}
@@ -1299,8 +1305,8 @@ function QuestionEditor({
               size={16}
               style={{ color: "var(--color-text-secondary)" }}
             />
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onRemove}
             className="p-2 rounded-lg hover:opacity-80 transition-opacity"
             style={{
@@ -1309,7 +1315,7 @@ function QuestionEditor({
             }}
           >
             <Trash2 size={16} />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -1375,14 +1381,14 @@ function QuestionEditor({
                   Opções
                 </Label>
                 {question.type !== "TRUE_FALSE" && (
-                  <button
+                  <Button
                     onClick={onAddOption}
                     className="text-sm flex items-center gap-1 hover:opacity-80"
                     style={{ color: accentColor }}
                   >
                     <Plus size={14} />
                     Adicionar
-                  </button>
+                  </Button>
                 )}
               </div>
 
@@ -1409,7 +1415,7 @@ function QuestionEditor({
                       className="font-medium w-6 shrink-0"
                       style={{ color: "var(--color-text-secondary)" }}
                     >
-                      {String.fromCharCode(65 + optIndex)})
+                      {String.fromCharCode(65 + optIndex)}
                     </span>
 
                     {/* Texto da opção */}
@@ -1427,7 +1433,7 @@ function QuestionEditor({
 
                     {/* Botão Remover */}
                     {question.type !== "TRUE_FALSE" && (
-                      <button
+                      <Button
                         onClick={() => onRemoveOption(option.tempId)}
                         className="p-2 rounded-lg hover:opacity-80 transition-opacity shrink-0"
                         style={{
@@ -1436,7 +1442,7 @@ function QuestionEditor({
                         }}
                       >
                         <Trash2 size={14} />
-                      </button>
+                      </Button>
                     )}
                   </div>
                 ))}

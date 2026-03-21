@@ -15,9 +15,19 @@ public class ExerciseController {
 
     @GetMapping("/teacher/exercises/lesson/{lessonId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<ExerciseResponseDTO> getAllExercises(@PathVariable("lessonId") Long lessonId) {
+    public List<ExerciseRequestDTO> getAllExercises(@PathVariable("lessonId") Long lessonId) {
        return exerciseService.getAllExercises(lessonId);
-        //return null;
+    }
+
+    @PostMapping("/teacher/exercises/create")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createExerciseAndQuestions(@RequestBody CreateExerciseDTO createExerciseDTO) {
+        exerciseService.createExercise(createExerciseDTO);
+    }
+
+    @DeleteMapping("/teacher/exercises/{exerciseId}")
+    public void deleteExercises(@PathVariable("exerciseId") Long exerciseId) {
+        exerciseService.delete(exerciseId);
     }
 
 

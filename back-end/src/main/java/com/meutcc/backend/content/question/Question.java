@@ -4,10 +4,8 @@ import com.meutcc.backend.common.model.BaseEntity;
 import com.meutcc.backend.content.answer.Answer;
 import com.meutcc.backend.content.exercise.Exercise;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -20,6 +18,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Question extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,4 +1,5 @@
 export interface ExerciseStatisticsDTO {
+  exerciseTitle: string;
   totalStudents: number;
   totalAttempts: number;
   averageScore: number;

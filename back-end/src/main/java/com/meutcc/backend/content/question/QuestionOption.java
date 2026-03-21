@@ -2,10 +2,7 @@ package com.meutcc.backend.content.question;
 
 import com.meutcc.backend.common.model.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -13,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class QuestionOption extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -1,5 +1,5 @@
 import { CheckCircle, XCircle, Info, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react"; // Adicionado useRef aqui
 import { Button } from "react-aria-components";
 
 interface NotificationProps {
@@ -15,6 +15,20 @@ export function NotificationComponent({
   onClose,
   duration = 3000,
 }: NotificationProps) {
+  // 1. Criamos a referência para a div da notificação
+  const notificationRef = useRef<HTMLDivElement>(null);
+
+  // 2. Novo useEffect para rolar a página até a notificação quando ela aparecer
+  useEffect(() => {
+    if (notificationRef.current) {
+      notificationRef.current.scrollIntoView({
+        behavior: "smooth", // Faz a rolagem ser suave
+        block: "center", // Tenta centralizar a notificação na tela
+      });
+    }
+  }, []); // O array vazio garante que rode apenas quando o componente montar
+
+  // Seu useEffect original para fechar a notificação
   useEffect(() => {
     if (duration > 0) {
       const timer = setTimeout(() => {
@@ -47,10 +61,12 @@ export function NotificationComponent({
       icon: <Info size={20} className="text-blue-600 dark:text-blue-400" />,
     },
   };
+
   const styles = NOTIFICATION_VARIANTS[type] || NOTIFICATION_VARIANTS.info;
 
   return (
     <div
+      ref={notificationRef} // 3. Anexamos a referência à div principal
       className={`p-4 rounded-xl border flex items-center gap-3 ${styles.bg} ${styles.border} animate-in slide-in-from-top-5 duration-300`}
     >
       {styles.icon}

@@ -2,8 +2,8 @@ export interface CreateQuestionOptionDTO {
   optionText: string;
   imageUrl?: string;
   isCorrect: boolean;
-  order?: number;
   feedback?: string;
   matchPair?: string;
+  orderIndex: number;
   correctPosition?: number;
 }

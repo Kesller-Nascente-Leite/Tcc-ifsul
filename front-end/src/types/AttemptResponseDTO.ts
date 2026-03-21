@@ -7,12 +7,13 @@ export interface AttemptResponseDTO {
   exerciseTitle?: string;
   studentId: number;
   studentName?: string;
+  studentEmail?: string;
   attemptNumber: number;
   status: AttemptStatus;
   startedAt?: string;
-  submittedAt?: string;
+  submittedAt?: string | number | Date;
   gradedAt?: string;
-  timeSpent?: number;
+  timeSpent: number;
   remainingTime?: number;
   score: number;
   percentage: number;

@@ -8,9 +8,10 @@ export interface CreateQuestionDTO {
   explanation?: string;
   imageUrl?: string;
   videoUrl?: string;
-  points?: number;
+  points: number;
   order?: number;
   isRequired?: boolean;
   config?: QuestionConfigDTO;
+  orderIndex: number;
   options: CreateQuestionOptionDTO[];
 }

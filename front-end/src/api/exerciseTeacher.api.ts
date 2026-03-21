@@ -27,11 +27,10 @@ export class ExerciseTeacherApi {
   //  Criar novo exercício
 
   static async create(data: CreateExerciseDTO) {
-    return api.post<ExerciseResponseDTO>("/exercises", data);
+    return api.post<ExerciseResponseDTO>("/teacher/exercises/create", data);
   }
 
   //  Atualizar exercício
-
   static async update(exerciseId: number, data: UpdateExerciseDTO) {
     return api.put<ExerciseResponseDTO>(
       `/teacher/exercises/${exerciseId}`,
