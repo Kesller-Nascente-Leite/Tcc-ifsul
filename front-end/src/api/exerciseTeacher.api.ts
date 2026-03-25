@@ -17,14 +17,11 @@ export class ExerciseTeacherApi {
     );
   }
 
-  //  Obter exercício por ID
   static async getById(exerciseId: number, includeQuestions = true) {
     return api.get<ExerciseResponseDTO>(
       `/teacher/exercises/${exerciseId}?includeQuestions=${includeQuestions}`,
     );
   }
-
-  //  Criar novo exercício
 
   static async create(data: CreateExerciseDTO) {
     return api.post<ExerciseResponseDTO>("/teacher/exercises/create", data);
@@ -37,8 +34,6 @@ export class ExerciseTeacherApi {
       data,
     );
   }
-
-  //  Deletar exercício
 
   static async remove(exerciseId: number) {
     return api.delete(`/teacher/exercises/${exerciseId}`);

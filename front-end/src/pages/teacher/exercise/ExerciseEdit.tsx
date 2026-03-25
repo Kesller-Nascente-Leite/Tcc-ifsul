@@ -1,4 +1,4 @@
-﻿import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import {
   ArrowDown,
@@ -33,10 +33,12 @@ import type { CreateQuestionOptionDTO } from "../../../types/CreateQuestionOptio
 import type { QuestionConfigDTO } from "../../../types/QuestionConfigDTO";
 import type { QuestionDisplayMode } from "../../../types/QuestionDisplayMode";
 import type { QuestionType } from "../../../types/QuestionType";
+import stableStringify from "fast-json-stable-stringify";
 import {
   ExerciseValidator,
   type ValidationError,
 } from "../../../utils/ExerciseValidator";
+import { Input } from "react-aria-components";
 
 type WizardStep = 0 | 1 | 2;
 
@@ -104,12 +106,12 @@ const QUESTION_TYPE_OPTIONS: QuestionTypeOption[] = [
   {
     value: "MULTIPLE_CHOICE_MULTIPLE",
     label: "Multipla resposta",
-    description: "Mais de uma opcao correta.",
+    description: "Mais de uma opção correta.",
   },
   {
     value: "TRUE_FALSE",
     label: "Verdadeiro ou falso",
-    description: "Duas opcoes fixas para escolha rapida.",
+    description: "Duas opções fixas para escolha rapida.",
   },
   {
     value: "ESSAY",
@@ -123,7 +125,7 @@ const QUESTION_TYPE_OPTIONS: QuestionTypeOption[] = [
   },
   {
     value: "ORDERING",
-    label: "Ordenacao",
+    label: "Ordenação",
     description: "A ordem da lista sera o gabarito.",
   },
   {
@@ -148,15 +150,15 @@ const DISPLAY_MODE_OPTIONS: Array<{
     label: "Uma por vez",
     description: "Ideal para experiencias mais guiadas.",
   },
-  {
-    value: "RANDOM",
-    label: "Ordem aleatoria",
-    description: "As questoes aparecem em ordem embaralhada.",
-  },
 ];
 
 const TEXTAREA_CLASSNAME =
   "min-h-[112px] w-full rounded-2xl border px-4 py-3 text-sm outline-none transition-colors resize-y";
+
+const isLoading = false;
+const loadErrorMessage: string | null = null;
+const navigate = (path: string) => undefined;
+const exercisePath = "";
 
 export function ExerciseEdit() {
   const { courseId, moduleId, lessonId, exerciseId } = useParams<{
@@ -197,9 +199,7 @@ export function ExerciseEdit() {
   };
 
   const clearErrorNotification = () => {
-    setNotification((current) =>
-      current?.type === "error" ? null : current,
-    );
+    setNotification((current) => (current?.type === "error" ? null : current));
   };
 
   const showValidationErrors = (errors: ValidationError[]) => {
@@ -212,7 +212,9 @@ export function ExerciseEdit() {
 
   useEffect(() => {
     if (!Number.isFinite(exerciseIdNumber)) {
-      setLoadErrorMessage("Nao foi possivel identificar o exercicio para edicao.");
+      setLoadErrorMessage(
+        "Nao foi possivel identificar o exercicio para edicao.",
+      );
       setIsLoading(false);
       return;
     }
@@ -222,7 +224,10 @@ export function ExerciseEdit() {
         setIsLoading(true);
         setLoadErrorMessage(null);
 
-        const response = await ExerciseTeacherApi.getById(exerciseIdNumber, true);
+        const response = await ExerciseTeacherApi.getById(
+          exerciseIdNumber,
+          true,
+        );
         const exercise = response.data;
         const loadedQuestions = mapResponseQuestions(exercise.questions ?? []);
 
@@ -507,13 +512,12 @@ export function ExerciseEdit() {
       return;
     }
 
-    const questionsChanged =
-      createQuestionSignature(questions) !== initialQuestionSignature;
+    const signature = stableStringify(normalizeQuestions(questions));
 
-    if (questionsChanged) {
+    if (signature) {
       showNotification(
         "error",
-        "O backend atual ainda nao salva alteracoes em questoes e opcoes. A tela ficou pronta no front, mas precisamos expor os endpoints de detalhe/update para persistir isso.",
+        "O backend atual ainda nao salva alteracoes em questoes e opções. A tela ficou pronta no front, mas precisamos expor os endpoints de detalhe/update para persistir isso.",
       );
       setCurrentStep(1);
       return;
@@ -543,7 +547,10 @@ export function ExerciseEdit() {
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -569,11 +576,19 @@ export function ExerciseEdit() {
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -860,50 +875,62 @@ export function ExerciseEdit() {
                     const isSelected =
                       form.questionDisplayMode === option.value;
                     if (isLoading) {
-    return <LoadingSkeleton />;
-  }
+                      return <LoadingSkeleton />;
+                    }
 
-  if (loadErrorMessage) {
-    return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
-        <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-          <button
-            type="button"
-            onClick={() => navigate(exercisePath)}
-            className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-75"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            <ArrowLeft size={18} />
-            <span>Voltar para exercicios</span>
-          </button>
+                    if (loadErrorMessage) {
+                      return (
+                        <div
+                          className="min-h-screen pb-12"
+                          style={{ backgroundColor: "var(--color-bg-main)" }}
+                        >
+                          <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+                            <button
+                              type="button"
+                              onClick={() => navigate(exercisePath)}
+                              className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-75"
+                              style={{ color: "var(--color-text-secondary)" }}
+                            >
+                              <ArrowLeft size={18} />
+                              <span>Voltar para exercicios</span>
+                            </button>
 
-          <NotificationComponent
-            type="error"
-            message={loadErrorMessage}
-            onClose={() => navigate(exercisePath)}
-            duration={0}
-          />
+                            <NotificationComponent
+                              type="error"
+                              message={loadErrorMessage}
+                              onClose={() => navigate(exercisePath)}
+                              duration={0}
+                            />
 
-          <section
-            className="rounded-3xl border p-6 shadow-sm"
-            style={{
-              backgroundColor: "var(--color-surface)",
-              borderColor: "var(--color-border)",
-            }}
-          >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-              Edicao indisponivel no ambiente atual
-            </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
-            </p>
-          </section>
-        </div>
-      </div>
-    );
-  }
+                            <section
+                              className="rounded-3xl border p-6 shadow-sm"
+                              style={{
+                                backgroundColor: "var(--color-surface)",
+                                borderColor: "var(--color-border)",
+                              }}
+                            >
+                              <h1
+                                className="text-2xl font-bold"
+                                style={{ color: "var(--color-text-primary)" }}
+                              >
+                                Edicao indisponivel no ambiente atual
+                              </h1>
+                              <p
+                                className="mt-3 text-sm"
+                                style={{ color: "var(--color-text-secondary)" }}
+                              >
+                                A tela de edicao foi criada no front, mas o
+                                backend deste projeto ainda nao expoe todos os
+                                endpoints necessarios para carregar e salvar as
+                                questoes com seguranca.
+                              </p>
+                            </section>
+                          </div>
+                        </div>
+                      );
+                    }
 
-  return (
+                    return (
                       <label
                         key={option.value}
                         className="cursor-pointer rounded-2xl border p-4 transition-colors"
@@ -958,7 +985,7 @@ export function ExerciseEdit() {
                     accentColor={accentColor}
                   />
                   <ToggleTile
-                    label="Embaralhar opcoes"
+                    label="Embaralhar opções"
                     description="Embaralha alternativas de questoes objetivas."
                     checked={form.shuffleOptions}
                     onChange={(checked) =>
@@ -1265,7 +1292,7 @@ export function ExerciseEdit() {
                       value={form.shuffleQuestions ? "Sim" : "Nao"}
                     />
                     <ReviewRow
-                      label="Embaralhar opcoes"
+                      label="Embaralhar opções"
                       value={form.shuffleOptions ? "Sim" : "Nao"}
                     />
                     <ReviewRow
@@ -1459,7 +1486,10 @@ function SummaryChip({ label, value, accentColor }: SummaryChipProps) {
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -1485,11 +1515,19 @@ function SummaryChip({ label, value, accentColor }: SummaryChipProps) {
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-              Edicao indisponivel no ambiente atual
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
+              Edição indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicão foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -1522,7 +1560,10 @@ function MetricCard({ label, value }: { label: string; value: string }) {
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -1548,11 +1589,19 @@ function MetricCard({ label, value }: { label: string; value: string }) {
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -1588,7 +1637,10 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -1614,11 +1666,19 @@ function ReviewRow({ label, value }: { label: string; value: string }) {
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -1660,7 +1720,10 @@ function SectionBlock({ title, description, children }: SectionBlockProps) {
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -1686,11 +1749,19 @@ function SectionBlock({ title, description, children }: SectionBlockProps) {
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -1734,7 +1805,10 @@ function FieldLabel({
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -1760,11 +1834,19 @@ function FieldLabel({
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -1802,7 +1884,10 @@ function TextAreaField({
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -1828,11 +1913,19 @@ function TextAreaField({
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -1877,7 +1970,10 @@ function ToggleTile({
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -1903,11 +1999,19 @@ function ToggleTile({
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -1967,7 +2071,10 @@ function QuestionTypeModal({
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -1993,11 +2100,19 @@ function QuestionTypeModal({
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -2140,7 +2255,10 @@ function QuestionEditorCard({
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -2166,11 +2284,19 @@ function QuestionEditorCard({
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -2314,7 +2440,7 @@ function QuestionEditorCard({
                 }
                 rows={3}
                 placeholder="Digite as respostas aceitas"
-                className={`${TEXTAREA_CLASSNAME} mt-3 min-h-[96px]`}
+                className={`${TEXTAREA_CLASSNAME} mt-3 min-h-24`}
                 style={{
                   backgroundColor: "var(--color-surface-secondary)",
                   borderColor: "var(--color-border)",
@@ -2347,7 +2473,7 @@ function QuestionEditorCard({
                 className="text-sm"
                 style={{ color: "var(--color-text-secondary)" }}
               >
-                Questao dissertativa nao precisa de opcoes. O aluno respondera
+                Questao dissertativa nao precisa de opções. O aluno respondera
                 com texto livre e a correcao sera manual.
               </p>
             </div>
@@ -2367,7 +2493,7 @@ function QuestionEditorCard({
                     className="font-semibold"
                     style={{ color: "var(--color-text-primary)" }}
                   >
-                    {question.type === "MATCHING" ? "Pares" : "Opcoes"}
+                    {question.type === "MATCHING" ? "Pares" : "Opções"}
                   </p>
                   <p
                     className="text-sm"
@@ -2378,11 +2504,11 @@ function QuestionEditorCard({
                     {question.type === "MATCHING" &&
                       "Preencha cada item com seu par correspondente."}
                     {question.type === "MULTIPLE_CHOICE_MULTIPLE" &&
-                      "Voce pode marcar mais de uma alternativa como correta."}
+                      "Você pode marcar mais de uma alternativa como correta."}
                     {question.type === "MULTIPLE_CHOICE_SINGLE" &&
                       "Marque somente uma alternativa correta."}
                     {question.type === "TRUE_FALSE" &&
-                      "Selecione se a resposta correta eh verdadeiro ou falso."}
+                      "Selecione se a resposta correta é verdadeiro ou falso."}
                   </p>
                 </div>
                 {question.type !== "TRUE_FALSE" && (
@@ -2412,17 +2538,17 @@ function QuestionEditorCard({
                       question.type === "MULTIPLE_CHOICE_MULTIPLE" ||
                       question.type === "TRUE_FALSE") && (
                       <div className="flex items-start gap-3">
-                        <input
+                        <Input
                           type={isSingleChoice ? "radio" : "checkbox"}
                           checked={option.isCorrect}
                           onChange={() => onToggleCorrect(option.tempId)}
                           name={`correct-${question.tempId}`}
-                          className="mt-3 h-4 w-4 shrink-0"
+                          className="mt-3 h-4 w-4 shrink-0 hover:cursor-pointer"
                           style={{ accentColor }}
                         />
                         <div className="flex-1">
                           <FieldLabel>
-                            Opcao {String.fromCharCode(65 + optionIndex)}
+                            Opção {String.fromCharCode(65 + optionIndex)}
                           </FieldLabel>
                           <InputComponent
                             value={option.optionText}
@@ -2433,13 +2559,13 @@ function QuestionEditorCard({
                               })
                             }
                             disabled={question.type === "TRUE_FALSE"}
-                            placeholder={`Digite a opcao ${String.fromCharCode(65 + optionIndex)}`}
+                            placeholder={`Digite a opção ${String.fromCharCode(65 + optionIndex)}`}
                           />
                         </div>
                         {question.type !== "TRUE_FALSE" && (
                           <div className="flex items-center gap-2 pt-7">
                             <IconButton
-                              title="Remover opcao"
+                              title="Remover opção"
                               onClick={() => onRemoveOption(option.tempId)}
                               tone="danger"
                             >
@@ -2598,7 +2724,10 @@ function IconButton({
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -2624,11 +2753,19 @@ function IconButton({
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -2666,50 +2803,61 @@ function IconButton({
 function renderQuestionPreview(question: QuestionForm, accentColor: string) {
   if (question.type === "ESSAY") {
     if (isLoading) {
-    return <LoadingSkeleton />;
-  }
+      return <LoadingSkeleton />;
+    }
 
-  if (loadErrorMessage) {
-    return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
-        <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-          <button
-            type="button"
-            onClick={() => navigate(exercisePath)}
-            className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-75"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            <ArrowLeft size={18} />
-            <span>Voltar para exercicios</span>
-          </button>
+    if (loadErrorMessage) {
+      return (
+        <div
+          className="min-h-screen pb-12"
+          style={{ backgroundColor: "var(--color-bg-main)" }}
+        >
+          <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+            <button
+              type="button"
+              onClick={() => navigate(exercisePath)}
+              className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-75"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              <ArrowLeft size={18} />
+              <span>Voltar para exercicios</span>
+            </button>
 
-          <NotificationComponent
-            type="error"
-            message={loadErrorMessage}
-            onClose={() => navigate(exercisePath)}
-            duration={0}
-          />
+            <NotificationComponent
+              type="error"
+              message={loadErrorMessage}
+              onClose={() => navigate(exercisePath)}
+              duration={0}
+            />
 
-          <section
-            className="rounded-3xl border p-6 shadow-sm"
-            style={{
-              backgroundColor: "var(--color-surface)",
-              borderColor: "var(--color-border)",
-            }}
-          >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-              Edicao indisponivel no ambiente atual
-            </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
-            </p>
-          </section>
+            <section
+              className="rounded-3xl border p-6 shadow-sm"
+              style={{
+                backgroundColor: "var(--color-surface)",
+                borderColor: "var(--color-border)",
+              }}
+            >
+              <h1
+                className="text-2xl font-bold"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                Edicao indisponivel no ambiente atual
+              </h1>
+              <p
+                className="mt-3 text-sm"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                A tela de edicao foi criada no front, mas o backend deste
+                projeto ainda nao expoe todos os endpoints necessarios para
+                carregar e salvar as questoes com seguranca.
+              </p>
+            </section>
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  return (
+    return (
       <p
         className="mt-4 text-sm"
         style={{ color: "var(--color-text-secondary)" }}
@@ -2722,50 +2870,61 @@ function renderQuestionPreview(question: QuestionForm, accentColor: string) {
   if (question.type === "FILL_BLANKS") {
     const acceptableAnswers = question.config?.acceptableAnswers ?? [];
     if (isLoading) {
-    return <LoadingSkeleton />;
-  }
+      return <LoadingSkeleton />;
+    }
 
-  if (loadErrorMessage) {
-    return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
-        <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-          <button
-            type="button"
-            onClick={() => navigate(exercisePath)}
-            className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-75"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            <ArrowLeft size={18} />
-            <span>Voltar para exercicios</span>
-          </button>
+    if (loadErrorMessage) {
+      return (
+        <div
+          className="min-h-screen pb-12"
+          style={{ backgroundColor: "var(--color-bg-main)" }}
+        >
+          <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+            <button
+              type="button"
+              onClick={() => navigate(exercisePath)}
+              className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-75"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              <ArrowLeft size={18} />
+              <span>Voltar para exercicios</span>
+            </button>
 
-          <NotificationComponent
-            type="error"
-            message={loadErrorMessage}
-            onClose={() => navigate(exercisePath)}
-            duration={0}
-          />
+            <NotificationComponent
+              type="error"
+              message={loadErrorMessage}
+              onClose={() => navigate(exercisePath)}
+              duration={0}
+            />
 
-          <section
-            className="rounded-3xl border p-6 shadow-sm"
-            style={{
-              backgroundColor: "var(--color-surface)",
-              borderColor: "var(--color-border)",
-            }}
-          >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-              Edicao indisponivel no ambiente atual
-            </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
-            </p>
-          </section>
+            <section
+              className="rounded-3xl border p-6 shadow-sm"
+              style={{
+                backgroundColor: "var(--color-surface)",
+                borderColor: "var(--color-border)",
+              }}
+            >
+              <h1
+                className="text-2xl font-bold"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                Edicao indisponivel no ambiente atual
+              </h1>
+              <p
+                className="mt-3 text-sm"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                A tela de edicao foi criada no front, mas o backend deste
+                projeto ainda nao expoe todos os endpoints necessarios para
+                carregar e salvar as questoes com seguranca.
+              </p>
+            </section>
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  return (
+    return (
       <div
         className="mt-4 rounded-2xl border p-4"
         style={{
@@ -2793,50 +2952,61 @@ function renderQuestionPreview(question: QuestionForm, accentColor: string) {
 
   if (question.type === "ORDERING") {
     if (isLoading) {
-    return <LoadingSkeleton />;
-  }
+      return <LoadingSkeleton />;
+    }
 
-  if (loadErrorMessage) {
-    return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
-        <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-          <button
-            type="button"
-            onClick={() => navigate(exercisePath)}
-            className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-75"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            <ArrowLeft size={18} />
-            <span>Voltar para exercicios</span>
-          </button>
+    if (loadErrorMessage) {
+      return (
+        <div
+          className="min-h-screen pb-12"
+          style={{ backgroundColor: "var(--color-bg-main)" }}
+        >
+          <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+            <button
+              type="button"
+              onClick={() => navigate(exercisePath)}
+              className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-75"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              <ArrowLeft size={18} />
+              <span>Voltar para exercicios</span>
+            </button>
 
-          <NotificationComponent
-            type="error"
-            message={loadErrorMessage}
-            onClose={() => navigate(exercisePath)}
-            duration={0}
-          />
+            <NotificationComponent
+              type="error"
+              message={loadErrorMessage}
+              onClose={() => navigate(exercisePath)}
+              duration={0}
+            />
 
-          <section
-            className="rounded-3xl border p-6 shadow-sm"
-            style={{
-              backgroundColor: "var(--color-surface)",
-              borderColor: "var(--color-border)",
-            }}
-          >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-              Edicao indisponivel no ambiente atual
-            </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
-            </p>
-          </section>
+            <section
+              className="rounded-3xl border p-6 shadow-sm"
+              style={{
+                backgroundColor: "var(--color-surface)",
+                borderColor: "var(--color-border)",
+              }}
+            >
+              <h1
+                className="text-2xl font-bold"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                Edicao indisponivel no ambiente atual
+              </h1>
+              <p
+                className="mt-3 text-sm"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                A tela de edicao foi criada no front, mas o backend deste
+                projeto ainda nao expoe todos os endpoints necessarios para
+                carregar e salvar as questoes com seguranca.
+              </p>
+            </section>
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  return (
+    return (
       <div className="mt-4 space-y-2">
         {question.options.map((option, index) => (
           <div
@@ -2864,50 +3034,61 @@ function renderQuestionPreview(question: QuestionForm, accentColor: string) {
 
   if (question.type === "MATCHING") {
     if (isLoading) {
-    return <LoadingSkeleton />;
-  }
+      return <LoadingSkeleton />;
+    }
 
-  if (loadErrorMessage) {
-    return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
-        <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-          <button
-            type="button"
-            onClick={() => navigate(exercisePath)}
-            className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-75"
-            style={{ color: "var(--color-text-secondary)" }}
-          >
-            <ArrowLeft size={18} />
-            <span>Voltar para exercicios</span>
-          </button>
+    if (loadErrorMessage) {
+      return (
+        <div
+          className="min-h-screen pb-12"
+          style={{ backgroundColor: "var(--color-bg-main)" }}
+        >
+          <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+            <button
+              type="button"
+              onClick={() => navigate(exercisePath)}
+              className="flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-75"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              <ArrowLeft size={18} />
+              <span>Voltar para exercicios</span>
+            </button>
 
-          <NotificationComponent
-            type="error"
-            message={loadErrorMessage}
-            onClose={() => navigate(exercisePath)}
-            duration={0}
-          />
+            <NotificationComponent
+              type="error"
+              message={loadErrorMessage}
+              onClose={() => navigate(exercisePath)}
+              duration={0}
+            />
 
-          <section
-            className="rounded-3xl border p-6 shadow-sm"
-            style={{
-              backgroundColor: "var(--color-surface)",
-              borderColor: "var(--color-border)",
-            }}
-          >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
-              Edicao indisponivel no ambiente atual
-            </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
-            </p>
-          </section>
+            <section
+              className="rounded-3xl border p-6 shadow-sm"
+              style={{
+                backgroundColor: "var(--color-surface)",
+                borderColor: "var(--color-border)",
+              }}
+            >
+              <h1
+                className="text-2xl font-bold"
+                style={{ color: "var(--color-text-primary)" }}
+              >
+                Edicao indisponivel no ambiente atual
+              </h1>
+              <p
+                className="mt-3 text-sm"
+                style={{ color: "var(--color-text-secondary)" }}
+              >
+                A tela de edicao foi criada no front, mas o backend deste
+                projeto ainda nao expoe todos os endpoints necessarios para
+                carregar e salvar as questoes com seguranca.
+              </p>
+            </section>
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
-  return (
+    return (
       <div className="mt-4 space-y-2">
         {question.options.map((option) => (
           <div
@@ -2942,7 +3123,10 @@ function renderQuestionPreview(question: QuestionForm, accentColor: string) {
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -2968,11 +3152,19 @@ function renderQuestionPreview(question: QuestionForm, accentColor: string) {
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -3010,7 +3202,7 @@ function renderQuestionPreview(question: QuestionForm, accentColor: string) {
               fontWeight: option.isCorrect ? 600 : 400,
             }}
           >
-            {option.optionText || "Opcao sem texto"}
+            {option.optionText || "Opção sem texto"}
           </span>
           {option.isCorrect && <CheckCircle2 size={16} color={accentColor} />}
         </div>
@@ -3026,7 +3218,10 @@ function getQuestionTypeLabel(type: QuestionType) {
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -3052,11 +3247,19 @@ function getQuestionTypeLabel(type: QuestionType) {
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -3076,7 +3279,10 @@ function getDisplayModeLabel(mode: QuestionDisplayMode) {
 
   if (loadErrorMessage) {
     return (
-      <div className="min-h-screen pb-12" style={{ backgroundColor: "var(--color-bg-main)" }}>
+      <div
+        className="min-h-screen pb-12"
+        style={{ backgroundColor: "var(--color-bg-main)" }}
+      >
         <div className="mx-auto flex max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
           <button
             type="button"
@@ -3102,11 +3308,19 @@ function getDisplayModeLabel(mode: QuestionDisplayMode) {
               borderColor: "var(--color-border)",
             }}
           >
-            <h1 className="text-2xl font-bold" style={{ color: "var(--color-text-primary)" }}>
+            <h1
+              className="text-2xl font-bold"
+              style={{ color: "var(--color-text-primary)" }}
+            >
               Edicao indisponivel no ambiente atual
             </h1>
-            <p className="mt-3 text-sm" style={{ color: "var(--color-text-secondary)" }}>
-              A tela de edicao foi criada no front, mas o backend deste projeto ainda nao expoe todos os endpoints necessarios para carregar e salvar as questoes com seguranca.
+            <p
+              className="mt-3 text-sm"
+              style={{ color: "var(--color-text-secondary)" }}
+            >
+              A tela de edicao foi criada no front, mas o backend deste projeto
+              ainda nao expoe todos os endpoints necessarios para carregar e
+              salvar as questoes com seguranca.
             </p>
           </section>
         </div>
@@ -3130,7 +3344,9 @@ function formatValidationErrors(errors: ValidationError[]) {
   return `${baseMessage} | mais ${errors.length - 3} erro(s)`;
 }
 
-function mapExerciseResponseToForm(exercise: ExerciseResponseDTO): ExerciseFormState {
+function mapExerciseResponseToForm(
+  exercise: ExerciseResponseDTO,
+): ExerciseFormState {
   return {
     title: exercise.title ?? "",
     description: exercise.description ?? "",
@@ -3148,7 +3364,9 @@ function mapExerciseResponseToForm(exercise: ExerciseResponseDTO): ExerciseFormS
   };
 }
 
-function mapResponseQuestions(questions: QuestionResponseDTO[]): QuestionForm[] {
+function mapResponseQuestions(
+  questions: QuestionResponseDTO[],
+): QuestionForm[] {
   return normalizeQuestions(
     [...questions]
       .sort((left, right) => left.order - right.order)
@@ -3209,7 +3427,10 @@ function resolveExerciseEditLoadErrorMessage(error: unknown) {
     return "A API de detalhe/edicao do exercicio ainda nao esta disponivel no backend deste projeto.";
   }
 
-  return getErrorMessage(error, "Nao foi possivel carregar o exercicio para edicao.");
+  return getErrorMessage(
+    error,
+    "Nao foi possivel carregar o exercicio para edicao.",
+  );
 }
 
 function resolveExerciseEditSaveErrorMessage(error: unknown) {
@@ -3441,7 +3662,3 @@ function swapItems<T>(items: T[], firstIndex: number, secondIndex: number) {
   nextItems[secondIndex] = firstItem;
   return nextItems;
 }
-
-
-
-

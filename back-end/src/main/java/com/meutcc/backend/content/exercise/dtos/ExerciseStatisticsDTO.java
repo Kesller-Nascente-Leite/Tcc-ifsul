@@ -1,4 +1,4 @@
-package com.meutcc.backend.content.exercise;
+package com.meutcc.backend.content.exercise.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 

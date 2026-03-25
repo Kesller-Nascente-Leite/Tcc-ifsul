@@ -33,6 +33,7 @@ import {
   ExerciseValidator,
   type ValidationError,
 } from "../../../utils/ExerciseValidator";
+import { Button, Header, Input, Label, TextArea } from "react-aria-components";
 
 type WizardStep = 0 | 1 | 2;
 
@@ -100,12 +101,12 @@ const QUESTION_TYPE_OPTIONS: QuestionTypeOption[] = [
   {
     value: "MULTIPLE_CHOICE_MULTIPLE",
     label: "Multipla resposta",
-    description: "Mais de uma opcao correta.",
+    description: "Mais de uma opção correta.",
   },
   {
     value: "TRUE_FALSE",
     label: "Verdadeiro ou falso",
-    description: "Duas opcoes fixas para escolha rapida.",
+    description: "Duas opções fixas para escolha rapida.",
   },
   {
     value: "ESSAY",
@@ -143,11 +144,6 @@ const DISPLAY_MODE_OPTIONS: Array<{
     value: "SEQUENTIAL",
     label: "Uma por vez",
     description: "Ideal para experiencias mais guiadas.",
-  },
-  {
-    value: "RANDOM",
-    label: "Ordem aleatoria",
-    description: "As questoes aparecem em ordem embaralhada.",
   },
 ];
 
@@ -188,9 +184,7 @@ export function CreateExercise() {
   };
 
   const clearErrorNotification = () => {
-    setNotification((current) =>
-      current?.type === "error" ? null : current,
-    );
+    setNotification((current) => (current?.type === "error" ? null : current));
   };
 
   const showValidationErrors = (errors: ValidationError[]) => {
@@ -755,6 +749,7 @@ export function CreateExercise() {
                       onChange={(event) => {
                         const nextValue = (event.target as HTMLInputElement)
                           .valueAsNumber;
+                      
                         updateForm({
                           maxAttempts: Number.isFinite(nextValue)
                             ? nextValue
@@ -775,7 +770,7 @@ export function CreateExercise() {
                     const isSelected =
                       form.questionDisplayMode === option.value;
                     return (
-                      <label
+                      <Label
                         key={option.value}
                         className="cursor-pointer rounded-2xl border p-4 transition-colors"
                         style={{
@@ -813,7 +808,7 @@ export function CreateExercise() {
                             </p>
                           </div>
                         </div>
-                      </label>
+                      </Label>
                     );
                   })}
                 </div>
@@ -829,7 +824,7 @@ export function CreateExercise() {
                     accentColor={accentColor}
                   />
                   <ToggleTile
-                    label="Embaralhar opcoes"
+                    label="Embaralhar opções"
                     description="Embaralha alternativas de questoes objetivas."
                     checked={form.shuffleOptions}
                     onChange={(checked) =>
@@ -1136,7 +1131,7 @@ export function CreateExercise() {
                       value={form.shuffleQuestions ? "Sim" : "Nao"}
                     />
                     <ReviewRow
-                      label="Embaralhar opcoes"
+                      label="Embaralhar opções"
                       value={form.shuffleOptions ? "Sim" : "Nao"}
                     />
                     <ReviewRow
@@ -1424,13 +1419,13 @@ function FieldLabel({
   required?: boolean;
 }) {
   return (
-    <label
+    <Label
       className="mb-2 block text-sm font-medium"
       style={{ color: "var(--color-text-secondary)" }}
     >
       {children}
       {required && " *"}
-    </label>
+    </Label>
   );
 }
 
@@ -1450,7 +1445,7 @@ function TextAreaField({
   return (
     <div>
       <FieldLabel>{label}</FieldLabel>
-      <textarea
+      <TextArea
         value={value}
         onChange={(event) => onChange(event.target.value)}
         rows={rows}
@@ -1479,7 +1474,7 @@ function ToggleTile({
   accentColor: string;
 }) {
   return (
-    <label
+    <Label
       className="cursor-pointer rounded-2xl border p-4 transition-colors"
       style={{
         borderColor: checked ? accentColor : "var(--color-border)",
@@ -1511,7 +1506,7 @@ function ToggleTile({
           </p>
         </div>
       </div>
-    </label>
+    </Label>
   );
 }
 
@@ -1553,7 +1548,7 @@ function QuestionTypeModal({
               escolhido.
             </p>
           </div>
-          <button
+          <Button
             type="button"
             onClick={onClose}
             className="rounded-full border px-3 py-1 text-sm font-medium transition-opacity hover:opacity-75"
@@ -1563,7 +1558,7 @@ function QuestionTypeModal({
             }}
           >
             Fechar
-          </button>
+          </Button>
         </div>
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -1572,7 +1567,7 @@ function QuestionTypeModal({
               key={option.value}
               type="button"
               onClick={() => onSelect(option.value)}
-              className="rounded-2xl border p-4 text-left transition-transform hover:-translate-y-0.5"
+              className="rounded-2xl border p-4 text-left transition-transform hover:-translate-y-0.5 cursor-pointer"
               style={{
                 backgroundColor: "var(--color-surface-secondary)",
                 borderColor: "var(--color-border)",
@@ -1661,7 +1656,7 @@ function QuestionEditorCard({
         borderColor: "var(--color-border)",
       }}
     >
-      <header
+      <Header
         className="flex flex-col gap-4 border-b p-5 sm:flex-row sm:items-start sm:justify-between"
         style={{ borderColor: "var(--color-border)" }}
       >
@@ -1730,7 +1725,7 @@ function QuestionEditorCard({
             <Trash2 size={16} />
           </IconButton>
         </div>
-      </header>
+      </Header>
 
       {isExpanded && (
         <div className="space-y-5 p-5">
@@ -1779,17 +1774,16 @@ function QuestionEditorCard({
                 className="mt-1 text-sm"
                 style={{ color: "var(--color-text-secondary)" }}
               >
-                Separe por virgula ou linha. Exemplo: React, reactjs, biblioteca
-                React.
+                Separe por virgula ou linha. Exemplo: React, reactjs, biblioteca React.
               </p>
-              <textarea
+              <TextArea
                 value={question.config?.acceptableAnswers?.join(", ") ?? ""}
-                onChange={(event) =>
-                  onUpdateFillBlankAnswers(event.target.value)
+                onChange={(e) =>
+                  onUpdateFillBlankAnswers(e.target.value)
                 }
                 rows={3}
                 placeholder="Digite as respostas aceitas"
-                className={`${TEXTAREA_CLASSNAME} mt-3 min-h-[96px]`}
+                className={`${TEXTAREA_CLASSNAME} mt-3 min-h-24`}
                 style={{
                   backgroundColor: "var(--color-surface-secondary)",
                   borderColor: "var(--color-border)",
@@ -1822,7 +1816,7 @@ function QuestionEditorCard({
                 className="text-sm"
                 style={{ color: "var(--color-text-secondary)" }}
               >
-                Questao dissertativa nao precisa de opcoes. O aluno respondera
+                Questao dissertativa nao precisa de opções. O aluno respondera
                 com texto livre e a correcao sera manual.
               </p>
             </div>
@@ -1842,7 +1836,7 @@ function QuestionEditorCard({
                     className="font-semibold"
                     style={{ color: "var(--color-text-primary)" }}
                   >
-                    {question.type === "MATCHING" ? "Pares" : "Opcoes"}
+                    {question.type === "MATCHING" ? "Pares" : "Opções"}
                   </p>
                   <p
                     className="text-sm"
@@ -1887,17 +1881,17 @@ function QuestionEditorCard({
                       question.type === "MULTIPLE_CHOICE_MULTIPLE" ||
                       question.type === "TRUE_FALSE") && (
                       <div className="flex items-start gap-3">
-                        <input
+                        <Input
                           type={isSingleChoice ? "radio" : "checkbox"}
                           checked={option.isCorrect}
                           onChange={() => onToggleCorrect(option.tempId)}
                           name={`correct-${question.tempId}`}
-                          className="mt-3 h-4 w-4 shrink-0"
+                          className="mt-3 h-4 w-4 shrink-0 hover:cursor-pointer"
                           style={{ accentColor }}
                         />
                         <div className="flex-1">
                           <FieldLabel>
-                            Opcao {String.fromCharCode(65 + optionIndex)}
+                            Opção {String.fromCharCode(65 + optionIndex)}
                           </FieldLabel>
                           <InputComponent
                             value={option.optionText}
@@ -1908,13 +1902,13 @@ function QuestionEditorCard({
                               })
                             }
                             disabled={question.type === "TRUE_FALSE"}
-                            placeholder={`Digite a opcao ${String.fromCharCode(65 + optionIndex)}`}
+                            placeholder={`Digite a opção ${String.fromCharCode(65 + optionIndex)}`}
                           />
                         </div>
                         {question.type !== "TRUE_FALSE" && (
                           <div className="flex items-center gap-2 pt-7">
                             <IconButton
-                              title="Remover opcao"
+                              title="Remover opção"
                               onClick={() => onRemoveOption(option.tempId)}
                               tone="danger"
                             >
@@ -2221,7 +2215,7 @@ function renderQuestionPreview(question: QuestionForm, accentColor: string) {
               fontWeight: option.isCorrect ? 600 : 400,
             }}
           >
-            {option.optionText || "Opcao sem texto"}
+            {option.optionText || "Opção sem texto"}
           </span>
           {option.isCorrect && <CheckCircle2 size={16} color={accentColor} />}
         </div>
@@ -2437,5 +2431,3 @@ function swapItems<T>(items: T[], firstIndex: number, secondIndex: number) {
   nextItems[secondIndex] = firstItem;
   return nextItems;
 }
-
-

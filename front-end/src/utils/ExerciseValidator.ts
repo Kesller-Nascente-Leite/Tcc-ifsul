@@ -53,10 +53,10 @@ export class ExerciseValidator {
       });
     }
 
-    if (data.maxAttempts !== undefined && data.maxAttempts < 0) {
+    if (data.maxAttempts !== undefined && data.maxAttempts <= 0) {
       errors.push({
         field: "maxAttempts",
-        message: "Numero de tentativas nao pode ser negativo",
+        message: "Numero de tentativas nao pode ser negativo e nem zero",
       });
     }
 

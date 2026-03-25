@@ -1,6 +1,9 @@
 package com.meutcc.backend.content.question;
 
 import com.meutcc.backend.content.exercise.Exercise;
+import com.meutcc.backend.content.question.dtos.CreateQuestionDTO;
+import com.meutcc.backend.content.question.dtos.CreateQuestionOptionDTO;
+import com.meutcc.backend.content.question.dtos.QuestionOptionResponseDTO;
 import org.mapstruct.*;
 
 import java.util.List;

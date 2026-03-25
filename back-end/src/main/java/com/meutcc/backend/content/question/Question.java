@@ -3,9 +3,9 @@ package com.meutcc.backend.content.question;
 import com.meutcc.backend.common.model.BaseEntity;
 import com.meutcc.backend.content.answer.Answer;
 import com.meutcc.backend.content.exercise.Exercise;
+import com.meutcc.backend.content.question.dtos.QuestionConfigDTO;
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 

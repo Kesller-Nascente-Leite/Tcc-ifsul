@@ -1,4 +1,4 @@
-package com.meutcc.backend.content.question;
+package com.meutcc.backend.content.question.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

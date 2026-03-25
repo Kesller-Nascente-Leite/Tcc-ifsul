@@ -1,4 +1,4 @@
-package com.meutcc.backend.content.exercise;
+package com.meutcc.backend.content.exercise.dtos;
 
 import com.meutcc.backend.content.question.QuestionDisplayMode;
 import jakarta.validation.constraints.Max;

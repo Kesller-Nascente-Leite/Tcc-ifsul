@@ -1,20 +1,17 @@
 package com.meutcc.backend.content.exercise;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.meutcc.backend.content.exercise.dtos.ExerciseStatisticsDTO;
 import com.meutcc.backend.content.question.QuestionDisplayMode;
-import com.meutcc.backend.content.question.QuestionRequestDTO;
+import com.meutcc.backend.content.question.QuestionResponseDTO;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public record ExerciseRequestDTO(
+public record ExerciseResponseDTO(
         Long id,
         String title,
         String description,
         String instructions,
-        Long lessonId,
         Integer totalPoints,
         Integer passingScore,
         Integer timeLimit,
@@ -30,7 +27,7 @@ public record ExerciseRequestDTO(
         LocalDateTime availableUntil,
         Boolean isAvailable,
         Integer questionsCount,
-        List<QuestionRequestDTO> questions,
+        List<QuestionResponseDTO> questions,
         ExerciseStatisticsDTO statistics,
         LocalDateTime createdAt,
         LocalDateTime updatedAt

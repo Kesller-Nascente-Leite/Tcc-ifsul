@@ -52,11 +52,10 @@ public class ModuleService {
 
     @Transactional
     public ModuleDTO update(Long id, ModuleDTO dto) {
-        securityService.validateCourseOwner(id);
         Module module = moduleRepository.findById(id).orElseThrow(
                 () -> new ModuleException("Curso não encontrado.")
         );
-
+        securityService.validateCourseOwner(module.getCourse().getId());
         moduleMapper.updateEntityFromDTO(dto, module);
         Module updateModule = moduleRepository.save(module);
 

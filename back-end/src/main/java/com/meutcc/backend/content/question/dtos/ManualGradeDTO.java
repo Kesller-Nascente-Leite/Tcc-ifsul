@@ -1,4 +1,4 @@
-package com.meutcc.backend.content.question;
+package com.meutcc.backend.content.question.dtos;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;

@@ -1,5 +1,7 @@
 package com.meutcc.backend.content.exercise;
 
+import com.meutcc.backend.content.exercise.dtos.CreateExerciseDTO;
+import com.meutcc.backend.content.exercise.dtos.UpdateExerciseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +17,16 @@ public class ExerciseController {
 
     @GetMapping("/teacher/exercises/lesson/{lessonId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<ExerciseRequestDTO> getAllExercises(@PathVariable("lessonId") Long lessonId) {
-       return exerciseService.getAllExercises(lessonId);
+    public List<ExerciseResponseDTO> getAllExercises(@PathVariable("lessonId") Long lessonId) {
+        return exerciseService.getAllExercises(lessonId);
+    }
+
+    @GetMapping("/teacher/exercises/{exerciseId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ExerciseResponseDTO getExerciseById(
+            @PathVariable("exerciseId") Long exerciseId,
+            @RequestParam(value = "includeQuestions", defaultValue = "false") Boolean includeQuestions) {
+        return exerciseService.getById(exerciseId, includeQuestions);
     }
 
     @PostMapping("/teacher/exercises/create")
@@ -25,10 +35,14 @@ public class ExerciseController {
         exerciseService.createExercise(createExerciseDTO);
     }
 
+    @PutMapping("/teacher/exercises/{exerciseId}")
+    public void update(@PathVariable("exerciseId") Long exerciseId, @RequestBody UpdateExerciseDTO updateExerciseDTO) {
+        exerciseService.updateExercise(exerciseId, updateExerciseDTO);
+    }
+
     @DeleteMapping("/teacher/exercises/{exerciseId}")
     public void deleteExercises(@PathVariable("exerciseId") Long exerciseId) {
         exerciseService.delete(exerciseId);
     }
-
-
+    
 }

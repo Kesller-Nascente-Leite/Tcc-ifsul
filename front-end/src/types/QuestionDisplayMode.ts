@@ -1,1 +1,1 @@
-export type QuestionDisplayMode = "SEQUENTIAL" | "RANDOM" | "ALL_AT_ONCE";
+export type QuestionDisplayMode = "SEQUENTIAL" | "ALL_AT_ONCE";

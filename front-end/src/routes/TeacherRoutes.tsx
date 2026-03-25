@@ -81,7 +81,6 @@ export const TeacherRoutes: RouteObject[] = [
         path: "courses/:courseId/modules/:moduleId/lessons/:lessonId/exercises/:exerciseId/edit",
         element: <ExerciseEdit />,
       },
-
       {
         path: "courses/:courseId/modules/:moduleId/lessons/:lessonId/exercises/:exerciseId/stats",
         element: <ExerciseStatistics />,

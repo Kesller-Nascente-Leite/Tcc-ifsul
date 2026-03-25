@@ -14,5 +14,4 @@ export const QUESTION_TYPE_LABELS: Record<QuestionType, string> = {
 export const DISPLAY_MODE_LABELS: Record<QuestionDisplayMode, string> = {
   ALL_AT_ONCE: "Todas de uma vez",
   SEQUENTIAL: "Sequencial (uma por vez)",
-  RANDOM: "Aleatória",
 };

@@ -1,5 +1,6 @@
-package com.meutcc.backend.content.question;
+package com.meutcc.backend.content.question.dtos;
 
+import com.meutcc.backend.content.question.QuestionType;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,5 +1,7 @@
 package com.meutcc.backend.content.exercise;
 
+import com.meutcc.backend.content.exercise.dtos.CreateExerciseDTO;
+import com.meutcc.backend.content.exercise.dtos.UpdateExerciseDTO;
 import com.meutcc.backend.content.lesson.Lesson;
 import com.meutcc.backend.content.lesson.LessonException;
 import com.meutcc.backend.content.lesson.LessonRepository;
@@ -25,7 +27,7 @@ public class ExerciseService {
     private final SecurityService securityService;
 
     @Transactional(readOnly = true)
-    public List<ExerciseRequestDTO> getAllExercises(Long lessonId) {
+    public List<ExerciseResponseDTO> getAllExercises(Long lessonId) {
         Lesson lesson = lessonRepository.findById(lessonId)
                 .orElseThrow(() -> new LessonException("Nenhuma lição encontrada"));
 
@@ -35,8 +37,27 @@ public class ExerciseService {
         return exerciseMapper.toResponseDTOList(exercises);
     }
 
+    @Transactional(readOnly = true)
+    public ExerciseResponseDTO getById(Long exerciseId, Boolean includeQuestions) {
+        Exercise exercise;
+        if (Boolean.TRUE.equals(includeQuestions)) {
+            exercise = exerciseRepository.findByIdWithQuestions(exerciseId)
+                    .orElseThrow(() -> new ExerciseException("Nenhum exercicio encontrado"));
+
+            exercise.getQuestions().forEach(q -> q.getOptions().size());
+
+            return exerciseMapper.toResponseDTOWithQuestions(exercise);
+        }
+
+        exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new ExerciseException("Nenhum exercicio encontrado"));
+        securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
+
+        return exerciseMapper.toResponseDTO(exercise);
+    }
+
     @Transactional
-    public ExerciseRequestDTO createExercise(CreateExerciseDTO createExerciseDTO) {
+    public void createExercise(CreateExerciseDTO createExerciseDTO) {
         if (createExerciseDTO.lessonId() == null) {
             throw new ExerciseException("lessonId é obrigatório");
         }
@@ -85,7 +106,7 @@ public class ExerciseService {
 
         Exercise saved = exerciseRepository.save(exercise);
 
-        return exerciseMapper.toResponseDTOWithQuestions(saved);
+        exerciseMapper.toResponseDTOWithQuestions(saved);
     }
 
     private void validateQuestion(Question question) {
@@ -113,7 +134,7 @@ public class ExerciseService {
     }
 
     private void validateMultipleChoiceSingle(Question question) {
-        validateOptions(question, 2);
+        validateOptions(question);
         long correctCount = countCorrect(question);
         if (correctCount != 1) {
             throw new QuestionException("Deve haver exatamente uma opção correta");
@@ -121,7 +142,7 @@ public class ExerciseService {
     }
 
     private void validateMultipleChoiceMultiple(Question question) {
-        validateOptions(question, 2);
+        validateOptions(question);
         long correctCount = countCorrect(question);
         if (correctCount < 1) {
             throw new QuestionException("Deve haver pelo menos uma opção correta");
@@ -129,7 +150,7 @@ public class ExerciseService {
     }
 
     private void validateTrueFalse(Question question) {
-        validateOptions(question, 2);
+        validateOptions(question);
         if (question.getOptions().size() != 2) {
             throw new QuestionException("TRUE/FALSE deve ter exatamente 2 opções");
         }
@@ -151,7 +172,8 @@ public class ExerciseService {
         }
     }
 
-    private void validateOptions(Question question, int min) {
+    private void validateOptions(Question question) {
+        int min = 2;
         if (question.getOptions() == null || question.getOptions().size() < min) {
             throw new QuestionException("Adicione pelo menos " + min + " opções");
         }
@@ -169,11 +191,20 @@ public class ExerciseService {
                 .count();
     }
 
+    public void updateExercise(Long exerciseId, UpdateExerciseDTO updateExerciseDTO) {
+        Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(
+                () -> new ExerciseException("Não é possivel atualizar os exercicios")
+        );
+        securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
+
+        exerciseMapper.updateEntityFromDTO(updateExerciseDTO, exercise);
+        Exercise savedExercise = exerciseRepository.save(exercise);
+    }
+
     public void delete(Long exerciseId) {
         Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(
                 () -> new ExerciseException("Nenhum exercicios encontrado")
         );
-
         securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
 
         exerciseRepository.delete(exercise);

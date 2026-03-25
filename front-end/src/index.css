@@ -19,14 +19,17 @@
   --color-border: var(--color-border);
   --color-border-hover: var(--color-border-hover);
   --color-border-light: var(--color-border-light);
+
+  --breakpoint-md: 640px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1440px;
 }
 
 @layer base {
   :root {
     /* Primary */
     --accent-color: #3b82f6;
-    --accent-rgb: 59, 130, 246;
-    --color-primary-hover: #2563eb;
+    --accent-rgb: 59, 2563eb;
     --color-primary-light: #dbeafe;
 
     /* Backgrounds */

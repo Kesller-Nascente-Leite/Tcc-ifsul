@@ -1,6 +1,8 @@
 package com.meutcc.backend.content.question;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.meutcc.backend.content.question.dtos.QuestionConfigDTO;
+import com.meutcc.backend.content.question.dtos.QuestionOptionResponseDTO;
 
 import java.util.List;
 
