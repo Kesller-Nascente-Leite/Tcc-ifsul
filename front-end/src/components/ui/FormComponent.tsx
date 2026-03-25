@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import type React from "react";
 import { Form } from "react-aria-components";
 
 interface FormProps {

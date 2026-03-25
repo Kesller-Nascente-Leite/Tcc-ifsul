@@ -17,4 +17,5 @@ public record StudentProgressDTO(
         Boolean hasPassed,
         LocalDateTime lastSubmission,
         List<AttemptSummaryDTO> attempts
-) {}
+) {
+}

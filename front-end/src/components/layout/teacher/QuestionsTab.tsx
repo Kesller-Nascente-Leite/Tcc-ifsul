@@ -1,4 +1,4 @@
-import { MessageSquare } from "lucide-react";
+﻿import { MessageSquare } from "lucide-react";
 import type { ExerciseStatisticsDTO } from "../../../types/ExerciseStatisticsDTO";
 
 interface QuestionsTabProps {
@@ -28,16 +28,18 @@ export function QuestionsTab({ statistics, accentColor }: QuestionsTabProps) {
         className="text-lg font-semibold mb-2"
         style={{ color: "var(--color-text-primary)" }}
       >
-        Análise por Questão
+        Analise por Questao
       </h3>
       <p
         className="text-sm mb-4"
         style={{ color: "var(--color-text-secondary)" }}
       >
-        Esta funcionalidade estará disponível em breve.
+        Estamos preparando uma visao mais detalhada por questao.
       </p>
       <p className="text-xs" style={{ color: "var(--color-text-secondary)" }}>
-        Você poderá ver estatísticas detalhadas de cada questão,
+        O exercicio ja tem {statistics.totalAttempts} tentativa(s) registrada(s).
+        <br />
+        Em breve voce podera ver estatisticas detalhadas de cada questao,
         <br />
         incluindo taxa de erro, dificuldade e desempenho geral.
       </p>

@@ -43,9 +43,7 @@ export default function PublicNavbar({ onMenuClick }: PublicNavbarProps) {
             <Button
               className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-primary-hover transition-all shadow-md shadow-primary/20 outline-none cursor-pointer"
               onClick={() => {
-                navigate(
-                  "/login"
-                );
+                navigate("/login");
               }}
             >
               Começar

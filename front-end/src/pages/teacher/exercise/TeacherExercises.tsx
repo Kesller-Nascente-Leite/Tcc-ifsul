@@ -147,7 +147,7 @@ export function TeacherExercises() {
     ) / (totalExercises || 1);
 
   if (isLoading) {
-    return <LoadingSkeleton accentColor={accentColor} />;
+    return <LoadingSkeleton/>;
   }
 
   return (

@@ -9,7 +9,7 @@ import lombok.*;
 @Table(name = "tb_question_options")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor 
 @Builder
 public class QuestionOption extends BaseEntity {
 

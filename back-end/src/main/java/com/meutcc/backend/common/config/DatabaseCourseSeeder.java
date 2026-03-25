@@ -11,7 +11,11 @@ import com.meutcc.backend.content.lesson.Lesson;
 import com.meutcc.backend.content.lesson.LessonRepository;
 import com.meutcc.backend.content.module.Module;
 import com.meutcc.backend.content.module.ModuleRepository;
-import com.meutcc.backend.content.question.*;
+import com.meutcc.backend.content.question.Question;
+import com.meutcc.backend.content.question.QuestionDisplayMode;
+import com.meutcc.backend.content.question.QuestionOption;
+import com.meutcc.backend.content.question.QuestionRepository;
+import com.meutcc.backend.content.question.QuestionType;
 import com.meutcc.backend.content.video.Video;
 import com.meutcc.backend.content.video.VideoRepository;
 import com.meutcc.backend.content.video.VideoStorageType;
@@ -35,6 +39,9 @@ import java.util.List;
 @Slf4j
 public class DatabaseCourseSeeder {
 
+    private static final String COURSE_TITLE = "Banco de Dados e SQL";
+    private static final String MODULE_TITLE = "Fundamentos de SQL";
+
     private final CourseRepository courseRepository;
     private final ModuleRepository moduleRepository;
     private final LessonRepository lessonRepository;
@@ -49,65 +56,67 @@ public class DatabaseCourseSeeder {
     @Order(4)
     public CommandLineRunner seedDatabaseCourse() {
         return args -> {
-            if (lessonRepository.findById(5L).isPresent()) {
+            log.info("Iniciando seed do curso '{}'", COURSE_TITLE);
+
+            Teacher teacher = getTeacher();
+            Course course = findOrCreateCourse(teacher);
+            Module module = findOrCreateModule(course);
+
+            if (lessonRepository.countByModuleId(module.getId()) > 0) {
+                log.info("Modulo '{}' ja possui aulas. Seed ignorada para evitar duplicacao.", MODULE_TITLE);
                 return;
             }
-            log.info("🌱 Iniciando seed do curso de Banco de Dados e SQL...");
 
-            // 1. Buscar teacher
-            Teacher teacher = getTeacher();
-
-            // 2. Criar curso
-            Course course = courseRepository.findById(5L)
-                    .orElseThrow(() -> new RuntimeException("Curso não encontrado"));
-
-            // 3. Criar módulo
-            Module module = createModule(course);
-
-            // 4. Criar lessons
             createLessons(module);
-
-            log.info("✅ Seed do curso de Banco de Dados e SQL concluído com sucesso!");
+            log.info("Seed do curso '{}' concluida.", COURSE_TITLE);
         };
     }
 
     private Teacher getTeacher() {
-        // Buscar um usuário com role TEACHER
         User userWithTeacherRole = userRepository.findAll().stream()
-                .filter(u -> u.getRole().getName().equals("TEACHER"))
+                .filter(user -> user.getRole() != null)
+                .filter(user -> "TEACHER".equalsIgnoreCase(user.getRole().getName()))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Nenhum usuário TEACHER encontrado!"));
+                .orElseThrow(() -> new RuntimeException("Nenhum usuario TEACHER encontrado."));
 
-        // Buscar ou criar Teacher
         return teacherRepository.findByUser(userWithTeacherRole)
-                .orElseGet(() -> {
-                    Teacher newTeacher = Teacher.builder()
-                            .user(userWithTeacherRole)
-                            .courses(new ArrayList<>())
-                            .build();
-                    return teacherRepository.save(newTeacher);
-                });
+                .orElseGet(() -> teacherRepository.save(
+                        Teacher.builder()
+                                .user(userWithTeacherRole)
+                                .courses(new ArrayList<>())
+                                .build()
+                ));
+    }
+
+    private Course findOrCreateCourse(Teacher teacher) {
+        return courseRepository.findByTeacher(teacher).stream()
+                .filter(course -> COURSE_TITLE.equalsIgnoreCase(course.getTitle()))
+                .findFirst()
+                .orElseGet(() -> createCourse(teacher));
     }
 
     private Course createCourse(Teacher teacher) {
-        log.info("📚 Criando curso: Banco de Dados e SQL");
-
         Course course = Course.builder()
-                .title("Banco de Dados e SQL")
-                .description("Aprenda do zero sobre bancos de dados relacionais e a linguagem SQL. " +
-                        "Domine consultas, criação de tabelas, relacionamentos e muito mais.")
+                .title(COURSE_TITLE)
+                .description("Aprenda do zero sobre bancos de dados relacionais e a linguagem SQL. Domine consultas, criacao de tabelas e relacionamentos.")
+                .published(false)
                 .teacher(teacher)
                 .build();
 
         return courseRepository.save(course);
     }
 
-    private Module createModule(Course course) {
-        log.info("📦 Criando módulo: Fundamentos de SQL");
+    private Module findOrCreateModule(Course course) {
+        return moduleRepository.findByCourseId(course.getId()).stream()
+                .filter(module -> MODULE_TITLE.equalsIgnoreCase(module.getTitle()))
+                .findFirst()
+                .orElseGet(() -> createModule(course));
+    }
 
+    private Module createModule(Course course) {
         Module module = new Module();
-        module.setTitle("Fundamentos de SQL");
-        module.setDescription("Aprenda os conceitos básicos e fundamentais da linguagem SQL");
+        module.setTitle(MODULE_TITLE);
+        module.setDescription("Aprenda os conceitos basicos e fundamentais da linguagem SQL.");
         module.setOrderIndex(1);
         module.setCourse(course);
 
@@ -122,44 +131,37 @@ public class DatabaseCourseSeeder {
         createLesson5(module);
     }
 
-    // ==================== AULA 1 ====================
     private void createLesson1(Module module) {
-        log.info("📖 Criando Aula 1: Introdução a Bancos de Dados");
+        Lesson lesson = saveLesson(
+                module,
+                "Introducao a Bancos de Dados",
+                "Entenda o que sao bancos de dados e por que eles sao importantes.",
+                1,
+                15
+        );
 
-        Lesson lesson = Lesson.builder()
-                .title("Introdução a Bancos de Dados")
-                .description("Entenda o que são bancos de dados e por que eles são importantes")
-                .orderIndex(1)
-                .durationMinutes(15)
-                .module(module)
-                .build();
+        createVideo(lesson, "Introducao a Bancos de Dados", "https://www.youtube.com/watch?v=Ofktsne-utM");
+        createAttachment(
+                lesson,
+                "Slides - Introducao a BD.pdf",
+                "Slides da aula sobre conceitos basicos de bancos de dados.",
+                "https://drive.google.com/file/d/1ABC123/view"
+        );
+        createAttachment(
+                lesson,
+                "Artigo - Historia dos Bancos de Dados",
+                "Documento com a evolucao historica dos bancos de dados.",
+                "https://drive.google.com/file/d/1XYZ789/view"
+        );
 
-        lesson = lessonRepository.save(lesson);
-
-        // Vídeo
-        createVideo(lesson, "Introdução a Bancos de Dados",
-                "https://www.youtube.com/watch?v=Ofktsne-utM");
-
-        // Anexos
-        createAttachment(lesson, "Slides - Introdução a BD.pdf",
-                "Slides da aula sobre conceitos básicos de bancos de dados",
-                "https://drive.google.com/file/d/1ABC123/view", AttachmentType.LINK);
-
-        createAttachment(lesson, "Artigo - História dos Bancos de Dados",
-                "Documento com a evolução histórica dos bancos de dados",
-                "https://drive.google.com/file/d/1XYZ789/view", AttachmentType.LINK);
-
-        // Exercício
         createExercise1(lesson);
     }
 
     private void createExercise1(Lesson lesson) {
-        log.info("   📝 Criando exercício: Quiz - Introdução a BD");
-
-        Exercise exercise = Exercise.builder()
-                .title("Quiz - Introdução a Bancos de Dados")
-                .description("Teste seus conhecimentos sobre conceitos básicos")
-                .instructions("Responda às questões abaixo. Você tem 20 minutos.")
+        Exercise exercise = saveExercise(Exercise.builder()
+                .title("Quiz - Introducao a Bancos de Dados")
+                .description("Teste seus conhecimentos sobre conceitos basicos.")
+                .instructions("Responda as questoes abaixo. Voce tem 20 minutos.")
                 .lesson(lesson)
                 .totalPoints(100)
                 .passingScore(70)
@@ -173,9 +175,7 @@ public class DatabaseCourseSeeder {
                 .questionDisplayMode(QuestionDisplayMode.ALL_AT_ONCE)
                 .isActive(true)
                 .order(0)
-                .build();
-
-        exercise = exerciseRepository.save(exercise);
+                .build());
 
         createQuestion1_1(exercise);
         createQuestion1_2(exercise);
@@ -184,122 +184,114 @@ public class DatabaseCourseSeeder {
     }
 
     private void createQuestion1_1(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.MULTIPLE_CHOICE_SINGLE)
-                .questionText("O que é SQL?")
-                .points(25)
-                .explanation("SQL significa Structured Query Language")
-                .order(0)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.MULTIPLE_CHOICE_SINGLE,
+                "O que e SQL?",
+                "SQL significa Structured Query Language.",
+                25,
+                0
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "Um tipo de banco de dados NoSQL", false, 0));
-        options.add(createOption(question, "Uma linguagem de programação orientada a objetos", false, 1));
+        options.add(createOption(question, "Uma linguagem de programacao orientada a objetos", false, 1));
         options.add(createOption(question, "Uma linguagem para consultar bancos de dados relacionais", true, 2));
         options.add(createOption(question, "Um sistema gerenciador de banco de dados", false, 3));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion1_2(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.TRUE_FALSE)
-                .questionText("Bancos de dados NoSQL não permitem consultas SQL.")
-                .points(25)
-                .explanation("Falso. Alguns bancos NoSQL permitem consultas SQL.")
-                .order(1)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.TRUE_FALSE,
+                "Bancos de dados NoSQL nao permitem consultas SQL.",
+                "Falso. Alguns bancos NoSQL permitem consultas SQL.",
+                25,
+                1
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "Verdadeiro", false, 0));
         options.add(createOption(question, "Falso", true, 1));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion1_3(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.MULTIPLE_CHOICE_SINGLE)
-                .questionText("Qual é um SGBD relacional?")
-                .points(25)
-                .explanation("PostgreSQL é um SGBD relacional.")
-                .order(2)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.MULTIPLE_CHOICE_SINGLE,
+                "Qual e um SGBD relacional?",
+                "PostgreSQL e um SGBD relacional.",
+                25,
+                2
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "MongoDB", false, 0));
         options.add(createOption(question, "Redis", false, 1));
         options.add(createOption(question, "PostgreSQL", true, 2));
         options.add(createOption(question, "Cassandra", false, 3));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion1_4(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.MULTIPLE_CHOICE_MULTIPLE)
-                .questionText("Quais são componentes de uma tabela relacional?")
-                .points(25)
-                .explanation("Colunas e Linhas são componentes fundamentais.")
-                .order(3)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.MULTIPLE_CHOICE_MULTIPLE,
+                "Quais sao componentes de uma tabela relacional?",
+                "Colunas e linhas sao componentes fundamentais.",
+                25,
+                3
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "Colunas", true, 0));
         options.add(createOption(question, "Documentos", false, 1));
         options.add(createOption(question, "Linhas", true, 2));
         options.add(createOption(question, "Grafos", false, 3));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
-    // ==================== AULA 2 ====================
     private void createLesson2(Module module) {
-        log.info("📖 Criando Aula 2: SELECT - Consultando Dados");
+        Lesson lesson = saveLesson(
+                module,
+                "SELECT - Consultando Dados",
+                "Aprenda a fazer consultas em bancos de dados.",
+                2,
+                20
+        );
 
-        Lesson lesson = Lesson.builder()
-                .title("SELECT - Consultando Dados")
-                .description("Aprenda a fazer consultas em bancos de dados")
-                .orderIndex(2)
-                .durationMinutes(20)
-                .module(module)
-                .build();
-
-        lesson = lessonRepository.save(lesson);
-
-        createVideo(lesson, "SELECT - Como Consultar Dados",
-                "https://www.youtube.com/watch?v=EXAMPLE2");
-
-        createAttachment(lesson, "Cheat Sheet - SELECT.pdf",
-                "Guia rápido de comandos SELECT",
-                "https://drive.google.com/file/d/2ABC456/view", AttachmentType.FILE);
-
-        createAttachment(lesson, "Exemplos SELECT.sql",
-                "Arquivo com exemplos práticos",
-                "https://drive.google.com/file/d/2XYZ123/view", AttachmentType.LINK);
+        createVideo(lesson, "SELECT - Como Consultar Dados", "https://www.youtube.com/watch?v=EXAMPLE2");
+        createAttachment(
+                lesson,
+                "Cheat Sheet - SELECT.pdf",
+                "Guia rapido de comandos SELECT.",
+                "https://drive.google.com/file/d/2ABC456/view"
+        );
+        createAttachment(
+                lesson,
+                "Exemplos SELECT.sql",
+                "Arquivo com exemplos praticos.",
+                "https://drive.google.com/file/d/2XYZ123/view"
+        );
 
         createExercise2(lesson);
     }
 
     private void createExercise2(Lesson lesson) {
-        log.info("   📝 Criando exercício: Praticando SELECT");
-
-        Exercise exercise = Exercise.builder()
+        Exercise exercise = saveExercise(Exercise.builder()
                 .title("Praticando SELECT")
-                .description("Teste seus conhecimentos sobre SELECT")
-                .instructions("Responda às questões. Você tem 15 minutos.")
+                .description("Teste seus conhecimentos sobre SELECT.")
+                .instructions("Responda as questoes. Voce tem 15 minutos.")
                 .lesson(lesson)
                 .totalPoints(100)
                 .passingScore(70)
@@ -313,9 +305,7 @@ public class DatabaseCourseSeeder {
                 .questionDisplayMode(QuestionDisplayMode.ALL_AT_ONCE)
                 .isActive(true)
                 .order(0)
-                .build();
-
-        exercise = exerciseRepository.save(exercise);
+                .build());
 
         createQuestion2_1(exercise);
         createQuestion2_2(exercise);
@@ -324,111 +314,101 @@ public class DatabaseCourseSeeder {
     }
 
     private void createQuestion2_1(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.MULTIPLE_CHOICE_SINGLE)
-                .questionText("Qual comando consulta dados de uma tabela?")
-                .points(20)
-                .explanation("SELECT é o comando usado para consultar.")
-                .order(0)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.MULTIPLE_CHOICE_SINGLE,
+                "Qual comando consulta dados de uma tabela?",
+                "SELECT e o comando usado para consultar.",
+                20,
+                0
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "GET", false, 0));
         options.add(createOption(question, "SELECT", true, 1));
         options.add(createOption(question, "QUERY", false, 2));
         options.add(createOption(question, "FETCH", false, 3));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion2_2(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.MULTIPLE_CHOICE_SINGLE)
-                .questionText("Como selecionar TODAS as colunas de 'usuarios'?")
-                .points(20)
-                .explanation("O asterisco (*) seleciona todas as colunas.")
-                .order(1)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.MULTIPLE_CHOICE_SINGLE,
+                "Como selecionar todas as colunas de 'usuarios'?",
+                "O asterisco (*) seleciona todas as colunas.",
+                20,
+                1
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "SELECT ALL FROM usuarios;", false, 0));
         options.add(createOption(question, "SELECT * FROM usuarios;", true, 1));
         options.add(createOption(question, "GET * FROM usuarios;", false, 2));
         options.add(createOption(question, "FETCH ALL usuarios;", false, 3));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion2_3(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.TRUE_FALSE)
-                .questionText("SELECT nome, email FROM clientes retorna apenas essas colunas.")
-                .points(20)
-                .explanation("Verdadeiro. Apenas as colunas especificadas são retornadas.")
-                .order(2)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.TRUE_FALSE,
+                "SELECT nome, email FROM clientes retorna apenas essas colunas.",
+                "Verdadeiro. Apenas as colunas especificadas sao retornadas.",
+                20,
+                2
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "Verdadeiro", true, 0));
         options.add(createOption(question, "Falso", false, 1));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion2_4(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.ESSAY)
-                .questionText("Para que serve ORDER BY? Dê um exemplo.")
-                .points(40)
-                .explanation("ORDER BY ordena os resultados.")
-                .order(3)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.ESSAY,
+                "Para que serve ORDER BY? De um exemplo.",
+                "ORDER BY ordena os resultados.",
+                40,
+                3
+        );
 
-        questionRepository.save(question);
+        saveQuestion(question);
     }
 
-    // ==================== AULA 3 ====================
     private void createLesson3(Module module) {
-        log.info("📖 Criando Aula 3: WHERE - Filtrando Resultados");
+        Lesson lesson = saveLesson(
+                module,
+                "WHERE - Filtrando Resultados",
+                "Aprenda a filtrar dados com WHERE.",
+                3,
+                25
+        );
 
-        Lesson lesson = Lesson.builder()
-                .title("WHERE - Filtrando Resultados")
-                .description("Aprenda a filtrar dados com WHERE")
-                .orderIndex(3)
-                .durationMinutes(25)
-                .module(module)
-                .build();
-
-        lesson = lessonRepository.save(lesson);
-
-        createVideo(lesson, "WHERE - Filtrando com Precisão",
-                "https://www.youtube.com/watch?v=EXAMPLE3");
-
-        createAttachment(lesson, "Guia WHERE.pdf",
-                "Guia completo da cláusula WHERE",
-                "https://drive.google.com/file/d/3ABC789/view", AttachmentType.FILE);
+        createVideo(lesson, "WHERE - Filtrando com Precisao", "https://www.youtube.com/watch?v=EXAMPLE3");
+        createAttachment(
+                lesson,
+                "Guia WHERE.pdf",
+                "Guia completo da clausula WHERE.",
+                "https://drive.google.com/file/d/3ABC789/view"
+        );
 
         createExercise3(lesson);
     }
 
     private void createExercise3(Lesson lesson) {
-        log.info("   📝 Criando exercício: Dominando WHERE");
-
-        Exercise exercise = Exercise.builder()
+        Exercise exercise = saveExercise(Exercise.builder()
                 .title("Dominando WHERE")
-                .description("Pratique filtros SQL")
-                .instructions("Complete o quiz. Duração: 20 minutos.")
+                .description("Pratique filtros SQL.")
+                .instructions("Complete o quiz. Duracao: 20 minutos.")
                 .lesson(lesson)
                 .totalPoints(100)
                 .passingScore(70)
@@ -442,9 +422,7 @@ public class DatabaseCourseSeeder {
                 .questionDisplayMode(QuestionDisplayMode.ALL_AT_ONCE)
                 .isActive(true)
                 .order(0)
-                .build();
-
-        exercise = exerciseRepository.save(exercise);
+                .build());
 
         createQuestion3_1(exercise);
         createQuestion3_2(exercise);
@@ -452,96 +430,87 @@ public class DatabaseCourseSeeder {
     }
 
     private void createQuestion3_1(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.MULTIPLE_CHOICE_SINGLE)
-                .questionText("Qual operador busca padrões?")
-                .points(33)
-                .explanation("LIKE é usado para buscar padrões.")
-                .order(0)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.MULTIPLE_CHOICE_SINGLE,
+                "Qual operador busca padroes?",
+                "LIKE e usado para buscar padroes.",
+                33,
+                0
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "IN", false, 0));
         options.add(createOption(question, "LIKE", true, 1));
         options.add(createOption(question, "CONTAINS", false, 2));
         options.add(createOption(question, "MATCH", false, 3));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion3_2(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.MULTIPLE_CHOICE_MULTIPLE)
-                .questionText("Quais são operadores lógicos em SQL?")
-                .points(34)
-                .explanation("AND, OR e NOT são operadores lógicos.")
-                .order(1)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.MULTIPLE_CHOICE_MULTIPLE,
+                "Quais sao operadores logicos em SQL?",
+                "AND, OR e NOT sao operadores logicos.",
+                34,
+                1
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "AND", true, 0));
         options.add(createOption(question, "ALSO", false, 1));
         options.add(createOption(question, "OR", true, 2));
         options.add(createOption(question, "NOT", true, 3));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion3_3(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.TRUE_FALSE)
-                .questionText("WHERE preco > 100 AND categoria = 'Eletrônicos' retorna produtos eletrônicos caros.")
-                .points(33)
-                .explanation("Verdadeiro. AND exige ambas as condições.")
-                .order(2)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.TRUE_FALSE,
+                "WHERE preco > 100 AND categoria = 'Eletronicos' retorna produtos eletronicos caros.",
+                "Verdadeiro. AND exige ambas as condicoes.",
+                33,
+                2
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "Verdadeiro", true, 0));
         options.add(createOption(question, "Falso", false, 1));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
-    // ==================== AULA 4 ====================
     private void createLesson4(Module module) {
-        log.info("📖 Criando Aula 4: INSERT, UPDATE, DELETE");
+        Lesson lesson = saveLesson(
+                module,
+                "INSERT, UPDATE, DELETE",
+                "Aprenda a manipular dados.",
+                4,
+                30
+        );
 
-        Lesson lesson = Lesson.builder()
-                .title("INSERT, UPDATE, DELETE")
-                .description("Aprenda a manipular dados")
-                .orderIndex(4)
-                .durationMinutes(30)
-                .module(module)
-                .build();
-
-        lesson = lessonRepository.save(lesson);
-
-        createVideo(lesson, "Manipulando Dados - DML",
-                "https://www.youtube.com/watch?v=EXAMPLE4");
-
-        createAttachment(lesson, "Slides DML.pdf",
-                "Comandos de manipulação de dados",
-                "https://drive.google.com/file/d/4ABC321/view", AttachmentType.FILE);
+        createVideo(lesson, "Manipulando Dados - DML", "https://www.youtube.com/watch?v=EXAMPLE4");
+        createAttachment(
+                lesson,
+                "Slides DML.pdf",
+                "Comandos de manipulacao de dados.",
+                "https://drive.google.com/file/d/4ABC321/view"
+        );
 
         createExercise4(lesson);
     }
 
     private void createExercise4(Lesson lesson) {
-        log.info("   📝 Criando exercício: DML na Prática");
-
-        Exercise exercise = Exercise.builder()
-                .title("DML na Prática")
-                .description("Teste manipulação de dados")
+        Exercise exercise = saveExercise(Exercise.builder()
+                .title("DML na Pratica")
+                .description("Teste manipulacao de dados.")
                 .instructions("Responda sobre INSERT, UPDATE e DELETE.")
                 .lesson(lesson)
                 .totalPoints(100)
@@ -556,9 +525,7 @@ public class DatabaseCourseSeeder {
                 .questionDisplayMode(QuestionDisplayMode.ALL_AT_ONCE)
                 .isActive(true)
                 .order(0)
-                .build();
-
-        exercise = exerciseRepository.save(exercise);
+                .build());
 
         createQuestion4_1(exercise);
         createQuestion4_2(exercise);
@@ -566,100 +533,89 @@ public class DatabaseCourseSeeder {
     }
 
     private void createQuestion4_1(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.MULTIPLE_CHOICE_SINGLE)
-                .questionText("Comando para adicionar registro?")
-                .points(30)
-                .explanation("INSERT INTO adiciona registros.")
-                .order(0)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.MULTIPLE_CHOICE_SINGLE,
+                "Comando para adicionar registro?",
+                "INSERT INTO adiciona registros.",
+                30,
+                0
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "ADD", false, 0));
         options.add(createOption(question, "INSERT INTO", true, 1));
         options.add(createOption(question, "CREATE", false, 2));
         options.add(createOption(question, "NEW", false, 3));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion4_2(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.MULTIPLE_CHOICE_SINGLE)
-                .questionText("Comando para atualizar registros?")
-                .points(30)
-                .explanation("UPDATE modifica registros.")
-                .order(1)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.MULTIPLE_CHOICE_SINGLE,
+                "Comando para atualizar registros?",
+                "UPDATE modifica registros.",
+                30,
+                1
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "MODIFY", false, 0));
         options.add(createOption(question, "CHANGE", false, 1));
         options.add(createOption(question, "UPDATE", true, 2));
         options.add(createOption(question, "EDIT", false, 3));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion4_3(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.TRUE_FALSE)
-                .questionText("É importante SEMPRE usar WHERE em UPDATE e DELETE.")
-                .points(40)
-                .explanation("Verdadeiro. Sem WHERE, afeta TODOS os registros!")
-                .order(2)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.TRUE_FALSE,
+                "E importante sempre usar WHERE em UPDATE e DELETE.",
+                "Verdadeiro. Sem WHERE, afeta todos os registros.",
+                40,
+                2
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "Verdadeiro", true, 0));
         options.add(createOption(question, "Falso", false, 1));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
-    // ==================== AULA 5 ====================
     private void createLesson5(Module module) {
-        log.info("📖 Criando Aula 5: JOINs");
+        Lesson lesson = saveLesson(
+                module,
+                "JOINs - Relacionamentos",
+                "Combine dados de multiplas tabelas.",
+                5,
+                35
+        );
 
-        Lesson lesson = Lesson.builder()
-                .title("JOINs - Relacionamentos")
-                .description("Combine dados de múltiplas tabelas")
-                .orderIndex(5)
-                .durationMinutes(35)
-                .module(module)
-                .build();
-
-        lesson = lessonRepository.save(lesson);
-
-        createVideo(lesson, "Entendendo JOINs",
-                "https://www.youtube.com/watch?v=EXAMPLE5");
-
-        createVideo(lesson, "JOINs na Prática",
-                "https://www.youtube.com/watch?v=EXAMPLE5B");
-
-        createAttachment(lesson, "Infográfico JOINs.pdf",
-                "Visual dos tipos de JOINs",
-                "https://drive.google.com/file/d/5ABC987/view", AttachmentType.LINK);
+        createVideo(lesson, "Entendendo JOINs", "https://www.youtube.com/watch?v=EXAMPLE5");
+        createVideo(lesson, "JOINs na Pratica", "https://www.youtube.com/watch?v=EXAMPLE5B");
+        createAttachment(
+                lesson,
+                "Infografico JOINs.pdf",
+                "Visual dos tipos de JOINs.",
+                "https://drive.google.com/file/d/5ABC987/view"
+        );
 
         createExercise5(lesson);
     }
 
     private void createExercise5(Lesson lesson) {
-        log.info("   📝 Criando exercício: Desafio JOINs");
-
-        Exercise exercise = Exercise.builder()
+        Exercise exercise = saveExercise(Exercise.builder()
                 .title("Desafio JOINs")
-                .description("Teste domínio sobre JOINs")
-                .instructions("Exercício avançado. Tempo: 30 minutos.")
+                .description("Teste dominio sobre JOINs.")
+                .instructions("Exercicio avancado. Tempo: 30 minutos.")
                 .lesson(lesson)
                 .totalPoints(150)
                 .passingScore(75)
@@ -675,9 +631,7 @@ public class DatabaseCourseSeeder {
                 .order(0)
                 .availableFrom(LocalDateTime.now())
                 .availableUntil(LocalDateTime.now().plusDays(30))
-                .build();
-
-        exercise = exerciseRepository.save(exercise);
+                .build());
 
         createQuestion5_1(exercise);
         createQuestion5_2(exercise);
@@ -686,83 +640,127 @@ public class DatabaseCourseSeeder {
     }
 
     private void createQuestion5_1(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.MULTIPLE_CHOICE_SINGLE)
-                .questionText("JOIN que retorna apenas registros em AMBAS as tabelas?")
-                .points(30)
-                .explanation("INNER JOIN retorna apenas correspondências.")
-                .order(0)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.MULTIPLE_CHOICE_SINGLE,
+                "JOIN que retorna apenas registros em ambas as tabelas?",
+                "INNER JOIN retorna apenas correspondencias.",
+                30,
+                0
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "LEFT JOIN", false, 0));
         options.add(createOption(question, "RIGHT JOIN", false, 1));
         options.add(createOption(question, "INNER JOIN", true, 2));
         options.add(createOption(question, "FULL OUTER JOIN", false, 3));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion5_2(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.MULTIPLE_CHOICE_SINGLE)
-                .questionText("JOIN que retorna TODOS da esquerda?")
-                .points(30)
-                .explanation("LEFT JOIN retorna todos da esquerda.")
-                .order(1)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.MULTIPLE_CHOICE_SINGLE,
+                "JOIN que retorna todos da esquerda?",
+                "LEFT JOIN retorna todos da esquerda.",
+                30,
+                1
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "LEFT JOIN", true, 0));
         options.add(createOption(question, "RIGHT JOIN", false, 1));
         options.add(createOption(question, "INNER JOIN", false, 2));
         options.add(createOption(question, "CROSS JOIN", false, 3));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion5_3(Exercise exercise) {
-        Question question = Question.builder()
-                .exercise(exercise)
-                .type(QuestionType.TRUE_FALSE)
-                .questionText("RIGHT JOIN = LEFT JOIN trocando ordem?")
-                .points(30)
-                .explanation("Verdadeiro. A RIGHT JOIN B = B LEFT JOIN A.")
-                .order(2)
-                .isRequired(true)
-                .build();
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.TRUE_FALSE,
+                "RIGHT JOIN equivale a LEFT JOIN trocando a ordem?",
+                "Verdadeiro. A RIGHT JOIN B equivale a B LEFT JOIN A.",
+                30,
+                2
+        );
 
         List<QuestionOption> options = new ArrayList<>();
         options.add(createOption(question, "Verdadeiro", true, 0));
         options.add(createOption(question, "Falso", false, 1));
-
         question.setOptions(options);
-        questionRepository.save(question);
+
+        saveQuestion(question);
     }
 
     private void createQuestion5_4(Exercise exercise) {
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.ESSAY,
+                "Explique a diferenca entre INNER JOIN e LEFT JOIN com exemplos.",
+                "INNER retorna apenas combinacoes existentes. LEFT preserva todos os registros da esquerda.",
+                60,
+                3
+        );
+
+        saveQuestion(question);
+    }
+
+    private Lesson saveLesson(Module module, String title, String description, int orderIndex, int durationMinutes) {
+        Lesson lesson = Lesson.builder()
+                .title(title)
+                .description(description)
+                .orderIndex(orderIndex)
+                .durationMinutes(durationMinutes)
+                .module(module)
+                .build();
+
+        return lessonRepository.save(lesson);
+    }
+
+    private Exercise saveExercise(Exercise exercise) {
+        return exerciseRepository.save(exercise);
+    }
+
+    private Question baseQuestion(
+            Exercise exercise,
+            QuestionType type,
+            String questionText,
+            String explanation,
+            int points,
+            int order
+    ) {
         Question question = Question.builder()
                 .exercise(exercise)
-                .type(QuestionType.ESSAY)
-                .questionText("Explique a diferença entre INNER JOIN e LEFT JOIN com exemplos.")
-                .points(60)
-                .explanation("INNER: apenas com correspondência. LEFT: todos da esquerda.")
-                .order(3)
+                .type(type)
+                .questionText(questionText)
+                .explanation(explanation)
+                .points(points)
+                .order(order)
                 .isRequired(true)
                 .build();
+
+        question.setOptions(new ArrayList<>());
+        question.setAnswers(new ArrayList<>());
+        return question;
+    }
+
+    private void saveQuestion(Question question) {
+        if (question.getOptions() == null) {
+            question.setOptions(new ArrayList<>());
+        }
+        if (question.getAnswers() == null) {
+            question.setAnswers(new ArrayList<>());
+        }
 
         questionRepository.save(question);
     }
 
-    // ==================== HELPERS ====================
-
-    private Video createVideo(Lesson lesson, String title, String url) {
+    private void createVideo(Lesson lesson, String title, String url) {
         Video video = Video.builder()
                 .title(title)
                 .url(url)
@@ -770,24 +768,28 @@ public class DatabaseCourseSeeder {
                 .lesson(lesson)
                 .build();
 
-        return videoRepository.save(video);
+        videoRepository.save(video);
     }
 
-    private Attachment createAttachment(Lesson lesson, String title, String description,
-                                        String fileUrl, AttachmentType type) {
+    private void createAttachment(
+            Lesson lesson,
+            String title,
+            String description,
+            String fileUrl
+    ) {
         Attachment attachment = Attachment.builder()
                 .title(title)
                 .description(description)
+                .fileName(title)
                 .fileUrl(fileUrl)
-                .type(type)
+                .type(AttachmentType.LINK)
                 .lesson(lesson)
                 .build();
 
-        return attachmentRepository.save(attachment);
+        attachmentRepository.save(attachment);
     }
 
-    private QuestionOption createOption(Question question, String text,
-                                        boolean isCorrect, int orderIndex) {
+    private QuestionOption createOption(Question question, String text, boolean isCorrect, int orderIndex) {
         return QuestionOption.builder()
                 .question(question)
                 .optionText(text)

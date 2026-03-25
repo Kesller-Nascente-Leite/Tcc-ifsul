@@ -29,5 +29,5 @@ public class Student extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "course_id")
     )
     @Builder.Default
-    private List<Course> courses =  new ArrayList<>();
+    private List<Course> courses = new ArrayList<>();
 }

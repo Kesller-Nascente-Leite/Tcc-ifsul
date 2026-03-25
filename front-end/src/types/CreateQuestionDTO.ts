@@ -1,4 +1,4 @@
-import type { CreateQuestionOptionDTO } from "./CreateQuestionOptionDTO";
+﻿import type { CreateQuestionOptionDTO } from "./CreateQuestionOptionDTO";
 import type { QuestionConfigDTO } from "./QuestionConfigDTO";
 import type { QuestionType } from "./QuestionType";
 
@@ -12,6 +12,5 @@ export interface CreateQuestionDTO {
   order?: number;
   isRequired?: boolean;
   config?: QuestionConfigDTO;
-  orderIndex: number;
   options: CreateQuestionOptionDTO[];
 }

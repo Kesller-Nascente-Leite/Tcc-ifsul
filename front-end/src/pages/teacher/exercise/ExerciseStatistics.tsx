@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+﻿/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import {
@@ -60,8 +60,8 @@ export function ExerciseStatistics() {
       setStatistics(statsResponse.data);
       setAttempts(attemptsResponse.data || []);
     } catch (error) {
-      console.error("Erro ao carregar estatísticas:", error);
-      showNotification("error", "Erro ao carregar estatísticas");
+      console.error("Erro ao carregar estatÃ­sticas:", error);
+      showNotification("error", "Erro ao carregar estatÃ­sticas");
     } finally {
       setIsLoading(false);
     }
@@ -87,14 +87,14 @@ export function ExerciseStatistics() {
   };
 
   if (isLoading) {
-    return <LoadingSkeleton accentColor={accentColor} />;
+    return <LoadingSkeleton />;
   }
 
   if (!statistics) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p style={{ color: "var(--color-text-secondary)" }}>
-          Erro ao carregar estatísticas
+          Erro ao carregar estatÃ­sticas
         </p>
       </div>
     );
@@ -126,7 +126,7 @@ export function ExerciseStatistics() {
             style={{ color: "var(--color-text-secondary)" }}
           >
             <ArrowLeft size={18} />
-            <span className="text-sm font-medium">Voltar para Exercícios</span>
+            <span className="text-sm font-medium">Voltar para ExercÃ­cios</span>
           </button>
 
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
@@ -135,7 +135,7 @@ export function ExerciseStatistics() {
                 className="text-2xl sm:text-3xl font-bold mb-1"
                 style={{ color: "var(--color-text-primary)" }}
               >
-                Estatísticas do Exercício
+                EstatÃ­sticas do ExercÃ­cio
               </h1>
               <p
                 className="text-sm sm:text-base"
@@ -166,7 +166,7 @@ export function ExerciseStatistics() {
               active={selectedTab === "overview"}
               onClick={() => setSelectedTab("overview")}
               icon={<BarChart3 size={18} />}
-              label="Visão Geral"
+              label="VisÃ£o Geral"
               accentColor={accentColor}
             />
             <TabButton
@@ -180,7 +180,7 @@ export function ExerciseStatistics() {
               active={selectedTab === "questions"}
               onClick={() => setSelectedTab("questions")}
               icon={<MessageSquare size={18} />}
-              label="Questões"
+              label="QuestÃµes"
               accentColor={accentColor}
             />
           </div>
@@ -242,3 +242,4 @@ function TabButton({
     </button>
   );
 }
+
