@@ -1,4 +1,4 @@
-package com.meutcc.backend.auth.service;
+package com.meutcc.backend.user.auth.service;
 
 import com.meutcc.backend.user.User;
 import io.jsonwebtoken.Jwts;

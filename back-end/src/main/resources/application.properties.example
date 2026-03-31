@@ -1,0 +1,46 @@
+# =========================================================
+# EXEMPLO DE CONFIGURAÇÃO PERSONALIZADA
+# =========================================================
+# Copie este arquivo para application-<perfil>.properties
+# Exemplo: application-prod.properties para produção
+#
+# Depois execute com:
+# java -Dspring.profiles.active=<perfil> -jar app.jar
+#
+# Perfis disponíveis:
+# - dev (desenvolvimento local)
+# - prod (produção)
+# - test (testes)
+
+# =========================================================
+# CONFIGURAÇÃO DE BANCO DE DADOS PERSONALIZADAS
+# =========================================================
+
+# Para um host remoto:
+# spring.datasource.url=jdbc:postgresql://seu-host.com:5432/tcc
+# spring.datasource.username=seu_usuario
+# spring.datasource.password=sua_senha_segura
+
+# Para usar variáveis de ambiente (recomendado para produção):
+# spring.datasource.url=${DATABASE_URL}
+# spring.datasource.username=${DATABASE_USER}
+# spring.datasource.password=${DATABASE_PASSWORD}
+
+# =========================================================
+# OUTRAS CONFIGURAÇÕES
+# =========================================================
+
+# Altere a porta se necessário
+# server.port=8081
+
+# Configure timezone diferente se necessário
+# spring.jackson.time-zone=UTC
+
+# Ative/desative migração Flyway
+# spring.flyway.enabled=false
+
+# Configure pool de conexões
+# spring.datasource.hikari.maximum-pool-size=10
+# spring.datasource.hikari.minimum-idle=5
+# spring.datasource.hikari.connection-timeout=20000
+

@@ -1,4 +1,4 @@
-package com.meutcc.backend.auth.dto;
+package com.meutcc.backend.user.auth.dto;
 
 
 public record UserDTO(

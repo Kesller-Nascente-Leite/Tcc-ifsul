@@ -4,7 +4,7 @@ import com.meutcc.backend.content.module.Module;
 import com.meutcc.backend.content.module.ModuleRepository;
 import com.meutcc.backend.content.video.VideoMapper;
 import com.meutcc.backend.content.video.VideoRepository;
-import com.meutcc.backend.security.SecurityService;
+import com.meutcc.backend.user.security.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

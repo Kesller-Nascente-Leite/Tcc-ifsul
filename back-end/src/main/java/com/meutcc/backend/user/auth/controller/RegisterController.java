@@ -1,8 +1,8 @@
-package com.meutcc.backend.auth.controller;
+package com.meutcc.backend.user.auth.controller;
 
-import com.meutcc.backend.auth.dto.ApiResponse;
-import com.meutcc.backend.auth.dto.RegisterRequest;
-import com.meutcc.backend.auth.service.AuthService;
+import com.meutcc.backend.user.auth.dto.ApiResponse;
+import com.meutcc.backend.user.auth.dto.RegisterRequest;
+import com.meutcc.backend.user.auth.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

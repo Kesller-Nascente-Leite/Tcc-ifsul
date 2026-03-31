@@ -1,4 +1,4 @@
-package com.meutcc.backend.security;
+package com.meutcc.backend.user.security;
 
 import com.meutcc.backend.content.courses.Course;
 import com.meutcc.backend.teacher.Teacher;

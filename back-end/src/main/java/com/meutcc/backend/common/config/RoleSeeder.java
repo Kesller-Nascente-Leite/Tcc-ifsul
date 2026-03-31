@@ -1,8 +1,8 @@
 package com.meutcc.backend.common.config;
 
 
-import com.meutcc.backend.role.RoleRepository;
-import com.meutcc.backend.role.Roles;
+import com.meutcc.backend.user.role.RoleRepository;
+import com.meutcc.backend.user.role.Roles;
 import lombok.AllArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

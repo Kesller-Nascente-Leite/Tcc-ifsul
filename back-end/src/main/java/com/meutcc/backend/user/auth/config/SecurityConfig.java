@@ -1,4 +1,4 @@
-package com.meutcc.backend.auth.config;
+package com.meutcc.backend.user.auth.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

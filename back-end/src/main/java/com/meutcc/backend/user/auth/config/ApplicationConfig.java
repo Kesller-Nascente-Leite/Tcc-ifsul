@@ -1,4 +1,4 @@
-package com.meutcc.backend.auth.config;
+package com.meutcc.backend.user.auth.config;
 
 import com.meutcc.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
 package com.meutcc.backend.content.courses;
 
-import com.meutcc.backend.security.AuthenticationService;
-import com.meutcc.backend.security.SecurityService;
+import com.meutcc.backend.user.security.AuthenticationService;
+import com.meutcc.backend.user.security.SecurityService;
 import com.meutcc.backend.teacher.Teacher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

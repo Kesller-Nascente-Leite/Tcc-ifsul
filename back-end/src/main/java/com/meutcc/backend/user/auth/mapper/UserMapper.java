@@ -1,7 +1,7 @@
-package com.meutcc.backend.auth.mapper;
+package com.meutcc.backend.user.auth.mapper;
 
-import com.meutcc.backend.auth.dto.RegisterRequest;
-import com.meutcc.backend.auth.dto.UserDTO;
+import com.meutcc.backend.user.auth.dto.RegisterRequest;
+import com.meutcc.backend.user.auth.dto.UserDTO;
 import com.meutcc.backend.user.User;
 import org.springframework.stereotype.Component;
 

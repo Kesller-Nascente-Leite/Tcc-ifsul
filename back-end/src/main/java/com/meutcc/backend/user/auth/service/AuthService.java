@@ -1,11 +1,11 @@
-package com.meutcc.backend.auth.service;
+package com.meutcc.backend.user.auth.service;
 
-import com.meutcc.backend.auth.dto.*;
-import com.meutcc.backend.auth.mapper.UserMapper;
+import com.meutcc.backend.user.auth.dto.*;
+import com.meutcc.backend.user.auth.mapper.UserMapper;
 import com.meutcc.backend.common.exceptions.UserAlreadyExistException;
 import com.meutcc.backend.common.security.RoleIds;
-import com.meutcc.backend.role.RoleRepository;
-import com.meutcc.backend.role.Roles;
+import com.meutcc.backend.user.role.RoleRepository;
+import com.meutcc.backend.user.role.Roles;
 import com.meutcc.backend.student.Student;
 import com.meutcc.backend.student.StudentRepository;
 import com.meutcc.backend.user.User;

@@ -1,8 +1,8 @@
 package com.meutcc.backend.common.config;
 
 import com.meutcc.backend.content.courses.CourseRepository;
-import com.meutcc.backend.role.RoleRepository;
-import com.meutcc.backend.role.Roles;
+import com.meutcc.backend.user.role.RoleRepository;
+import com.meutcc.backend.user.role.Roles;
 import com.meutcc.backend.teacher.Teacher;
 import com.meutcc.backend.teacher.TeacherRepository;
 import com.meutcc.backend.user.User;

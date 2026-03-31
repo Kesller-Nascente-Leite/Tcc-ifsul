@@ -1,4 +1,4 @@
-package com.meutcc.backend.auth.config;
+package com.meutcc.backend.user.auth.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

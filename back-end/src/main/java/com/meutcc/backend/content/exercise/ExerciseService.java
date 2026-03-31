@@ -9,7 +9,7 @@ import com.meutcc.backend.content.question.Question;
 import com.meutcc.backend.content.question.QuestionException;
 import com.meutcc.backend.content.question.QuestionMapper;
 import com.meutcc.backend.content.question.QuestionOption;
-import com.meutcc.backend.security.SecurityService;
+import com.meutcc.backend.user.security.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

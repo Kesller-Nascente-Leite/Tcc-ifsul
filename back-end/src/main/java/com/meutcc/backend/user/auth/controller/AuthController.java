@@ -1,7 +1,7 @@
-package com.meutcc.backend.auth.controller;
+package com.meutcc.backend.user.auth.controller;
 
-import com.meutcc.backend.auth.dto.LoginResponse;
-import com.meutcc.backend.auth.service.AuthService;
+import com.meutcc.backend.user.auth.dto.LoginResponse;
+import com.meutcc.backend.user.auth.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

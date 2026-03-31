@@ -3,7 +3,7 @@ package com.meutcc.backend.content.video;
 import com.meutcc.backend.content.lesson.Lesson;
 import com.meutcc.backend.content.lesson.LessonException;
 import com.meutcc.backend.content.lesson.LessonRepository;
-import com.meutcc.backend.security.SecurityService;
+import com.meutcc.backend.user.security.SecurityService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
