@@ -12,8 +12,12 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("access_token");
 
-    // Adiciona token em todas as requisições, exceto /auth
-    if (token && config.url && !config.url.includes("/auth/")) {
+    const publicRoutes = ["/auth/login", "/auth/register"];
+    const isPublicRoute = publicRoutes.some((route) =>
+      config.url?.includes(route),
+    );
+
+    if (token && !isPublicRoute) {
       config.headers = config.headers ?? {};
       config.headers.Authorization = `Bearer ${token}`;
     }
