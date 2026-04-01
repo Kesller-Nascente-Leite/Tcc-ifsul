@@ -1,48 +1,34 @@
 package com.meutcc.backend.user.auth.service;
 
 import com.meutcc.backend.user.User;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKey;
-import java.util.Date;
+import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class JwtService {
 
-    @Value("${api.security.token.secret}")
-    private String base64Secret;
-
-    @Value("${api.security.token.expiration}")
-    private long jwtExpiration;
-
-    private SecretKey getSigningKey() {
-        byte[] keyBytes = java.util.Base64.getDecoder().decode(base64Secret);
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
-
-    public String generateToken(Map<String, Object> extraClaims, String subject) {
-        return Jwts.builder()
-                .setClaims(extraClaims)
-                .setSubject(subject)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
-                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
-                .compact();
-    }
+    @Autowired
+    private JwtEncoder jwtEncoder;
 
     public String generateTokenForUser(User user) {
-        Map<String, Object> claims = Map.of(
-                "userId", user.getId(),
-                "authorities", List.of(user.getRole().getName()),
-                "fullName", user.getFullName(),
-                "email", user.getEmail()
-        );
-        return generateToken(claims, user.getEmail());
+        Instant now = Instant.now();
+        long expiresIn = 86400L; // 24 hours, adjust as needed
+
+        JwtClaimsSet claimsSet = JwtClaimsSet.builder()
+                .issuer("self")
+                .issuedAt(now)
+                .expiresAt(now.plusSeconds(expiresIn))
+                .subject(user.getEmail())
+                .claim("userId", user.getId())
+                .claim("authorities", List.of(user.getRole().getName()))
+                .claim("fullName", user.getFullName())
+                .claim("email", user.getEmail())
+                .build();
+
+        return jwtEncoder.encode(JwtEncoderParameters.from(claimsSet)).getTokenValue();
     }
 }

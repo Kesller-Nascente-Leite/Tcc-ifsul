@@ -35,11 +35,9 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
-    @Autowired
-    private JwtDecoder jwtDecoder;
+    private final JwtDecoder jwtDecoder;
 
-    @Autowired
-    private JwtEncoder jwtEncoder;
+    private final JwtEncoder jwtEncoder;
 
 
     public ApiResponse register(RegisterRequest dto) {
@@ -66,6 +64,7 @@ public class AuthService {
     }
 
     public LoginResponse login(LoginRequest dto) {
+
         authenticationManager.authenticate(
                 //isso valida as crendenciais
                 new UsernamePasswordAuthenticationToken(dto.email(), dto.password())

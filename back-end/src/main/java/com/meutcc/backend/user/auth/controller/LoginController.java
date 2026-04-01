@@ -16,9 +16,11 @@ public class LoginController {
     private final AuthService authService;
 
     @PostMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest data) {
-        LoginResponse response = authService.login(data);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+    public LoginResponse login(@Valid @RequestBody LoginRequest data) {
+        System.out.println("EMAIL: " + data.email());
+        System.out.println("PASSWORD: " + data.password());
+        return authService.login(data);
     }
 }

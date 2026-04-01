@@ -4,25 +4,24 @@ import com.meutcc.backend.user.role.RoleRepository;
 import com.meutcc.backend.user.role.Roles;
 import com.meutcc.backend.user.User;
 import com.meutcc.backend.user.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 @Profile("!prod")
+@Order(5)
 public class DatabaseSeeder implements CommandLineRunner {
 
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${SEED_ADMIN_PASSWORD:admin123}")
     private String adminPassword;
@@ -41,7 +40,8 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private void seedRoles() {
-        if (roleRepository.count() == 0) {roleRepository.save(new Roles((byte) 1, "ADMIN"));
+        if (roleRepository.count() == 0) {
+            roleRepository.save(new Roles((byte) 1, "ADMIN"));
             roleRepository.save(new Roles((byte) 2, "TEACHER"));
             roleRepository.save(new Roles((byte) 3, "STUDENT"));
             System.out.println("✅ Roles seeded");

@@ -12,6 +12,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,7 +23,7 @@ public class TeacherSeeder implements ApplicationRunner {
     private TeacherRepository teacherRepository;
     private UserRepository userRepository;
     private RoleRepository roleRepository;
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private PasswordEncoder passwordEncoder;
     private CourseRepository courseRepository;
 
     public void run(ApplicationArguments args) {
@@ -38,7 +39,7 @@ public class TeacherSeeder implements ApplicationRunner {
                 User teacherUser = new User();
                 teacherUser.setFullName("Professor Padrão");
                 teacherUser.setEmail("teacher@example.com");
-                teacherUser.setPassword(bCryptPasswordEncoder.encode("password"));
+                teacherUser.setPassword(passwordEncoder.encode("password"));
                 teacherUser.setAvatarUrl(null);
                 teacherUser.setRole(teacherRole);
 

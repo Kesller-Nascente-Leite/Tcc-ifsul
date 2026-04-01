@@ -55,13 +55,12 @@ export function Login() {
     if (!validate()) return;
     setIsLoading(true);
     setGeneralErro("");
-
     try {
       const payload = {
         password: formData.password,
         email: formData.email,
       };
-
+      
       const responseData = await AuthService.login(payload);
 
       const userRole = responseData.user.role;

@@ -17,7 +17,6 @@ export function useTokenValidation() {
         const lastValidation = localStorage.getItem("last_token_validation");
         const now = Date.now();
 
-        // Valida a cada 15 minutos
         if (lastValidation && now - parseInt(lastValidation) < 15 * 60 * 1000) {
           return;
         }
@@ -35,7 +34,6 @@ export function useTokenValidation() {
       }
     };
 
-    // assim que eu terminar o back-end vou colocar para funcionar a validação do token, por enquanto só tem o refresh token
     validateToken();
 
     const interval = setInterval(validateToken, 15 * 60 * 1000);
