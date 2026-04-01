@@ -1,4 +1,4 @@
-import { useEffect, useState} from 'react';
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import {
   Plus,
@@ -8,6 +8,8 @@ import {
   List,
   CheckCircle,
   PlayCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { ButtonComponent } from "@/shared/components/ui/ButtonComponent";
 import { InputComponent } from "@/shared/components/ui/InputComponent";
@@ -38,6 +40,14 @@ export function TeacherModules() {
   const [isLoadingCourses, setIsLoadingCourses] = useState(true);
   const [isLoadingModules, setIsLoadingModules] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const COURSES_PER_PAGE = 6;
+  const totalPages = Math.max(1, Math.ceil(courses.length / COURSES_PER_PAGE));
+  const displayedCourses = courses.slice(
+    (currentPage - 1) * COURSES_PER_PAGE,
+    currentPage * COURSES_PER_PAGE,
+  );
 
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";
@@ -70,6 +80,16 @@ export function TeacherModules() {
       setIsLoadingCourses(false);
     }
   };
+
+  useEffect(() => {
+    const newTotalPages = Math.max(
+      1,
+      Math.ceil(courses.length / COURSES_PER_PAGE),
+    );
+    if (currentPage > newTotalPages) {
+      setCurrentPage(newTotalPages);
+    }
+  }, [courses, currentPage]);
 
   const loadModules = async (courseId: number) => {
     try {
@@ -246,33 +266,59 @@ export function TeacherModules() {
             </ButtonComponent>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {courses.map((course) => (
-              <Button
-                key={course.id}
-                onClick={() => setSelectedCourse(course)}
-                className={`p-4 rounded-xl border text-left transition-all outline-none ${
-                  selectedCourse?.id === course.id
-                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
-                    : "border-border hover:border-primary/50 hover:shadow-md"
-                }`}
-              >
-                <h4 className="font-bold text-text-primary mb-1 wrap-break-word">
-                  {course.title}
-                </h4>
-                <p className="text-xs text-text-secondary line-clamp-2">
-                  {course.description}
-                </p>
-                {selectedCourse?.id === course.id && (
-                  <div className="flex items-center gap-1 mt-2">
-                    <CheckCircle size={14} className="text-primary" />
-                    <span className="text-xs font-medium text-primary">
-                      Selecionado
-                    </span>
-                  </div>
-                )}
-              </Button>
-            ))}
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {displayedCourses.map((course) => (
+                <Button
+                  key={course.id}
+                  onClick={() => setSelectedCourse(course)}
+                  className={`p-4 rounded-xl border text-left transition-all outline-none ${
+                    selectedCourse?.id === course.id
+                      ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                      : "border-border hover:border-primary/50 hover:shadow-md"
+                  }`}
+                >
+                  <h4 className="font-bold text-text-primary mb-1 wrap-break-word">
+                    {course.title}
+                  </h4>
+                  <p className="text-xs text-text-secondary line-clamp-2">
+                    {course.description}
+                  </p>
+                  {selectedCourse?.id === course.id && (
+                    <div className="flex items-center gap-1 mt-2">
+                      <CheckCircle size={14} className="text-primary" />
+                      <span className="text-xs font-medium text-primary">
+                        Selecionado
+                      </span>
+                    </div>
+                  )}
+                </Button>
+              ))}
+            </div>
+
+            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border">
+              <span className="text-sm text-text-secondary font-medium">
+                Página {currentPage} de {totalPages}
+              </span>
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
+                <Button
+                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  isDisabled={currentPage === 1}
+                  className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
+                  aria-label="Página Anterior"
+                >
+                  <ChevronLeft size={18} />
+                </Button>
+                <Button
+                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  isDisabled={currentPage === totalPages}
+                  className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
+                  aria-label="Próxima Página"
+                >
+                  <ChevronRight size={18} />
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </section>
