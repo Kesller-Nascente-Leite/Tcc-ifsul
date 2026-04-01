@@ -21,6 +21,7 @@ import {
   useConfirmDialog,
 } from "@/shared/components/ui/ConfirmDialog";
 import type { CourseDTO } from "@/shared/types/CourseDTO";
+import { Button, Header, Label, TextArea } from "react-aria-components";
 
 export function TeacherCourse() {
   const { accentColor, isDark } = useTheme();
@@ -65,18 +66,47 @@ export function TeacherCourse() {
     setTimeout(() => setNotification(null), 3000);
   };
 
-  const saveCourse = async () => {
-    if (!title.trim()) {
+  const isCourseDataValid = (): boolean => {
+    const trimmendTitle = title.trim();
+    const trimmendDescription = description.trim();
+    let thereIsNoError: boolean = true;
+    if (!trimmendTitle) {
       showNotification("error", "O título é obrigatório");
-      return;
+      return (thereIsNoError = false);
     }
 
-    if (!description.trim()) {
+    if (trimmendTitle.length < 3) {
+      showNotification("error", "O título deve conter pelo menos 3 caracteres");
+      return (thereIsNoError = false);
+    }
+    if (trimmendTitle.length > 255) {
+      showNotification(
+        "error",
+        "O título deve conter menos do que 255 caracteres",
+      );
+      return (thereIsNoError = false);
+    }
+    if (!trimmendDescription) {
       showNotification("error", "A descrição é obrigatória");
+      return (thereIsNoError = false);
+    }
+    if (trimmendDescription.length < 10) {
+      showNotification(
+        "error",
+        "A descrição deve conter pelo menos 10 caracteres",
+      );
+      return (thereIsNoError = false);
+    }
+    return thereIsNoError;
+  };
+
+  const saveCourse = async () => {
+    if (!isCourseDataValid()) return;
+    const userRaw = localStorage.getItem("user");
+    if (!userRaw) {
+      showNotification("error", "Sessão expirada. Faça login novamente.");
       return;
     }
-
-    const userRaw = localStorage.getItem("user");
     let teacherId: number | undefined;
     let teacherName = "";
 
@@ -192,24 +222,17 @@ export function TeacherCourse() {
     }
   }, [courses.length, currentPage, totalPages]);
 
-return (
+  return (
     <div className="space-y-6">
       {/* Header Responsivo */}
-      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <Header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Meus Cursos</h1>
           <p className="text-sm text-text-secondary">
             Crie e gerencie seus cursos
           </p>
         </div>
-        <ButtonComponent
-          size="sm"
-          onClick={() => navigate("/teacher/subjects")}
-          className="w-full sm:w-auto" // Botão ocupa a tela toda no mobile e se ajusta no desktop
-        >
-          Gerenciar Matérias
-        </ButtonComponent>
-      </header>
+      </Header>
 
       {/* Notificação (Mantida igual) */}
       {notification && (
@@ -256,9 +279,9 @@ return (
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
+              <Label className="block text-sm font-medium text-text-secondary mb-2">
                 Título do Curso *
-              </label>
+              </Label>
               <InputComponent
                 value={title}
                 onChange={(e) => setTitle((e.target as HTMLInputElement).value)}
@@ -268,10 +291,10 @@ return (
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
+              <Label className="block text-sm font-medium text-text-secondary mb-2">
                 Descrição *
-              </label>
-              <textarea
+              </Label>
+              <TextArea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Descreva o conteúdo e objetivos do curso..."
@@ -359,14 +382,11 @@ return (
 
                     {/* Botões de Ação Responsivos */}
                     <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between pt-4 border-t border-border gap-3">
-                      
                       {/* Grupo 1: Ver, Alunos, Editar */}
                       <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
                         <ButtonComponent
                           size="sm"
-                          onClick={() =>
-                            navigate(`/teacher/modules`)
-                          }
+                          onClick={() => navigate(`/teacher/modules`)}
                           className="flex-1 sm:flex-none justify-center"
                         >
                           <div className="flex items-center justify-center gap-2">
@@ -388,7 +408,7 @@ return (
                           </div>
                         </ButtonComponent>
 
-                        <button
+                        <Button
                           className="flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-text-primary flex-1 sm:flex-none"
                           onClick={() =>
                             navigate(`/teacher/courses/${course.id}/edit`)
@@ -396,12 +416,12 @@ return (
                         >
                           <Edit2 size={16} />
                           Editar
-                        </button>
+                        </Button>
                       </div>
 
                       {/* Grupo 2: Publicar e Excluir */}
                       <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto xl:justify-end">
-                        <button
+                        <Button
                           className={`flex-1 sm:flex-none flex items-center justify-center px-3 py-2 text-sm rounded-lg transition-colors ${
                             course.published
                               ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200"
@@ -410,15 +430,15 @@ return (
                           onClick={() => togglePublish(course)}
                         >
                           {course.published ? "Despublicar" : "Publicar"}
-                        </button>
+                        </Button>
 
-                        <button
+                        <Button
                           className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-3 py-2 text-sm rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
                           onClick={() => course.id && deleteCourse(course.id)}
                         >
                           <Trash2 size={16} />
                           Excluir
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   </div>
@@ -432,26 +452,26 @@ return (
                     Página {currentPage} de {totalPages}
                   </span>
                   <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
-                    <button
+                    <Button
                       onClick={() =>
                         setCurrentPage((prev) => Math.max(prev - 1, 1))
                       }
-                      disabled={currentPage === 1}
+                      isDisabled={currentPage === 1}
                       className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
-                      title="Página Anterior"
+                      aria-label="Página Anterior"
                     >
                       <ChevronLeft size={18} />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() =>
                         setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                       }
-                      disabled={currentPage === totalPages}
+                      isDisabled={currentPage === totalPages}
                       className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
-                      title="Próxima Página"
+                      aria-label="Próxima Página"
                     >
                       <ChevronRight size={18} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -476,8 +496,8 @@ return (
             <p className="text-sm text-text-secondary">
               Após criar um curso, você pode adicionar matérias e conteúdos.
               Cursos publicados ficam visíveis para os alunos na página de
-              "Cursos Disponíveis". Lembre-se de despublicar caso precise
-              fazer grandes alterações.
+              "Cursos Disponíveis". Lembre-se de despublicar caso precise fazer
+              grandes alterações.
             </p>
           </div>
         </section>
