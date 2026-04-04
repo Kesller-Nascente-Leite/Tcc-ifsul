@@ -1,5 +1,7 @@
 package com.meutcc.backend.content.courses;
 
+import com.meutcc.backend.content.module.Module;
+import com.meutcc.backend.content.module.ModuleException;
 import com.meutcc.backend.user.security.AuthenticationService;
 import com.meutcc.backend.user.security.SecurityService;
 import com.meutcc.backend.teacher.Teacher;
@@ -49,8 +51,8 @@ public class CourseService {
 
 
     public CourseDTO getCourseById(Long courseId) throws CourseException {
+        securityService.validateCourseOwner(courseId);
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new CourseException("Curso não encontrado"));
-        securityService.validateCourseOwner(course.getId());
         return courseMapper.toDTO(course);
     }
 

@@ -10,9 +10,7 @@ export const CourseTeacherApi = {
     api.get<CourseDTO[]>("/teacher/courses/list-all-teacher-courses", {
       params,
     }),
-
-  get: (id: number) => api.get<CourseDTO>(`/teacher/courses/${id}`),
-
+    
   create: (payload: CourseDTO) =>
     api.post<CourseDTO>("/teacher/courses/create", payload),
 

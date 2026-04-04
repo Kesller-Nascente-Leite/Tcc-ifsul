@@ -5,6 +5,7 @@ import { ButtonComponent } from "@/shared/components/ui/ButtonComponent";
 import { InputComponent } from "@/shared/components/ui/InputComponent";
 import { CourseTeacherApi } from "@/features/teacher/api/courseTeacher.api";
 import { useTheme } from "@/app/providers/ThemeContext";
+import { useCourseAuthorization } from "@/app/hooks/useCourseAuthorization";
 
 type CourseItem = {
   id?: number | null;
@@ -19,6 +20,7 @@ export function EditCourses() {
   const { accentColor } = useTheme();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>(); // parametro da url
+  const { validateCourseOwner } = useCourseAuthorization();
 
   const [course, setCourse] = useState<CourseItem | null>(null);
   const [title, setTitle] = useState("");
@@ -46,18 +48,12 @@ export function EditCourses() {
       const response = await CourseTeacherApi.getById(courseId);
       const loadedCourse = response.data;
 
-      const userRaw = localStorage.getItem("user");
-      const user = userRaw ? JSON.parse(userRaw) : null;
-
-      if (
-        !loadedCourse ||
-        (user && loadedCourse.teacherId !== user.id) ||
-        loadedCourse.teacherId !== user.id ||
-        loadedCourse === null
-      ) {
+      const authorization = validateCourseOwner(loadedCourse);
+      if (!authorization.isAuthorized) {
         showNotification(
           "error",
-          "Você não tem permissão para editar este curso",
+          authorization.reason ||
+            "Você não tem permissão para editar este curso",
         );
         setTimeout(() => navigate("/teacher/course"), 2000);
         return;
@@ -68,7 +64,16 @@ export function EditCourses() {
       setDescription(loadedCourse.description);
     } catch (error) {
       console.error("Erro ao carregar curso:", error);
-      showNotification("error", "Erro ao carregar dados do curso");
+      const errorResponse = (error as { response?: { status: number } })
+        .response;
+      if (errorResponse?.status === 403 || errorResponse?.status === 401) {
+        showNotification(
+          "error",
+          "Você não tem permissão para editar este curso",
+        );
+      } else {
+        showNotification("error", "Erro ao carregar dados do curso");
+      }
       setTimeout(() => navigate("/teacher/course"), 2000);
     } finally {
       setIsLoading(false);
@@ -99,12 +104,14 @@ export function EditCourses() {
       await CourseTeacherApi.update(Number(id), updatedPayload);
       showNotification("success", "Curso atualizado com sucesso!");
       setTimeout(() => navigate("/teacher/course"), 1500);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erro ao atualizar curso:", error);
+      const errorResponse = (
+        error as { response?: { data?: { message?: string } } }
+      ).response;
       showNotification(
         "error",
-        error.response?.data?.message || "Erro ao atualizar curso",
+        errorResponse?.data?.message || "Erro ao atualizar curso",
       );
     } finally {
       setIsSaving(false);

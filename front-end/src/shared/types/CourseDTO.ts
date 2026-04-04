@@ -3,6 +3,7 @@ export interface CourseDTO {
   title: string;
   description: string;
   published: boolean;
-  teacherId: number;
+  teacherId: number;          // ID da tabela tb_teachers
   teacherName: string;
+  teacherUserId?: number;     // ID da tabela tb_users (novo: usar para validações)
 }

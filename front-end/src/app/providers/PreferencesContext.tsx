@@ -38,6 +38,8 @@ const DEFAULT_PROFILE: ProfileData = {
   avatar: null,
 };
 
+const USER_PROFILE_KEY = "userProfile"; // Chave separada para não sobrescrever user do auth
+
 const DEFAULT_NOTIFICATIONS: NotificationData = {
   emailDigest: true,
   examAlerts: true,
@@ -47,7 +49,7 @@ const DEFAULT_NOTIFICATIONS: NotificationData = {
 
 export function PreferencesProvider({ children }: { children: ReactNode }) {
   const [profileData, setProfileDataState] = useState<ProfileData>(() => {
-    const saved = localStorage.getItem("user");
+    const saved = localStorage.getItem(USER_PROFILE_KEY);
     return saved ? JSON.parse(saved) : DEFAULT_PROFILE;
   });
 
@@ -64,7 +66,7 @@ export function PreferencesProvider({ children }: { children: ReactNode }) {
   ) => {
     setProfileDataState((prev) => {
       const newData = typeof data === "function" ? data(prev) : data;
-      localStorage.setItem("user", JSON.stringify(newData));
+      localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(newData));
       return newData;
     });
   };
