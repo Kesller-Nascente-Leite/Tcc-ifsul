@@ -224,7 +224,7 @@ export function TeacherCourse() {
 
   return (
     <div className="space-y-6">
-      {/* Header Responsivo */}
+      {/* Header */}
       <Header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Meus Cursos</h1>
@@ -234,7 +234,7 @@ export function TeacherCourse() {
         </div>
       </Header>
 
-      {/* Notificação (Mantida igual) */}
+      {/* Notificação */}
       {notification && (
         <div
           className={`p-4 rounded-xl border flex items-center gap-3 ${
@@ -386,7 +386,11 @@ export function TeacherCourse() {
                       <div className="flex flex-wrap items-center gap-2 w-full xl:w-auto">
                         <ButtonComponent
                           size="sm"
-                          onClick={() => navigate(`/teacher/modules`)}
+                          onClick={() =>
+                            navigate(`/teacher/modules`, {
+                              state: { courseId: course.id },
+                            })
+                          }
                           className="flex-1 sm:flex-none justify-center"
                         >
                           <div className="flex items-center justify-center gap-2">

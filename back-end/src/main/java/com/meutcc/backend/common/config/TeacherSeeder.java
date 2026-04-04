@@ -1,8 +1,5 @@
 package com.meutcc.backend.common.config;
 
-import com.meutcc.backend.content.courses.CourseRepository;
-import com.meutcc.backend.user.role.RoleRepository;
-import com.meutcc.backend.user.role.Roles;
 import com.meutcc.backend.teacher.Teacher;
 import com.meutcc.backend.teacher.TeacherRepository;
 import com.meutcc.backend.user.User;
@@ -11,9 +8,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @AllArgsConstructor
@@ -22,39 +20,30 @@ public class TeacherSeeder implements ApplicationRunner {
 
     private TeacherRepository teacherRepository;
     private UserRepository userRepository;
-    private RoleRepository roleRepository;
-    private PasswordEncoder passwordEncoder;
-    private CourseRepository courseRepository;
 
+    @Override
     public void run(ApplicationArguments args) {
-        if (teacherRepository.count() == 0) {
-            // Busca o role de TEACHER
-            Roles teacherRole = roleRepository.findAll().stream()
-                    .filter(role -> "TEACHER".equals(role.getName()))
-                    .findFirst()
-                    .orElse(null);
+        List<User> teacherUsers = userRepository.findAll().stream()
+                .filter(user -> user.getRole() != null)
+                .filter(user -> "TEACHER".equalsIgnoreCase(user.getRole().getName()))
+                .toList();
 
-            if (teacherRole != null) {
-                // Cria um usuário padrão para o teacher
-                User teacherUser = new User();
-                teacherUser.setFullName("Professor Padrão");
-                teacherUser.setEmail("teacher@example.com");
-                teacherUser.setPassword(passwordEncoder.encode("password"));
-                teacherUser.setAvatarUrl(null);
-                teacherUser.setRole(teacherRole);
+        int createdTeachers = 0;
 
-                // Salva o usuário
-                User savedUser = userRepository.save(teacherUser);
-
-                // Cria o teacher
-                Teacher teacher = Teacher.builder()
-                        .user(savedUser)
-                        .build();
-
-                // Salva o teacher e cria uma turma (Course) padrão associada
-                Teacher savedTeacher = teacherRepository.save(teacher);
-
+        for (User user : teacherUsers) {
+            if (teacherRepository.findByUser(user).isPresent()) {
+                continue;
             }
+
+            teacherRepository.save(Teacher.builder()
+                    .user(user)
+                    .courses(new ArrayList<>())
+                    .build());
+            createdTeachers++;
+        }
+
+        if (createdTeachers > 0) {
+            System.out.println("Teachers seeded: " + createdTeachers);
         }
     }
 }

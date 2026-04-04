@@ -6,14 +6,20 @@ import { Button, Label } from "react-aria-components";
 interface PasswordInputProps {
   label: string;
   value: string;
+  placeholder: string;
+  error?: string;
   autoComplete?: "on" | "off";
+  required?: boolean;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export function PasswordInput({
   label,
   value,
+  placeholder,
+  error,
   autoComplete,
+  required,
   onChange,
 }: PasswordInputProps) {
   const [show, setShow] = useState(false);
@@ -28,7 +34,9 @@ export function PasswordInput({
           type={show ? "text" : "password"}
           value={value}
           onChange={onChange}
-          className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-slate-800 dark:text-slate-100 pr-10"
+          required={required}
+          className="pr-10"
+          placeholder={placeholder}
         />
         <Button
           onClick={() => setShow(!show)}
@@ -37,6 +45,11 @@ export function PasswordInput({
           {show ? <EyeOff size={18} /> : <Eye size={18} />}
         </Button>
       </div>
+      {error && (
+        <span className="text-xs text-error font-medium text-red-600">
+          {error}
+        </span>
+      )}
     </div>
   );
 }

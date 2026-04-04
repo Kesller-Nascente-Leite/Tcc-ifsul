@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { FormComponent } from "@/shared/components/ui/FormComponent";
 import { InputComponent } from "@/shared/components/ui/InputComponent";
+import { PasswordInput } from "@/shared/components/ui/PasswordInput";
 import { ButtonComponent } from "@/shared/components/ui/ButtonComponent";
 import { useNavigate } from "react-router";
 import { ArrowLeft } from "lucide-react";
@@ -36,20 +37,22 @@ export function Register() {
 
     if (formData.fullName.length < 3) {
       newErrors.fullName = "O nome deve conter pelo menos 3 caracteres";
-      isValid = false;
+      setError(newErrors);
+      return (isValid = false);
     }
 
     if (!formData.email.includes("@")) {
       newErrors.email = "Insira um e-mail válido";
-      isValid = false;
+      setError(newErrors);
+      return (isValid = false);
     }
 
     if (formData.password.length < 8) {
       newErrors.password = "Sua senha deve conter pelo menos 8 caracteres";
-      isValid = false;
+      setError(newErrors);
+      return (isValid = false);
     }
 
-    setError(newErrors);
     return isValid;
   };
 
@@ -133,14 +136,13 @@ export function Register() {
           />
 
           <div>
-            <InputComponent
-              required
-              type="password"
-              labelText="Senha"
-              placeholder="********"
+            <PasswordInput
+              label="Senha"
               value={formData.password}
               autoComplete="off"
+              required
               onChange={(e) => handleChange(e, "password")}
+              placeholder="********"
             />
             {error.password && (
               <p className="text-xs text-red-500 mt-1 ml-1">{error.password}</p>
@@ -157,7 +159,7 @@ export function Register() {
             Cadastre-se
           </ButtonComponent>
         </FormComponent>
-        
+
         <div className="text-center pt-4 border-t border-border">
           <p className="text-sm text-text-secondary">
             Já tem uma conta?{" "}

@@ -3,19 +3,19 @@ import { api } from "@/shared/api/http";
 import { type CourseDTO } from "@/shared/types/CourseDTO";
 
 export const CourseStudentApi = {
-  list: (params?: any) => api.get<CourseDTO[]>("/courses/student", { params }),
+  list: (params?: any) => api.get<CourseDTO[]>("/student/courses", { params }),
 
-  listAllCourse: () => api.get<CourseDTO[]>("/courses/student/all"),
+  listAllCourse: () => api.get<CourseDTO[]>("/student/courses/all"),
 
   // Para buscar um curso expecifico
-  get: (id: number) => api.get<CourseDTO>(`/courses/student/${id}`),
+  get: (id: number) => api.get<CourseDTO>(`/student/courses/${id}`),
 
-  remove: (id: number) => api.delete(`/courses/student/${id}`),
+  remove: (id: number) => api.delete(`/student/courses/${id}`),
 
   // Para o alunos se inscrever-se em um curso
-  enroll: (courseId: number) => api.post(`/courses/student/${courseId}/enroll`),
+  enroll: (courseId: number) => api.post(`/student/courses/${courseId}/enroll`),
 
   // Cancelar inscrição do aluno(se precisar)
   unenroll: (courseId: number) =>
-    api.delete(`/courses/student/${courseId}/enroll`),
+    api.delete(`/student/courses/${courseId}/enroll`),
 };

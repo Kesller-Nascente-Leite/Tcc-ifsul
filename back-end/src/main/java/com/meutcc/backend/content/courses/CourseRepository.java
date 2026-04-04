@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
-    List<Course> findByTeacher(Teacher teacher);
+    List<Course> findByTeacherId(Long teacherId);
 
     boolean existsByTitle(String title);
 }

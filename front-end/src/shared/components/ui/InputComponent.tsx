@@ -55,7 +55,7 @@ export function InputComponent({
         {...props}
       />
 
-      {error && <span className="text-xs text-error font-medium">{error}</span>}
+      {error && <span className="text-xs text-error font-medium text-red-600">{error}</span>}
     </div>
   );
 }

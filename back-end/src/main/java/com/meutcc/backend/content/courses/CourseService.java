@@ -16,48 +16,51 @@ import java.util.List;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final CourseMapper courseMapper;
     private final SecurityService securityService;
     private final AuthenticationService authenticationService;
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-    public List<CourseDTO> findAllCourses() {   
-        return courseRepository.findAll().stream().map(CourseMapper::toDTO).toList();
+    public List<CourseDTO> findAllCourses() {
+        List<Course> listCourse = courseRepository.findAll().stream().toList();
+        return courseMapper.toDTOList(listCourse);
     }
 
     @Transactional
     public CourseDTO createCourse(@RequestBody CourseDTO courseDTO) {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
-        Course course = CourseMapper.toEntity(courseDTO, teacher);
+        Course course = courseMapper.toEntity(courseDTO, teacher);
         Course savedCourse = courseRepository.save(course);
-        return CourseMapper.toDTO(savedCourse);
+        return courseMapper.toDTO(savedCourse);
 
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = true)
     public List<CourseDTO> findAllTeacherCourses() {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
 
-        List<Course> courses = courseRepository.findByTeacher(teacher);
+        List<Course> coursesList = courseRepository.findByTeacherId(teacher.getId()).stream().toList();
 
-        if (courses.isEmpty()) {
+        if (coursesList.isEmpty()) {
             throw new CourseException("Nenhuma curso encontrada.");
         }
-        return courses.stream().map(CourseMapper::toDTO).toList();
+        return courseMapper.toDTOList(coursesList);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-    public CourseDTO checkIfTheCourseExistsByID(Long id) throws CourseException {
-        return courseRepository.findById(id)
-                .map(CourseMapper::toDTO)
-                .orElseThrow(() -> new CourseException("Curso não encontrado"));
+
+    public CourseDTO getCourseById(Long courseId) throws CourseException {
+        Course course = courseRepository.findById(courseId).orElseThrow(() -> new CourseException("Curso não encontrado"));
+        securityService.validateCourseOwner(course.getId());
+        return courseMapper.toDTO(course);
     }
+
     @Transactional
     public CourseResponse updateCourse(Long id, CourseDTO dto) {
         Teacher teacher = authenticationService.getAuthenticatedTeacher();
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseException("Nenhum curso encontrada."));
         securityService.validateCourseOwner(id);
 
-        CourseMapper.updateEntity(course, dto);
+        courseMapper.updateEntity(course, dto);
         courseRepository.save(course);
 
         return new CourseResponse("Curso atualizado com sucesso!");
@@ -71,5 +74,6 @@ public class CourseService {
         securityService.validateCourseOwner(id);
         courseRepository.delete(course);
     }
+
 
 }

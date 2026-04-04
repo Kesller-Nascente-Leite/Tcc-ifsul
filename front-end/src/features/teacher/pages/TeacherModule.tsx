@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import {
   Plus,
   Edit2,
@@ -28,6 +28,7 @@ import { Button, Header, Label, TextArea } from "react-aria-components";
 export function TeacherModules() {
   const { accentColor, isDark } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const { isOpen, setIsOpen, confirm, dialogConfig } = useConfirmDialog();
 
   const [courses, setCourses] = useState<CourseDTO[]>([]);
@@ -48,6 +49,35 @@ export function TeacherModules() {
     (currentPage - 1) * COURSES_PER_PAGE,
     currentPage * COURSES_PER_PAGE,
   );
+
+  const [moduleCurrentPage, setModuleCurrentPage] = useState(1);
+  const MODULES_PER_PAGE = 3;
+  const totalModulePages = Math.max(1, Math.ceil(modules.length / MODULES_PER_PAGE));
+  const displayedModules = modules.slice(
+    (moduleCurrentPage - 1) * MODULES_PER_PAGE,
+    moduleCurrentPage * MODULES_PER_PAGE,
+  );
+
+  const targetCourseId = (location.state as { courseId?: number } | undefined)?.courseId;
+
+  useEffect(() => {
+    if (targetCourseId && courses.length > 0) {
+      const target = courses.find((course) => course.id === targetCourseId);
+      if (target) {
+        setSelectedCourse(target);
+      }
+    }
+  }, [courses, targetCourseId]);
+
+  useEffect(() => {
+    setModuleCurrentPage(1);
+  }, [selectedCourse?.id]);
+
+  useEffect(() => {
+    if (moduleCurrentPage > totalModulePages) {
+      setModuleCurrentPage(totalModulePages);
+    }
+  }, [modules.length, moduleCurrentPage, totalModulePages]);
 
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";
@@ -413,17 +443,18 @@ export function TeacherModules() {
                 </p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {modules.map((module, index) => (
-                  <div
-                    key={module.id}
+              <>
+                <div className="space-y-4">
+                  {displayedModules.map((module, index) => (
+                    <div
+                      key={module.id}
                     className="p-4 sm:p-5 rounded-xl border bg-slate-50 dark:bg-slate-900/20 border-border hover:shadow-md transition-all"
                   >
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm font-bold shrink-0">
-                            {index + 1}
+                            {(moduleCurrentPage - 1) * MODULES_PER_PAGE + index + 1}
                           </span>
                           <h4 className="font-bold text-lg text-text-primary wrap-break-word">
                             {module.title}
@@ -477,7 +508,34 @@ export function TeacherModules() {
                   </div>
                 ))}
               </div>
-            )}
+
+              {totalModulePages > 1 && (
+                <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border">
+                  <span className="text-sm text-text-secondary font-medium">
+                    Página {moduleCurrentPage} de {totalModulePages}
+                  </span>
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
+                    <Button
+                      onClick={() => setModuleCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      isDisabled={moduleCurrentPage === 1}
+                      className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
+                      aria-label="Página Anterior"
+                    >
+                      <ChevronLeft size={18} />
+                    </Button>
+                    <Button
+                      onClick={() => setModuleCurrentPage((prev) => Math.min(prev + 1, totalModulePages))}
+                      isDisabled={moduleCurrentPage === totalModulePages}
+                      className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
+                      aria-label="Próxima Página"
+                    >
+                      <ChevronRight size={18} />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
           </div>
         </section>
       )}

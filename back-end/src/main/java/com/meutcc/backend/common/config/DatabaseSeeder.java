@@ -16,20 +16,20 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Profile("!prod")
-@Order(5)
+@Order(1)
 public class DatabaseSeeder implements CommandLineRunner {
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @Value("${SEED_ADMIN_PASSWORD:admin123}")
+    @Value("${SEED_ADMIN_PASSWORD:password}")
     private String adminPassword;
 
-    @Value("${SEED_TEACHER_PASSWORD:professor123}")
+    @Value("${SEED_TEACHER_PASSWORD:password}")
     private String teacherPassword;
 
-    @Value("${SEED_STUDENT_PASSWORD:aluno123}")
+    @Value("${SEED_STUDENT_PASSWORD:password}")
     private String studentPassword;
 
     @Override
@@ -63,28 +63,31 @@ public class DatabaseSeeder implements CommandLineRunner {
             admin.setRole(adminRole);
             userRepository.save(admin);
 
-            // Teacher user
-            User teacher = new User();
-            teacher.setFullName("Professor João");
-            teacher.setEmail("professor@tcc.com");
-            teacher.setPassword(passwordEncoder.encode(teacherPassword));
-            teacher.setRole(teacherRole);
-            userRepository.save(teacher);
+            // Teacher users
+            User mainTeacher = new User();
+            mainTeacher.setFullName("Professor Principal");
+            mainTeacher.setEmail("teacher@example.com");
+            mainTeacher.setPassword(passwordEncoder.encode(teacherPassword));
+            mainTeacher.setRole(teacherRole);
+            userRepository.save(mainTeacher);
+            for (int i = 1; i <= 5; i++) {
+                User teacher = new User();
+                teacher.setFullName("Professor " + i);
+                teacher.setEmail("Professor" + i + "@tcc.com");
+                teacher.setPassword(passwordEncoder.encode(teacherPassword));
+                teacher.setRole(teacherRole);
+                userRepository.save(teacher);
+            }
 
             // Student users
-            User student1 = new User();
-            student1.setFullName("Aluno Maria");
-            student1.setEmail("maria@tcc.com");
-            student1.setPassword(passwordEncoder.encode(studentPassword));
-            student1.setRole(studentRole);
-            userRepository.save(student1);
-
-            User student2 = new User();
-            student2.setFullName("Aluno Pedro");
-            student2.setEmail("pedro@tcc.com");
-            student2.setPassword(passwordEncoder.encode(studentPassword));
-            student2.setRole(studentRole);
-            userRepository.save(student2);
+            for (int i = 1; i <= 5; i++) {
+                User student = new User();
+                student.setFullName("Aluno " + i);
+                student.setEmail("aluno" + i + "@tcc.com");
+                student.setPassword(passwordEncoder.encode(studentPassword));
+                student.setRole(studentRole);
+                userRepository.save(student);
+            }
 
             System.out.println("✅ Users seeded");
         }

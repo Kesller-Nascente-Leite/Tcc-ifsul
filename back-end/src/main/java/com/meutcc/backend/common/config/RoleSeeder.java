@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @AllArgsConstructor
-@Order(1)
+@Order(0)
 public class RoleSeeder implements ApplicationRunner {
 
     private RoleRepository roleRepository;

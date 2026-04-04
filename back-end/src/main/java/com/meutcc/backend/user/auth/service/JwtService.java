@@ -14,9 +14,8 @@ public class JwtService {
     @Autowired
     private JwtEncoder jwtEncoder;
 
-    public String generateTokenForUser(User user) {
+    public String generateTokenForUser(User user,Long expiresIn) {
         Instant now = Instant.now();
-        long expiresIn = 86400L; // 24 hours, adjust as needed
 
         JwtClaimsSet claimsSet = JwtClaimsSet.builder()
                 .issuer("self")
@@ -27,6 +26,7 @@ public class JwtService {
                 .claim("authorities", List.of(user.getRole().getName()))
                 .claim("fullName", user.getFullName())
                 .claim("email", user.getEmail())
+                .claim("role", user.getRole().getName())
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claimsSet)).getTokenValue();

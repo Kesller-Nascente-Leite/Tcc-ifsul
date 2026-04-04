@@ -4,22 +4,22 @@ import { type CourseDTO } from "@/shared/types/CourseDTO";
 
 export const CourseTeacherApi = {
   // verifica se existe o curso com o id fornecido
-  getById: (id: number) => api.get<CourseDTO>(`/courses/teacher/${id}`),
+  getById: (id: number) => api.get<CourseDTO>(`/teacher/courses/${id}`),
 
   listAllTeacherCourses: (params?: any) =>
-    api.get<CourseDTO[]>("/courses/teacher/list-all-teacher-courses", {
+    api.get<CourseDTO[]>("/teacher/courses/list-all-teacher-courses", {
       params,
     }),
 
-  get: (id: number) => api.get<CourseDTO>(`/courses/teacher/${id}`),
+  get: (id: number) => api.get<CourseDTO>(`/teacher/courses/${id}`),
 
   create: (payload: CourseDTO) =>
-    api.post<CourseDTO>("/courses/teacher/create", payload),
+    api.post<CourseDTO>("/teacher/courses/create", payload),
 
   update: (id: number, payload: CourseDTO) =>
-    api.put<CourseDTO>(`/courses/teacher/${id}`, payload),
+    api.put<CourseDTO>(`/teacher/courses/${id}`, payload),
 
-  remove: (id: number) => api.delete(`/courses/teacher/${id}/delete`),
+  remove: (id: number) => api.delete(`/teacher/courses/${id}/delete`),
 
-  togglePublish: (id: number) => api.patch(`/courses/teacher/${id}/publish`),
+  togglePublish: (id: number) => api.patch(`/teacher/courses/${id}/publish`),
 };

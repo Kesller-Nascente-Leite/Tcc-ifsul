@@ -39,9 +39,6 @@ export const AuthApi = {
     return api.post<LoginResponse>("/auth/login", payload);
   },
 
-  logout: () => {
-    return api.post("/auth/logout");
-  },
 
   validateToken: () => api.get("/auth/validate"),
 

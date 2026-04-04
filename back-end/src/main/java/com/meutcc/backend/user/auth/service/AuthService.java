@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.*;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -72,8 +74,8 @@ public class AuthService {
         User user = userRepository.findByEmail(dto.email())
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
 
-        String accessToken = jwtService.generateTokenForUser(user);
-
+        String accessToken = jwtService.generateTokenForUser(user, 900L);
+        String refreshToken = jwtService.generateTokenForUser(user, 86400L);
         UserDTO userDTO = new UserDTO(
                 user.getId(),
                 user.getFullName(),
@@ -83,7 +85,7 @@ public class AuthService {
 
         return new LoginResponse(
                 accessToken,
-                null,
+                refreshToken,
                 userDTO,
                 "Login realizado com sucesso"
 
@@ -97,22 +99,11 @@ public class AuthService {
         String username = decoderToken.getSubject();
         User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UserException("Usuário não está ativo"));
-        Instant now = Instant.now();
-        long expiresIn = 900L;
 
-        JwtClaimsSet claimsSet = JwtClaimsSet.builder()
-                .issuer("http://localhost:5173")
-                .issuedAt(now)
-                .expiresAt(now.plusSeconds(expiresIn))
-                .subject(username)
-                .claim("scope", "ROLE_USER")
-                .build();
+        String newAccessToken = jwtService.generateTokenForUser(user, 900L);
+        String newRefreshToken = jwtService.generateTokenForUser(user, 86400L);
 
-        // 2. Gerar um novo Access Token
-
-        String newAccessToken = jwtEncoder.encode(JwtEncoderParameters.from(claimsSet)).getTokenValue();
-
-        return new LoginResponse(newAccessToken, refreshToken, null, null);
+        return new LoginResponse(newAccessToken, newRefreshToken, null, null);
     }
 
     private void existsByEmail(String email) {

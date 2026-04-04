@@ -73,23 +73,32 @@ public class DatabaseCourseSeeder {
     }
 
     private Teacher getTeacher() {
-        User userWithTeacherRole = userRepository.findAll().stream()
+        // Prioriza o "Professor Principal"
+        User mainTeacher = userRepository.findAll().stream()
+                .filter(user -> user.getRole() != null)
+                .filter(user -> "TEACHER".equalsIgnoreCase(user.getRole().getName()))
+                .filter(user -> "Professor Principal".equalsIgnoreCase(user.getFullName()))
+                .findFirst()
+                .orElse(null);
+
+        // Se não encontrar o professor principal, pega o primeiro professor
+        final User teacherUser = mainTeacher != null ? mainTeacher : userRepository.findAll().stream()
                 .filter(user -> user.getRole() != null)
                 .filter(user -> "TEACHER".equalsIgnoreCase(user.getRole().getName()))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("Nenhum usuario TEACHER encontrado."));
 
-        return teacherRepository.findByUser(userWithTeacherRole)
+        return teacherRepository.findByUser(teacherUser)
                 .orElseGet(() -> teacherRepository.save(
                         Teacher.builder()
-                                .user(userWithTeacherRole)
+                                .user(teacherUser)
                                 .courses(new ArrayList<>())
                                 .build()
                 ));
     }
 
     private Course findOrCreateCourse(Teacher teacher) {
-        return courseRepository.findByTeacher(teacher).stream()
+        return courseRepository.findByTeacherId(teacher.getId()).stream()
                 .filter(course -> COURSE_TITLE.equalsIgnoreCase(course.getTitle()))
                 .findFirst()
                 .orElseGet(() -> createCourse(teacher));
@@ -150,7 +159,7 @@ public class DatabaseCourseSeeder {
         createAttachment(
                 lesson,
                 "Artigo - Historia dos Bancos de Dados",
-                "Documento com a evolucao historica dos bancos de dados.",
+                "Documento com a evolução histórica dos bancos de dados.",
                 "https://drive.google.com/file/d/1XYZ789/view"
         );
 
@@ -159,9 +168,9 @@ public class DatabaseCourseSeeder {
 
     private void createExercise1(Lesson lesson) {
         Exercise exercise = saveExercise(Exercise.builder()
-                .title("Quiz - Introducao a Bancos de Dados")
-                .description("Teste seus conhecimentos sobre conceitos basicos.")
-                .instructions("Responda as questoes abaixo. Voce tem 20 minutos.")
+                .title("Quiz - Introdução a Bancos de Dados")
+                .description("Teste seus conhecimentos sobre conceitos básicos.")
+                .instructions("Responda as questões abaixo. Voce tem 20 minutos.")
                 .lesson(lesson)
                 .totalPoints(100)
                 .passingScore(70)
@@ -181,6 +190,7 @@ public class DatabaseCourseSeeder {
         createQuestion1_2(exercise);
         createQuestion1_3(exercise);
         createQuestion1_4(exercise);
+        createQuestion1_5(exercise);
     }
 
     private void createQuestion1_1(Exercise exercise) {
@@ -189,7 +199,7 @@ public class DatabaseCourseSeeder {
                 QuestionType.MULTIPLE_CHOICE_SINGLE,
                 "O que e SQL?",
                 "SQL significa Structured Query Language.",
-                25,
+                20,
                 0
         );
 
@@ -209,7 +219,7 @@ public class DatabaseCourseSeeder {
                 QuestionType.TRUE_FALSE,
                 "Bancos de dados NoSQL nao permitem consultas SQL.",
                 "Falso. Alguns bancos NoSQL permitem consultas SQL.",
-                25,
+                20,
                 1
         );
 
@@ -227,7 +237,7 @@ public class DatabaseCourseSeeder {
                 QuestionType.MULTIPLE_CHOICE_SINGLE,
                 "Qual e um SGBD relacional?",
                 "PostgreSQL e um SGBD relacional.",
-                25,
+                20,
                 2
         );
 
@@ -247,7 +257,7 @@ public class DatabaseCourseSeeder {
                 QuestionType.MULTIPLE_CHOICE_MULTIPLE,
                 "Quais sao componentes de uma tabela relacional?",
                 "Colunas e linhas sao componentes fundamentais.",
-                25,
+                20,
                 3
         );
 
@@ -256,6 +266,24 @@ public class DatabaseCourseSeeder {
         options.add(createOption(question, "Documentos", false, 1));
         options.add(createOption(question, "Linhas", true, 2));
         options.add(createOption(question, "Grafos", false, 3));
+        question.setOptions(options);
+
+        saveQuestion(question);
+    }
+
+    private void createQuestion1_5(Exercise exercise) {
+        Question question = baseQuestion(
+                exercise,
+                QuestionType.TRUE_FALSE,
+                "Uma tabela pode ter mais de uma chave primaria?",
+                "Falso. Uma tabela so pode ter uma chave primaria, que pode ser composta por uma ou mais colunas.",
+                20,
+                4
+        );
+
+        List<QuestionOption> options = new ArrayList<>();
+        options.add(createOption(question, "Verdadeiro", false, 0));
+        options.add(createOption(question, "Falso", true, 1));
         question.setOptions(options);
 
         saveQuestion(question);

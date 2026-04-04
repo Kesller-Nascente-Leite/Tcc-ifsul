@@ -5,9 +5,14 @@ import { FormComponent } from "@/shared/components/ui/FormComponent";
 import { InputComponent } from "@/shared/components/ui/InputComponent";
 import { ButtonComponent } from "@/shared/components/ui/ButtonComponent";
 import type React from "react";
-import { useState, type ChangeEvent, type FormEvent as FormEventType } from "react";
+import {
+  useState,
+  type ChangeEvent,
+  type FormEvent as FormEventType,
+} from "react";
 import axios from "axios";
 import { AuthService } from "@/shared/services/auth.service";
+import { PasswordInput } from "@/shared/components/ui/PasswordInput";
 
 export function Login() {
   const navigate = useNavigate();
@@ -41,6 +46,7 @@ export function Login() {
       newError.email = "Insira um E-mail válido";
       isValid = false;
     }
+  
 
     if (formData.password.length < 8) {
       newError.password = "Sua senha deve conter pelo menos 8 caracteres";
@@ -60,7 +66,7 @@ export function Login() {
         password: formData.password,
         email: formData.email,
       };
-      
+
       const responseData = await AuthService.login(payload);
 
       const userRole = responseData.user.role;
@@ -69,9 +75,8 @@ export function Login() {
         navigate("/admin/dashboard");
       } else if (userRole === "TEACHER") {
         navigate("/teacher/dashboard");
-      }
-      else{
-        navigate("/student/dashboard")
+      } else {
+        navigate("/student/dashboard");
       }
     } catch (err: unknown) {
       console.error(err);
@@ -128,14 +133,13 @@ export function Login() {
               />
 
               <div className="space-y-1">
-                <InputComponent
-                  labelText="Senha"
-                  type="password"
-                  placeholder="********"
+                <PasswordInput
+                  label="Senha"
+                  value={formData.password}
+                  autoComplete="off"
                   required
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    handleChange(e, "password");
-                  }}
+                  onChange={(e) => handleChange(e, "password")}
+                  placeholder="********"
                   error={error.password}
                 />
                 <div className="flex justify-end">
@@ -149,7 +153,7 @@ export function Login() {
               </div>
 
               <ButtonComponent
-                type="submit" 
+                type="submit"
                 variant="primary"
                 fullWidth
                 size="lg"

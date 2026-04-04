@@ -56,7 +56,7 @@ export function EditModule() {
       setIsLoading(false);
       return;
     }
-      
+
     if (!courseId) {
       console.error("courseId ausente nos parâmetros da URL");
       setIsLoading(false);
@@ -144,7 +144,7 @@ export function EditModule() {
       setIsSaving(true);
       await ModuleTeacherApi.update(Number(moduleId), payload);
       showNotification("success", "Módulo atualizado com sucesso!");
-      
+
       setTimeout(() => {
         navigate(`/teacher/modules`);
       }, 1500);
@@ -195,7 +195,7 @@ export function EditModule() {
             O módulo que você está tentando editar não existe ou foi removido.
           </p>
         </div>
-        <ButtonComponent onClick={() => navigate("/teacher/courses")}>
+        <ButtonComponent onClick={() => navigate("/teacher/modules")}>
           Voltar para Cursos
         </ButtonComponent>
       </div>
