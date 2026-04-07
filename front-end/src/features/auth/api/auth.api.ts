@@ -17,7 +17,7 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   accessToken: string;
-  refreshToken?: string;
+  refreshToken: string;
   user: AuthUser;
   message: string;
 }
@@ -38,7 +38,6 @@ export const AuthApi = {
   login: (payload: LoginRequest) => {
     return api.post<LoginResponse>("/auth/login", payload);
   },
-
 
   validateToken: () => api.get("/auth/validate"),
 

@@ -12,12 +12,12 @@ api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("access_token");
 
-    const publicRoutes = ["/auth/login", "/auth/register"];
-    const isPublicRoute = publicRoutes.some((route) =>
+    const authRoutes = ["/auth/login", "/auth/register", "/auth/refresh"];
+    const isAuthRoute = authRoutes.some((route) =>
       config.url?.includes(route),
     );
 
-    if (token && !isPublicRoute) {
+    if (token && !isAuthRoute) {
       config.headers = config.headers ?? {};
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -34,7 +34,8 @@ api.interceptors.response.use(
 
     const isAuthRoute =
       originalRequest.url?.includes("/auth/login") ||
-      originalRequest.url?.includes("/auth/register");
+      originalRequest.url?.includes("/auth/register") ||
+      originalRequest.url?.includes("/auth/refresh");
 
     if (
       error.response?.status === 401 &&

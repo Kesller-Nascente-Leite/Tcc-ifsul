@@ -1,6 +1,16 @@
-import { createContext, useContext, useState, useEffect, type ReactNode} from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  type ReactNode,
+} from "react";
 import { useNavigate } from "react-router";
-import { AuthApi, type LoginRequest, type RegisterRequest } from "@/features/auth/api/auth.api";
+import {
+  AuthApi,
+  type LoginRequest,
+  type RegisterRequest,
+} from "@/features/auth/api/auth.api";
 import { useTokenValidation } from "@/app/hooks/useTokenValidation";
 
 interface User {
@@ -11,7 +21,7 @@ interface User {
 }
 
 interface AuthContextData {
-  user: User | null;
+  user: User | undefined;
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: LoginRequest) => Promise<void>;
@@ -19,10 +29,10 @@ interface AuthContextData {
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextData>({} as AuthContextData);
+const AuthContext = createContext<AuthContextData | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User>();
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -85,9 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    AuthApi.logout().catch(console.error);
     localStorage.clear();
-    setUser(null);
     navigate("/login");
   };
 

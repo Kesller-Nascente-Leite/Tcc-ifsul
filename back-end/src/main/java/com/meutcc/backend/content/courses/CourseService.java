@@ -49,8 +49,9 @@ public class CourseService {
         return courseMapper.toDTOList(coursesList);
     }
 
-
+    @Transactional(readOnly = true)
     public CourseDTO getCourseById(Long courseId) throws CourseException {
+        authenticationService.getAuthenticatedTeacher();
         securityService.validateCourseOwner(courseId);
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new CourseException("Curso não encontrado"));
         return courseMapper.toDTO(course);

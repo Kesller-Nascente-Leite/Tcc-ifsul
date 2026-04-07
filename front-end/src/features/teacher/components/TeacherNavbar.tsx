@@ -21,6 +21,7 @@ export default function TeacherNavbar({
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
+  
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -36,9 +37,7 @@ export default function TeacherNavbar({
 
   const handleLogout = async () => {
     setIsLoading(true);
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    localStorage.removeItem("refresh_token")
+    localStorage.clear();
     setIsLoading(false);
     navigate("/", { state: { successMessage: "Você saiu com sucesso." } });
   };

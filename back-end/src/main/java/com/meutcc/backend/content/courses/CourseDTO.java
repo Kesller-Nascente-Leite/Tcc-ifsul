@@ -1,5 +1,6 @@
 package com.meutcc.backend.content.courses;
 
+import com.meutcc.backend.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -22,6 +23,7 @@ public record CourseDTO(
         Long teacherId,
 
         String teacherName
+
 ) {
 }
 

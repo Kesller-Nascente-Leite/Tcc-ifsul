@@ -20,7 +20,8 @@ export function EditCourses() {
   const { accentColor } = useTheme();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>(); // parametro da url
-  const { validateCourseOwner } = useCourseAuthorization();
+  const { validateCourseOwner, isLoading: isAuthLoading } =
+    useCourseAuthorization();
 
   const [course, setCourse] = useState<CourseItem | null>(null);
   const [title, setTitle] = useState("");
@@ -34,19 +35,27 @@ export function EditCourses() {
   } | null>(null);
 
   useEffect(() => {
+    if (isAuthLoading) return;
+
     if (id) {
       loadCourse(Number(id));
     } else {
       navigate("/teacher/course");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, navigate]);
+  }, [id, navigate, isAuthLoading]);
 
   const loadCourse = async (courseId: number) => {
     try {
       setIsLoading(true);
       const response = await CourseTeacherApi.getById(courseId);
       const loadedCourse = response.data;
+
+      if (!validateCourseOwner) {
+        showNotification("error", "Erro ao validar autorização");
+        setTimeout(() => navigate("/teacher/course"), 2000);
+        return;
+      }
 
       const authorization = validateCourseOwner(loadedCourse);
       if (!authorization.isAuthorized) {

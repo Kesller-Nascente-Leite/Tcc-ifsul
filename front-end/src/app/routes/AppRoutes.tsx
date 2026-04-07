@@ -12,23 +12,24 @@ import { ProtectedRoute } from "@/app/routes/ProtectedRoute";
 import { AdminRoutes } from "@/app/routes/AdminRoutes";
 import { ROLES } from "@/shared/constants/ROLES";
 import Unauthorized from "@/features/public/pages/Unauthorized";
-
 import { GuestRoutes } from "@/app/routes/GuestRoutes";
 import { TeacherRoutes } from "@/app/routes/TeacherRoutes";
 import { AuthGuard } from "@/app/guards/AuthGuard";
 import { AboutPage } from "@/features/public/pages/AboutPage";
-import { StudentRoutes } from "@/app/routes/StudentRoutes";
 import { FeaturesPage } from "@/features/public/pages/FeaturesPage";
 import { PricingPage } from "@/features/public/pages/PricingPage";
+import { AuthProvider } from "@/app/providers/AuthContext";
+import { StudentRoutes } from "./StudentRoutes";
 
 const RootLayout = () => {
   return (
-    <>
+    <AuthProvider>
       <ScrollRestoration />
       <Outlet />
-    </>
+    </AuthProvider>
   );
 };
+
 const router = createBrowserRouter([
   {
     element: <RootLayout />,
@@ -52,7 +53,6 @@ const router = createBrowserRouter([
               },
             ],
           },
-
           {
             element: <ProtectedRoute allowedRoles={[ROLES.STUDENT]} />,
             children: [...StudentRoutes],
@@ -65,10 +65,9 @@ const router = createBrowserRouter([
             element: <ProtectedRoute allowedRoles={[ROLES.ADMIN]} />,
             children: [...AdminRoutes],
           },
-
           {
             path: "*",
-            element: <h1>404 - Página não encontrada</h1>,
+            element: <h1>404 - P�gina n�o encontrada</h1>,
           },
           {
             path: "/unauthorized",
@@ -81,6 +80,5 @@ const router = createBrowserRouter([
 ]);
 
 export function AppRoutes() {
-  //  AuthGuard(); // Garante que a validação do token seja feita em todas as rotas protegidas
   return <RouterProvider router={router} />;
 }
