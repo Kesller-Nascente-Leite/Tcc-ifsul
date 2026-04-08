@@ -11,6 +11,7 @@ import {
 import { StatCard } from "@/shared/components/ui/StatCard";
 import { EmptyState } from "@/shared/components/ui/EmptyState";
 import { LoadingSkeleton } from "@/shared/components/ui/LoadingSkeleton";
+import { PaginationComponent } from "@/shared/components/ui/PaginationComponent";
 import { ExerciseCard } from "@/features/teacher/components/ExerciseCard";
 import { ExerciseTeacherApi } from "@/features/teacher/api/exerciseTeacher.api";
 import { LessonTeacherApi } from "@/features/teacher/api/lessonTeacher.api";
@@ -35,6 +36,7 @@ export function TeacherExercises() {
     ExerciseResponseDTO[]
   >([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "info";
@@ -60,6 +62,10 @@ export function TeacherExercises() {
     );
     setFilteredExercises(filtered);
   }, [searchQuery, exercises]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const loadData = async () => {
     if (!lessonId) return;
@@ -145,6 +151,22 @@ export function TeacherExercises() {
       (acc, ex) => acc + (ex.statistics?.averagePercentage || 0),
       0,
     ) / (totalExercises || 1);
+
+  const EXERCISES_PER_PAGE = 6;
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredExercises.length / EXERCISES_PER_PAGE),
+  );
+  const paginatedExercises = filteredExercises.slice(
+    (currentPage - 1) * EXERCISES_PER_PAGE,
+    currentPage * EXERCISES_PER_PAGE,
+  );
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   if (isLoading) {
     return <LoadingSkeleton/>;
@@ -297,26 +319,34 @@ export function TeacherExercises() {
               onClearSearch={() => setSearchQuery("")}
             />
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {filteredExercises.map((exercise) => (
-                <ExerciseCard
-                  key={exercise.id}
-                  exercise={exercise}
-                  accentColor={accentColor}
-                  onEdit={() =>
-                    navigate(
-                      `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/${exercise.id}/edit`,
-                    )
-                  }
-                  onDelete={() => deleteExercise(exercise)}
-                  onViewStats={() =>
-                    navigate(
-                      `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/${exercise.id}/stats`,
-                    )
-                  }
-                  onDuplicate={() => duplicateExercise(exercise)}
-                />
-              ))}
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {paginatedExercises.map((exercise) => (
+                  <ExerciseCard
+                    key={exercise.id}
+                    exercise={exercise}
+                    accentColor={accentColor}
+                    onEdit={() =>
+                      navigate(
+                        `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/${exercise.id}/edit`,
+                      )
+                    }
+                    onDelete={() => deleteExercise(exercise)}
+                    onViewStats={() =>
+                      navigate(
+                        `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises/${exercise.id}/stats`,
+                      )
+                    }
+                    onDuplicate={() => duplicateExercise(exercise)}
+                  />
+                ))}
+              </div>
+
+              <PaginationComponent
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           )}
         </div>

@@ -8,12 +8,11 @@ import {
   List,
   CheckCircle,
   PlayCircle,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { ButtonComponent } from "@/shared/components/ui/ButtonComponent";
 import { InputComponent } from "@/shared/components/ui/InputComponent";
 import { NotificationComponent } from "@/shared/components/ui/NotificationComponent";
+import { PaginationComponent } from "@/shared/components/ui/PaginationComponent";
 import {
   ConfirmDialog,
   useConfirmDialog,
@@ -326,29 +325,12 @@ export function TeacherModules() {
               ))}
             </div>
 
-            <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border">
-              <span className="text-sm text-text-secondary font-medium">
-                Página {currentPage} de {totalPages}
-              </span>
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
-                <Button
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  isDisabled={currentPage === 1}
-                  className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
-                  aria-label="Página Anterior"
-                >
-                  <ChevronLeft size={18} />
-                </Button>
-                <Button
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  isDisabled={currentPage === totalPages}
-                  className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
-                  aria-label="Próxima Página"
-                >
-                  <ChevronRight size={18} />
-                </Button>
-              </div>
-            </div>
+            <PaginationComponent
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              className="mt-4"
+            />
           </div>
         )}
       </section>
@@ -509,31 +491,12 @@ export function TeacherModules() {
                 ))}
               </div>
 
-              {totalModulePages > 1 && (
-                <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border">
-                  <span className="text-sm text-text-secondary font-medium">
-                    Página {moduleCurrentPage} de {totalModulePages}
-                  </span>
-                  <div className="flex items-center gap-2 w-full sm:w-auto justify-center">
-                    <Button
-                      onClick={() => setModuleCurrentPage((prev) => Math.max(prev - 1, 1))}
-                      isDisabled={moduleCurrentPage === 1}
-                      className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
-                      aria-label="Página Anterior"
-                    >
-                      <ChevronLeft size={18} />
-                    </Button>
-                    <Button
-                      onClick={() => setModuleCurrentPage((prev) => Math.min(prev + 1, totalModulePages))}
-                      isDisabled={moduleCurrentPage === totalModulePages}
-                      className="flex-1 sm:flex-none flex justify-center p-2 rounded-lg border border-border hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-text-primary transition-colors"
-                      aria-label="Próxima Página"
-                    >
-                      <ChevronRight size={18} />
-                    </Button>
-                  </div>
-                </div>
-              )}
+              <PaginationComponent
+                currentPage={moduleCurrentPage}
+                totalPages={totalModulePages}
+                onPageChange={setModuleCurrentPage}
+                className="mt-4"
+              />
             </>
           )}
           </div>

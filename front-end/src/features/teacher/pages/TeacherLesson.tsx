@@ -27,6 +27,7 @@ import {
 import { ButtonComponent } from "@/shared/components/ui/ButtonComponent";
 import { InputComponent } from "@/shared/components/ui/InputComponent";
 import { NotificationComponent } from "@/shared/components/ui/NotificationComponent";
+import { PaginationComponent } from "@/shared/components/ui/PaginationComponent";
 import {
   ConfirmDialog,
   useConfirmDialog,
@@ -53,6 +54,7 @@ export function TeacherLessons() {
 
   const [module, setModule] = useState<ModuleDTO | null>(null);
   const [lessons, setLessons] = useState<LessonDTO[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // NOVO: Estado para controlar quais aulas estão expandidas
   const [expandedLessons, setExpandedLessons] = useState<Set<number>>(
@@ -128,6 +130,8 @@ export function TeacherLessons() {
     if (!moduleId) return;
 
     const abortController = new AbortController();
+    setCurrentPage(1);
+    setExpandedLessons(new Set());
     loadModuleData(abortController.signal);
 
     // Cleanup: cancela requisições ao desmontar
@@ -254,6 +258,10 @@ export function TeacherLessons() {
       const created = response.data;
 
       setLessons((prev) => [...prev, { ...created, videos: [] }]);
+      setCurrentPage(Math.ceil((lessons.length + 1) / LESSONS_PER_PAGE));
+      if (created.id) {
+        setExpandedLessons(new Set([created.id]));
+      }
       setLessonTitle("");
       setLessonDescription("");
       setLessonDuration(0);
@@ -457,6 +465,19 @@ export function TeacherLessons() {
       }
     }
   };
+
+  const LESSONS_PER_PAGE = 3;
+  const totalPages = Math.max(1, Math.ceil(lessons.length / LESSONS_PER_PAGE));
+  const paginatedLessons = lessons.slice(
+    (currentPage - 1) * LESSONS_PER_PAGE,
+    currentPage * LESSONS_PER_PAGE,
+  );
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   if (isLoadingModule) {
     return (
@@ -760,7 +781,7 @@ export function TeacherLessons() {
             </div>
           ) : (
             <div className="space-y-4">
-              {lessons.map((lesson, index) => (
+              {paginatedLessons.map((lesson, index) => (
                 <div
                   key={lesson.id}
                   className="rounded-xl border hover:shadow-md transition-all"
@@ -783,7 +804,7 @@ export function TeacherLessons() {
                             className="flex items-center justify-center w-8 h-8 rounded-full text-white text-sm font-bold shrink-0"
                             style={{ backgroundColor: accentColor }}
                           >
-                            {index + 1}
+                            {(currentPage - 1) * LESSONS_PER_PAGE + index + 1}
                           </span>
                           <h4
                             className="font-bold text-lg wrap-break-word"
@@ -1322,6 +1343,13 @@ export function TeacherLessons() {
                   </div>
                 </div>
               ))}
+
+              <PaginationComponent
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+                className="mt-6"
+              />
             </div>
           )}
         </div>
