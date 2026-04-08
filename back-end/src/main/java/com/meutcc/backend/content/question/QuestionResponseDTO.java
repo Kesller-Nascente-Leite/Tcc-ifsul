@@ -5,7 +5,7 @@ import com.meutcc.backend.content.question.dtos.QuestionOptionResponseDTO;
 import java.util.List;
 public record QuestionResponseDTO(
         Long id,
-        String statement,
+        String questionText,
         QuestionType type,
         Integer points,
         List<QuestionOptionResponseDTO> options,

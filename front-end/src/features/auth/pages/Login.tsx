@@ -46,7 +46,6 @@ export function Login() {
       newError.email = "Insira um E-mail válido";
       isValid = false;
     }
-  
 
     if (formData.password.length < 8) {
       newError.password = "Sua senha deve conter pelo menos 8 caracteres";
@@ -59,6 +58,7 @@ export function Login() {
   const handleLoginSubmit = async (e: FormEventType) => {
     e.preventDefault();
     if (!validate()) return;
+    localStorage.clear();
     setIsLoading(true);
     setGeneralErro("");
     try {

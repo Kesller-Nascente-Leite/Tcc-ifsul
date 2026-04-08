@@ -42,6 +42,6 @@ public interface ExerciseMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "isActive", ignore = true)
     @Mapping(target = "order", ignore = true)
-    void updateEntityFromDTO(UpdateExerciseDTO dto, @MappingTarget Exercise exercise);
+    void updateEntityFromDTO(@MappingTarget Exercise exercise,UpdateExerciseDTO dto);
 
 }

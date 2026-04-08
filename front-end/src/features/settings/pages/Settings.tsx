@@ -651,6 +651,7 @@ export default function Settings() {
                         <PasswordInput
                           autoComplete="off"
                           label="Senha Atual"
+                          placeholder="Digite sua senha atual"
                           value={securityData.currentPassword}
                           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                             handleSecurityChange(
@@ -663,6 +664,7 @@ export default function Settings() {
                           <PasswordInput
                             autoComplete="off"
                             label="Nova Senha"
+                            placeholder="Digite sua nova senha"
                             value={securityData.newPassword}
                             onChange={(
                               e: React.ChangeEvent<HTMLInputElement>,
@@ -676,6 +678,7 @@ export default function Settings() {
                           <PasswordInput
                             autoComplete="off"
                             label="Confirmar Senha"
+                            placeholder="Confirme sua nova senha"
                             value={securityData.confirmPassword}
                             onChange={(
                               e: React.ChangeEvent<HTMLInputElement>,

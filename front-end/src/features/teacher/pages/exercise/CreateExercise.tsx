@@ -101,12 +101,12 @@ const QUESTION_TYPE_OPTIONS: QuestionTypeOption[] = [
   {
     value: "MULTIPLE_CHOICE_MULTIPLE",
     label: "Multipla resposta",
-    description: "Mais de uma op��o correta.",
+    description: "Mais de uma opção correta.",
   },
   {
     value: "TRUE_FALSE",
     label: "Verdadeiro ou falso",
-    description: "Duas op��es fixas para escolha rapida.",
+    description: "Duas opções fixas para escolha rapida.",
   },
   {
     value: "ESSAY",
@@ -534,8 +534,8 @@ export function CreateExercise() {
               className="mt-3 max-w-2xl text-sm sm:text-base"
               style={{ color: "var(--color-text-secondary)" }}
             >
-              Preencha os dados do exerc�cio em etapas simples. Cada passo
-              valida as informa��es automaticamente para garantir consist�ncia e
+              Preencha os dados do exercício em etapas simples. Cada passo
+              valida as informações automaticamente para garantir consistencia e
               envio correto ao backend.
             </p>
           </section>
@@ -749,7 +749,7 @@ export function CreateExercise() {
                       onChange={(event) => {
                         const nextValue = (event.target as HTMLInputElement)
                           .valueAsNumber;
-                      
+
                         updateForm({
                           maxAttempts: Number.isFinite(nextValue)
                             ? nextValue
@@ -824,7 +824,7 @@ export function CreateExercise() {
                     accentColor={accentColor}
                   />
                   <ToggleTile
-                    label="Embaralhar op��es"
+                    label="Embaralhar opções"
                     description="Embaralha alternativas de questoes objetivas."
                     checked={form.shuffleOptions}
                     onChange={(checked) =>
@@ -1131,7 +1131,7 @@ export function CreateExercise() {
                       value={form.shuffleQuestions ? "Sim" : "Nao"}
                     />
                     <ReviewRow
-                      label="Embaralhar op��es"
+                      label="Embaralhar opções"
                       value={form.shuffleOptions ? "Sim" : "Nao"}
                     />
                     <ReviewRow
@@ -1774,13 +1774,12 @@ function QuestionEditorCard({
                 className="mt-1 text-sm"
                 style={{ color: "var(--color-text-secondary)" }}
               >
-                Separe por virgula ou linha. Exemplo: React, reactjs, biblioteca React.
+                Separe por virgula ou linha. Exemplo: React, reactjs, biblioteca
+                React.
               </p>
               <TextArea
                 value={question.config?.acceptableAnswers?.join(", ") ?? ""}
-                onChange={(e) =>
-                  onUpdateFillBlankAnswers(e.target.value)
-                }
+                onChange={(e) => onUpdateFillBlankAnswers(e.target.value)}
                 rows={3}
                 placeholder="Digite as respostas aceitas"
                 className={`${TEXTAREA_CLASSNAME} mt-3 min-h-24`}
@@ -1816,7 +1815,7 @@ function QuestionEditorCard({
                 className="text-sm"
                 style={{ color: "var(--color-text-secondary)" }}
               >
-                Questao dissertativa nao precisa de op��es. O aluno respondera
+                Questao dissertativa nao precisa de opções. O aluno respondera
                 com texto livre e a correcao sera manual.
               </p>
             </div>
@@ -1836,7 +1835,7 @@ function QuestionEditorCard({
                     className="font-semibold"
                     style={{ color: "var(--color-text-primary)" }}
                   >
-                    {question.type === "MATCHING" ? "Pares" : "Op��es"}
+                    {question.type === "MATCHING" ? "Pares" : "Opções"}
                   </p>
                   <p
                     className="text-sm"
@@ -1891,7 +1890,7 @@ function QuestionEditorCard({
                         />
                         <div className="flex-1">
                           <FieldLabel>
-                            Op��o {String.fromCharCode(65 + optionIndex)}
+                            Opçõo {String.fromCharCode(65 + optionIndex)}
                           </FieldLabel>
                           <InputComponent
                             value={option.optionText}
@@ -1902,13 +1901,13 @@ function QuestionEditorCard({
                               })
                             }
                             disabled={question.type === "TRUE_FALSE"}
-                            placeholder={`Digite a op��o ${String.fromCharCode(65 + optionIndex)}`}
+                            placeholder={`Digite a opçõo ${String.fromCharCode(65 + optionIndex)}`}
                           />
                         </div>
                         {question.type !== "TRUE_FALSE" && (
                           <div className="flex items-center gap-2 pt-7">
                             <IconButton
-                              title="Remover op��o"
+                              title="Remover opçõo"
                               onClick={() => onRemoveOption(option.tempId)}
                               tone="danger"
                             >
@@ -2215,7 +2214,7 @@ function renderQuestionPreview(question: QuestionForm, accentColor: string) {
               fontWeight: option.isCorrect ? 600 : 400,
             }}
           >
-            {option.optionText || "Op��o sem texto"}
+            {option.optionText || "Opçõo sem texto"}
           </span>
           {option.isCorrect && <CheckCircle2 size={16} color={accentColor} />}
         </div>

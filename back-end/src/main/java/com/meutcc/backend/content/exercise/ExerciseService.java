@@ -12,6 +12,7 @@ import com.meutcc.backend.content.question.QuestionOption;
 import com.meutcc.backend.user.security.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -42,7 +43,7 @@ public class ExerciseService {
         Exercise exercise;
         if (Boolean.TRUE.equals(includeQuestions)) {
             exercise = exerciseRepository.findByIdWithQuestions(exerciseId)
-                    .orElseThrow(() -> new ExerciseException("Nenhum exercicio encontrado"));
+                    .orElseThrow(() -> new ExerciseException("Nenhum exercício encontrado"));
 
             exercise.getQuestions().forEach(q -> q.getOptions().size());
 
@@ -50,7 +51,7 @@ public class ExerciseService {
         }
 
         exercise = exerciseRepository.findById(exerciseId)
-                .orElseThrow(() -> new ExerciseException("Nenhum exercicio encontrado"));
+                .orElseThrow(() -> new ExerciseException("Nenhum exercício encontrado"));
         securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
 
         return exerciseMapper.toResponseDTO(exercise);
@@ -191,19 +192,23 @@ public class ExerciseService {
                 .count();
     }
 
+    @Transactional
     public void updateExercise(Long exerciseId, UpdateExerciseDTO updateExerciseDTO) {
         Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(
-                () -> new ExerciseException("Não é possivel atualizar os exercicios")
+                () -> new ExerciseException("Não é possível atualizar os exercícios")
         );
         securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
 
-        exerciseMapper.updateEntityFromDTO(updateExerciseDTO, exercise);
-        Exercise savedExercise = exerciseRepository.save(exercise);
+        exerciseMapper.updateEntityFromDTO(exercise, updateExerciseDTO);
+
+
+        exerciseRepository.save(exercise);
     }
 
+    @Transactional
     public void delete(Long exerciseId) {
         Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(
-                () -> new ExerciseException("Nenhum exercicios encontrado")
+                () -> new ExerciseException("Nenhum exercícios encontrado")
         );
         securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
 

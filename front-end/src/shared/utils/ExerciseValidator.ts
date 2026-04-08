@@ -22,6 +22,19 @@ export class ExerciseValidator {
         message: "Titulo deve ter no minimo 3 caracteres",
       });
     }
+    if (!data.passingScore) {
+      errors.push({
+        field: "passingScore",
+        message: "A pontuação do exercício deve não pode ficar vazia.",
+      });
+    }
+
+    if (data.passingScore && data.passingScore <= 0) {
+      errors.push({
+        field: "passingScore",
+        message: "A pontuação não pode ser menor ou igual a zero.",
+      });
+    }
 
     if (data.totalPoints !== undefined && data.totalPoints <= 0) {
       errors.push({

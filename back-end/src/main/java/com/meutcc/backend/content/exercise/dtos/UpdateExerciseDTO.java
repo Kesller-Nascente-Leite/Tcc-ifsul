@@ -1,11 +1,13 @@
 package com.meutcc.backend.content.exercise.dtos;
 
 import com.meutcc.backend.content.question.QuestionDisplayMode;
+import com.meutcc.backend.content.question.dtos.UpdateQuestionDTO;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record UpdateExerciseDTO(
         @Size(max = 255, message = "Título deve ter no máximo 255 caracteres")
@@ -38,6 +40,8 @@ public record UpdateExerciseDTO(
         LocalDateTime availableFrom,
         LocalDateTime availableUntil,
 
-        Boolean isActive
+        Boolean isActive,
+
+        List<UpdateQuestionDTO> questions
 ) {
 }

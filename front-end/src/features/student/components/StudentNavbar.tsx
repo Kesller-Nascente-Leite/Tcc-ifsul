@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Menu, X, Bell, Search, LogOut, Moon, Sun } from "lucide-react";
 import { useNavigate } from "react-router";
-import { AuthApi, type AuthUser } from "@/features/auth/api/auth.api";
+import { type AuthUser } from "@/features/auth/api/auth.api";
 import { useTheme } from "@/app/providers/ThemeContext";
 import { InputComponent } from "@/shared/components/ui/InputComponent";
 
@@ -35,7 +35,7 @@ export default function StudentNavbar({
   const handleLogout = async () => {
     setIsLoading(true);
     try {
-      await AuthApi.logout();
+      // Logout is handled client-side by clearing localStorage
     } catch (err: unknown) {
       console.error("Erro no logout", err);
     } finally {

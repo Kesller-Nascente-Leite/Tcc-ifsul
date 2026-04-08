@@ -13,9 +13,9 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
     List<Exercise> findByLessonId(Long lessonId);
 
     @Query("""
-    SELECT e FROM Exercise e
-    LEFT JOIN FETCH e.questions
-    WHERE e.id = :id
-""")
-   Optional<Exercise> findByIdWithQuestions(Long id);
+                SELECT e FROM Exercise e
+                LEFT JOIN FETCH e.questions
+                WHERE e.id = :id
+            """)
+    Optional<Exercise> findByIdWithQuestions(Long id);
 }

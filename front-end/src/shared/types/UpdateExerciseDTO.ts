@@ -1,4 +1,5 @@
 import type { QuestionDisplayMode } from "@/shared/types/QuestionDisplayMode";
+import type { UpdateQuestionDTO } from "./UpdateQuestionDTO";
 
 export interface UpdateExerciseDTO {
   title?: string;
@@ -17,4 +18,5 @@ export interface UpdateExerciseDTO {
   availableFrom?: string;
   availableUntil?: string;
   isActive?: boolean;
+  questions?: UpdateQuestionDTO[];
 }
