@@ -5,6 +5,10 @@ export function mapResponseQuestions(questions: any[]) {
   return questions.map(q => ({
     tempId: Math.random().toString(),
     ...q,
+    options: q.options?.map((option: any) => ({
+      tempId: Math.random().toString(),
+      ...option,
+    })) ?? [],
   }));
 }
 

@@ -211,7 +211,7 @@ export function QuestionEditorCard({
                 }
                 rows={3}
                 placeholder="Digite as respostas aceitas"
-                className="min-h-[112px] w-full rounded-2xl border px-4 py-3 text-sm outline-none transition-colors resize-y mt-3"
+                className="min-h-28 w-full rounded-2xl border px-4 py-3 text-sm outline-none transition-colors resize-y mt-3"
                 style={{
                   backgroundColor: "var(--color-surface-secondary)",
                   borderColor: "var(--color-border)",
