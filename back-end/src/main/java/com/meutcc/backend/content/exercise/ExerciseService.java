@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -194,12 +195,56 @@ public class ExerciseService {
 
     @Transactional
     public void updateExercise(Long exerciseId, UpdateExerciseDTO updateExerciseDTO) {
-        Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(
-                () -> new ExerciseException("Não é possível atualizar os exercícios")
-        );
+        Exercise exercise = exerciseRepository.findById(exerciseId)
+                .orElseThrow(() -> new ExerciseException("Não é possível atualizar os exercícios"));
+
         securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
 
         exerciseMapper.updateEntityFromDTO(exercise, updateExerciseDTO);
+
+        if (updateExerciseDTO.questions() != null && !updateExerciseDTO.questions().isEmpty()) {
+            exercise.getQuestions().clear();
+
+            List<Question> updatedQuestions = updateExerciseDTO.questions().stream()
+                    .map(qDTO -> {
+                        List<QuestionOption> options = new ArrayList<>();
+                        if (qDTO.options() != null && !qDTO.options().isEmpty()) {
+                            options = qDTO.options().stream()
+                                    .map(optionDTO -> QuestionOption.builder()
+                                            .optionText(optionDTO.optionText())
+                                            .isCorrect(optionDTO.isCorrect())
+                                            .order(optionDTO.order() != null ? optionDTO.order() : 0)
+                                            .feedback(optionDTO.feedback())
+                                            .imageUrl(optionDTO.imageUrl())
+                                            .matchPair(optionDTO.matchPair())
+                                            .correctPosition(optionDTO.correctPosition())
+                                            .build())
+                                    .toList();
+                        }
+
+                        Question question = Question.builder()
+                                .exercise(exercise)
+                                .type(qDTO.type())
+                                .questionText(qDTO.questionText())
+                                .explanation(qDTO.explanation())
+                                .imageUrl(qDTO.imageUrl())
+                                .videoUrl(qDTO.videoUrl())
+                                .points(qDTO.points())
+                                .order(qDTO.order() != null ? qDTO.order() : 0)
+                                .isRequired(qDTO.isRequired() != null ? qDTO.isRequired() : false)
+                                .config(qDTO.config())
+                                .build();
+
+                        options.forEach(option -> option.setQuestion(question));
+                        question.setOptions(new ArrayList<>(options));
+
+                        validateQuestion(question);
+
+                        return question;
+                    })
+                    .toList();
+            exercise.getQuestions().addAll(updatedQuestions);
+        }
 
         exerciseRepository.save(exercise);
     }
