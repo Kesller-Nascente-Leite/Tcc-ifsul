@@ -8,6 +8,9 @@ interface AuthorizationResult {
 
 export function useCourseAuthorization() {
   const { user, isLoading } = useAuth();
+  const storedUser = localStorage.getItem("user");
+  const authenticatedUser =
+    user ?? (storedUser ? JSON.parse(storedUser) : null);
 
   const validateCourseOwner = (
     course: CourseDTO | null,
@@ -16,7 +19,7 @@ export function useCourseAuthorization() {
       return { isAuthorized: false, reason: "Curso não encontrado" };
     }
 
-    if (!user) {
+    if (!authenticatedUser) {
       return { isAuthorized: false, reason: "Usuário não autenticado" };
     }
 
@@ -30,5 +33,5 @@ export function useCourseAuthorization() {
     return { isAuthorized: true };
   };
 
-  return { validateCourseOwner, user, isLoading };
+  return { validateCourseOwner, user: authenticatedUser, isLoading };
 }

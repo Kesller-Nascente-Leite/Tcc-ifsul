@@ -25,6 +25,7 @@ import {
   createOption,
   createQuestion,
   mapExerciseResponseToForm,
+  mapQuestionToCreateDTO,
   mapQuestionToDTO,
   mapResponseQuestions,
   normalizeQuestions,
@@ -425,7 +426,7 @@ export function ExerciseEdit() {
     allowReview: form.allowReview,
     questionDisplayMode: form.questionDisplayMode,
     questions: questions.map((question, index) =>
-      mapQuestionToDTO(question, index),
+      mapQuestionToCreateDTO(question, index),
     ),
   });
 

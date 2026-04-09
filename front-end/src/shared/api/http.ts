@@ -50,6 +50,7 @@ api.interceptors.response.use(
           const response = await api.post("/auth/refresh", { refreshToken });
           const newAccessToken = response.data.accessToken;
           localStorage.setItem("access_token", newAccessToken);
+          localStorage.setItem("last_token_validation", Date.now().toString());
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return api(originalRequest);
         } catch (refreshError) {

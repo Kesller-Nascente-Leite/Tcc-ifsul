@@ -201,7 +201,6 @@ public class ExerciseService {
 
         exerciseMapper.updateEntityFromDTO(exercise, updateExerciseDTO);
 
-
         exerciseRepository.save(exercise);
     }
 

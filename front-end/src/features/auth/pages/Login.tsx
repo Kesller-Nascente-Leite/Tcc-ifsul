@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { ArrowRight, MessageSquareWarning } from "lucide-react";
 import Logo from "@/shared/assets/branding/Logo.png";
 import { FormComponent } from "@/shared/components/ui/FormComponent";
@@ -11,11 +11,11 @@ import {
   type FormEvent as FormEventType,
 } from "react";
 import axios from "axios";
-import { AuthService } from "@/shared/services/auth.service";
 import { PasswordInput } from "@/shared/components/ui/PasswordInput";
+import { useAuth } from "@/app/providers/AuthContext";
 
 export function Login() {
-  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -67,17 +67,7 @@ export function Login() {
         email: formData.email,
       };
 
-      const responseData = await AuthService.login(payload);
-
-      const userRole = responseData.user.role;
-
-      if (userRole === "ADMIN") {
-        navigate("/admin/dashboard");
-      } else if (userRole === "TEACHER") {
-        navigate("/teacher/dashboard");
-      } else {
-        navigate("/student/dashboard");
-      }
+      await login(payload);
     } catch (err: unknown) {
       console.error(err);
 

@@ -1,4 +1,5 @@
 ﻿export interface CreateQuestionOptionDTO {
+  id?: number;
   optionText: string;
   imageUrl?: string;
   isCorrect: boolean;

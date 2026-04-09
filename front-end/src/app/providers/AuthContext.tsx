@@ -66,6 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (refreshToken) {
         localStorage.setItem("refresh_token", refreshToken);
       }
+      localStorage.setItem("last_token_validation", Date.now().toString());
       localStorage.setItem("user", JSON.stringify(userData));
 
       setUser(userData);
@@ -75,6 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         navigate("/teacher/dashboard");
       } else if (userData.role === "STUDENT") {
         navigate("/student/dashboard");
+      } else if (userData.role === "ADMIN") {
+        navigate("/admin/dashboard");
       } else {
         navigate("/dashboard");
       }

@@ -1,4 +1,6 @@
 // Utility functions for ExerciseEdit
+import type { UpdateQuestionDTO } from "@/shared/types/UpdateQuestionDTO";
+
 export function mapResponseQuestions(questions: any[]) {
   return questions.map(q => ({
     tempId: Math.random().toString(),
@@ -72,10 +74,34 @@ export function trimOrUndefined(value: string) {
   return value.trim() || undefined;
 }
 
-export function mapQuestionToDTO(question: any, index: number) {
+export function mapQuestionToDTO(question: any, index: number): UpdateQuestionDTO {
   return {
-    ...question,
+    id: question.id || undefined,
+    type: question.type,
+    questionText: question.questionText || undefined,
+    explanation: question.explanation || undefined,
+    imageUrl: question.imageUrl || undefined,
+    videoUrl: question.videoUrl || undefined,
+    points: question.points || undefined,
     order: index,
+    isRequired: question.isRequired || undefined,
+    config: question.config || undefined,
+    options: question.options || undefined,
+  };
+}
+
+export function mapQuestionToCreateDTO(question: any, index: number) {
+  return {
+    type: question.type,
+    questionText: question.questionText,
+    explanation: question.explanation,
+    imageUrl: question.imageUrl,
+    videoUrl: question.videoUrl,
+    points: question.points,
+    order: index,
+    isRequired: question.isRequired,
+    config: question.config,
+    options: question.options,
   };
 }
 
