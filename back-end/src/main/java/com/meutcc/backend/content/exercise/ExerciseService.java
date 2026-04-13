@@ -1,6 +1,7 @@
 package com.meutcc.backend.content.exercise;
 
 import com.meutcc.backend.content.exercise.dtos.CreateExerciseDTO;
+import com.meutcc.backend.content.exercise.dtos.ExerciseStatisticsDTO;
 import com.meutcc.backend.content.exercise.dtos.UpdateExerciseDTO;
 import com.meutcc.backend.content.lesson.Lesson;
 import com.meutcc.backend.content.lesson.LessonException;
@@ -15,8 +16,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -257,5 +260,39 @@ public class ExerciseService {
         securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
 
         exerciseRepository.delete(exercise);
+    }
+
+    public Optional<ExerciseStatisticsDTO> getStatistics(Long exerciseId) {
+        Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(
+                () -> new ExerciseException("Nenhum exercícios encontrado para tirar as estatísticas")
+        );
+        securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
+        return exerciseRepository.getStatistics(exerciseId)
+                .map(row -> {
+                    Long totalStudents = (Long) row[0];
+                    Long totalAttempts = (Long) row[1];
+                    BigDecimal avgScore = (BigDecimal) row[2];
+                    BigDecimal avgPercentage = (BigDecimal) row[3];
+                    Long passedCount = (Long) row[4];
+                    Long failedCount = (Long) row[5];
+                    Double avgTimeSpent = (Double) row[6];
+                    BigDecimal highestScore = (BigDecimal) row[7];
+                    BigDecimal lowestScore = (BigDecimal) row[8];
+
+                    double passRate = totalAttempts > 0 ? (passedCount.doubleValue() / totalAttempts) * 100.0 : 0.0;
+
+                    return new ExerciseStatisticsDTO(
+                            totalStudents.intValue(),
+                            totalAttempts.intValue(),
+                            avgScore,
+                            avgPercentage,
+                            passedCount.intValue(),
+                            failedCount.intValue(),
+                            passRate,
+                            avgTimeSpent != null ? avgTimeSpent.intValue() : 0,
+                            highestScore,
+                            lowestScore
+                    );
+                });
     }
 }

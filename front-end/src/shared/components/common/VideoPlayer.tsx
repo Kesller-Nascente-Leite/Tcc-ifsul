@@ -227,7 +227,13 @@ export function VideoPlayer({
       videoRef.current.buffered.length > 0
         ? videoRef.current.buffered.end(videoRef.current.buffered.length - 1)
         : 0;
-    setBuffered((bufferedEnd / videoRef.current.duration) * 100);
+    const videoDuration = videoRef.current.duration;
+    if (videoDuration && !isNaN(videoDuration) && videoDuration > 0) {
+      const bufferPercent = Math.min(100, Math.max(0, (bufferedEnd / videoDuration) * 100));
+      setBuffered(bufferPercent);
+    } else {
+      setBuffered(0);
+    }
   };
 
   // Buscar posição
@@ -1475,7 +1481,7 @@ export function VideoPlayer({
           <div className="mt-3 pt-3 border-t" style={{ borderColor: "var(--color-border)" }}>
             <div className="flex items-center justify-between text-xs mb-1">
               <span style={{ color: "var(--color-text-secondary)" }}>
-                Buffer: {buffered.toFixed(0)}%
+                {buffered > 0 && !isNaN(buffered) ? `Buffer: ${buffered.toFixed(0)}%` : 'Buffer: Carregando...'}
               </span>
               <span style={{ color: accentColor }}>
                 {isLoop && "🔁 Loop ativo"}

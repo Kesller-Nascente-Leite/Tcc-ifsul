@@ -9,11 +9,11 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**") // Libera todos os endpoints
-                .allowedOrigins("http://localhost:5173") //Em produção, subtituir depois pelo ip especifico
-                //.allowedOrigins("")
+        registry.addMapping("/**")
+                .allowedOriginPatterns("http://localhost:*", "http://127.0.0.1:*", "http://10.0.0.*:*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
+                .exposedHeaders("Authorization", "Content-Disposition")
                 .allowCredentials(true);
     }
 }

@@ -18,6 +18,7 @@ import { ExerciseTeacherApi } from "@/features/teacher/api/exerciseTeacher.api";
 import type { ExerciseStatisticsDTO } from "@/shared/types/ExerciseStatisticsDTO";
 import type { AttemptResponseDTO } from "@/shared/types/AttemptResponseDTO";
 import { useTheme } from "@/app/providers/ThemeContext";
+import { Button, Header } from "react-aria-components";
 
 type TabType = "overview" | "attempts" | "questions";
 
@@ -106,7 +107,7 @@ export function ExerciseStatistics() {
       style={{ backgroundColor: "var(--color-bg-main)" }}
     >
       {/* Header */}
-      <header
+      <Header
         className="sticky top-0 z-10 border-b backdrop-blur-lg"
         style={{
           backgroundColor: isDark
@@ -116,7 +117,7 @@ export function ExerciseStatistics() {
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <button
+          <Button
             onClick={() =>
               navigate(
                 `/teacher/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/exercises`,
@@ -127,7 +128,7 @@ export function ExerciseStatistics() {
           >
             <ArrowLeft size={18} />
             <span className="text-sm font-medium">Voltar para Exercícios</span>
-          </button>
+          </Button>
 
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
             <div className="flex-1 min-w-0">
@@ -185,7 +186,7 @@ export function ExerciseStatistics() {
             />
           </div>
         </div>
-      </header>
+      </Header>
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -228,7 +229,7 @@ function TabButton({
   accentColor: string;
 }) {
   return (
-    <button
+    <Button
       onClick={onClick}
       className={`flex items-center gap-2 px-4 py-3 border-b-2 font-semibold transition-all whitespace-nowrap ${
         active ? "border-current" : "border-transparent"
@@ -239,7 +240,7 @@ function TabButton({
     >
       {icon}
       <span className="hidden sm:inline">{label}</span>
-    </button>
+    </Button>
   );
 }
 

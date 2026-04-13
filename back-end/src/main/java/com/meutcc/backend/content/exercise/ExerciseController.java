@@ -1,6 +1,7 @@
 package com.meutcc.backend.content.exercise;
 
 import com.meutcc.backend.content.exercise.dtos.CreateExerciseDTO;
+import com.meutcc.backend.content.exercise.dtos.ExerciseStatisticsDTO;
 import com.meutcc.backend.content.exercise.dtos.UpdateExerciseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -46,4 +48,11 @@ public class ExerciseController {
         exerciseService.delete(exerciseId);
     }
 
+    @GetMapping("/teacher/exercises/{exerciseId}/statistics")
+    public Optional<ExerciseStatisticsDTO> getStatistics(@PathVariable("exerciseId") Long exerciseId) {
+        return exerciseService.getStatistics(exerciseId);
+    }
+/*
+    @GetMapping("/teacher/exercises/{exerciseId}/students/{studentId}/progress")
+    public*/
 }
