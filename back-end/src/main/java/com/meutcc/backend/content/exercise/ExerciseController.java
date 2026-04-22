@@ -1,5 +1,6 @@
 package com.meutcc.backend.content.exercise;
 
+import com.meutcc.backend.content.attempt.AttemptResponseDTO;
 import com.meutcc.backend.content.exercise.dtos.CreateExerciseDTO;
 import com.meutcc.backend.content.exercise.dtos.ExerciseStatisticsDTO;
 import com.meutcc.backend.content.exercise.dtos.UpdateExerciseDTO;
@@ -52,7 +53,9 @@ public class ExerciseController {
     public Optional<ExerciseStatisticsDTO> getStatistics(@PathVariable("exerciseId") Long exerciseId) {
         return exerciseService.getStatistics(exerciseId);
     }
-/*
-    @GetMapping("/teacher/exercises/{exerciseId}/students/{studentId}/progress")
-    public*/
+
+    @GetMapping("/teacher/exercises/{exerciseId}/attempts")
+    public List<AttemptResponseDTO> listAttempts(@PathVariable("exerciseId") Long exerciseId) {
+        return exerciseService.listAttempts(exerciseId);
+    }
 }

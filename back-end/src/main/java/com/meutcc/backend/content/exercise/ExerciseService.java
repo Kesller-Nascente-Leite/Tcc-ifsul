@@ -1,5 +1,9 @@
 package com.meutcc.backend.content.exercise;
 
+import com.meutcc.backend.content.answer.AnswerResponseDTO;
+import com.meutcc.backend.content.attempt.AttemptResponseDTO;
+import com.meutcc.backend.content.attempt.ExerciseAttempt;
+import com.meutcc.backend.content.attempt.ExerciseAttemptRepository;
 import com.meutcc.backend.content.exercise.dtos.CreateExerciseDTO;
 import com.meutcc.backend.content.exercise.dtos.ExerciseStatisticsDTO;
 import com.meutcc.backend.content.exercise.dtos.UpdateExerciseDTO;
@@ -30,6 +34,7 @@ public class ExerciseService {
     private final QuestionMapper questionMapper;
     private final LessonRepository lessonRepository;
     private final SecurityService securityService;
+    private final ExerciseAttemptRepository exerciseAttemptRepository;
 
     @Transactional(readOnly = true)
     public List<ExerciseResponseDTO> getAllExercises(Long lessonId) {
@@ -267,32 +272,113 @@ public class ExerciseService {
                 () -> new ExerciseException("Nenhum exercícios encontrado para tirar as estatísticas")
         );
         securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
-        return exerciseRepository.getStatistics(exerciseId)
-                .map(row -> {
-                    Long totalStudents = (Long) row[0];
-                    Long totalAttempts = (Long) row[1];
-                    BigDecimal avgScore = (BigDecimal) row[2];
-                    BigDecimal avgPercentage = (BigDecimal) row[3];
-                    Long passedCount = (Long) row[4];
-                    Long failedCount = (Long) row[5];
-                    Double avgTimeSpent = (Double) row[6];
-                    BigDecimal highestScore = (BigDecimal) row[7];
-                    BigDecimal lowestScore = (BigDecimal) row[8];
+        return exerciseRepository.getStatistics(exerciseId).stream()
+                .findFirst()
+                .map(this::toExerciseStatisticsDTO);
+    }
 
-                    double passRate = totalAttempts > 0 ? (passedCount.doubleValue() / totalAttempts) * 100.0 : 0.0;
+    private ExerciseStatisticsDTO toExerciseStatisticsDTO(Object[] row) {
+        Long totalStudents = toLong(row[0]);
+        Long totalAttempts = toLong(row[1]);
+        BigDecimal avgScore = toBigDecimal(row[2]);
+        BigDecimal avgPercentage = toBigDecimal(row[3]);
+        Long passedCount = toLong(row[4]);
+        Long failedCount = toLong(row[5]);
+        Double avgTimeSpent = toDouble(row[6]);
+        BigDecimal highestScore = toBigDecimal(row[7]);
+        BigDecimal lowestScore = toBigDecimal(row[8]);
 
-                    return new ExerciseStatisticsDTO(
-                            totalStudents.intValue(),
-                            totalAttempts.intValue(),
-                            avgScore,
-                            avgPercentage,
-                            passedCount.intValue(),
-                            failedCount.intValue(),
-                            passRate,
-                            avgTimeSpent != null ? avgTimeSpent.intValue() : 0,
-                            highestScore,
-                            lowestScore
-                    );
-                });
+        double passRate = totalAttempts > 0 ? (passedCount.doubleValue() / totalAttempts) * 100.0 : 0.0;
+
+        return new ExerciseStatisticsDTO(
+                totalStudents.intValue(),
+                totalAttempts.intValue(),
+                avgScore,
+                avgPercentage,
+                passedCount.intValue(),
+                failedCount.intValue(),
+                passRate,
+                avgTimeSpent != null ? avgTimeSpent.intValue() : 0,
+                highestScore,
+                lowestScore
+        );
+    }
+
+    private Long toLong(Object value) {
+        return value instanceof Number number ? number.longValue() : 0L;
+    }
+
+    private Double toDouble(Object value) {
+        return value instanceof Number number ? number.doubleValue() : null;
+    }
+
+    private BigDecimal toBigDecimal(Object value) {
+        if (value instanceof BigDecimal bigDecimal) {
+            return bigDecimal;
+        }
+        return value instanceof Number number ? BigDecimal.valueOf(number.doubleValue()) : null;
+    }
+
+    @Transactional(readOnly = true)
+    public List<AttemptResponseDTO> listAttempts(Long exerciseId) {
+        Exercise exercise = exerciseRepository.findByIdWithQuestions(exerciseId).orElseThrow(
+                () -> new ExerciseException("Nenhum exercício encontrado")
+        );
+        securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
+
+        int totalQuestions = exercise.getQuestions().size();
+
+        return exerciseAttemptRepository.findByExerciseIdWithAnswers(exerciseId)
+                .stream()
+                .map(attempt -> toAttemptResponseDTO(attempt,totalQuestions))
+                .toList();
+
+    }
+    private AttemptResponseDTO toAttemptResponseDTO(ExerciseAttempt attempt, int totalQuestions) {
+        var exercise = attempt.getExercise();
+        var student = attempt.getStudent();
+
+        var answers = attempt.getAnswers()
+                .stream()
+                .map(answer -> new AnswerResponseDTO(
+                        answer.getId(),
+                        answer.getQuestion().getId(),
+                        answer.getQuestion().getQuestionText(),
+                        answer.getQuestion().getType(),
+                        answer.getSelectedOptions(),
+                        answer.getTextAnswer(),
+                        answer.getOrderAnswer(),
+                        answer.getMatchAnswer(),
+                        answer.getIsCorrect(),
+                        answer.getPointsEarned(),
+                        answer.getQuestion().getPoints(),
+                        answer.getFeedback(),
+                        answer.getAnsweredAt()
+                ))
+                .toList();
+
+        return new AttemptResponseDTO(
+                attempt.getId(),
+                exercise.getId(),
+                exercise.getTitle(),
+                student.getId(),
+                student.getFullName(),
+                student.getEmail(),
+                attempt.getAttemptNumber(),
+                attempt.getStatus().name(),
+                attempt.getStartedAt(),
+                attempt.getSubmittedAt(),
+                attempt.getGradedAt(),
+                attempt.getTimeSpent(),
+                attempt.getRemainingTime(),
+                attempt.getScore(),
+                attempt.getPercentage(),
+                attempt.getPassed(),
+                attempt.getTeacherFeedback(),
+                totalQuestions,
+                answers.size(),
+                answers,
+                attempt.getCreatedAt()
+        );
     }
 }

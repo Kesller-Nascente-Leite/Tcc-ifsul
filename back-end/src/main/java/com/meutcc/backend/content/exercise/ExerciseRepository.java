@@ -34,6 +34,6 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
                 WHERE ea.exercise.id = :exerciseId
                 AND ea.status = 'GRADED'
             """)
-    Optional<Object[]> getStatistics(@Param("exerciseId") Long exerciseId);
+    List<Object[]> getStatistics(@Param("exerciseId") Long exerciseId);
 
 }

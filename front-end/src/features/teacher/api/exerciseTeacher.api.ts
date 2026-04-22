@@ -67,8 +67,7 @@ export class ExerciseTeacherApi {
     );
   }
 
-  //  Exportar resultados (CSV)
-
+  //  Exportar resultados (CSV e Excel)
   static async exportResults(exerciseId: number) {
     const response = await api.get(`/teacher/exercises/${exerciseId}/export`, {
       responseType: "blob",

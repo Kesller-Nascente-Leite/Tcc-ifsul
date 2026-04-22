@@ -17,13 +17,17 @@ export function OverviewTab({ statistics, accentColor }: OverviewTabProps) {
         <StatCard
           icon={<Users size={24} />}
           label="Total de Tentativas"
-          value={statistics.totalAttempts}
+          value={statistics.totalAttempts }
           color={accentColor}
         />
         <StatCard
           icon={<Award size={24} />}
           label="Média de Notas"
-          value={`${Math.round(statistics.averagePercentage)}%`}
+          value={
+            statistics.averagePercentage
+              ? `${Math.round(statistics.averagePercentage)}%`
+              : "0%"
+          }
           color={accentColor}
         />
         <StatCard
@@ -58,17 +62,25 @@ export function OverviewTab({ statistics, accentColor }: OverviewTabProps) {
           <div className="space-y-4">
             <MetricRow
               label="Maior Nota"
-              value={`${statistics.highestScore}%`}
+              value={
+                statistics.highestScore ? `${statistics.highestScore}%` : "0%"
+              }
               color="#10b981"
             />
             <MetricRow
               label="Menor Nota"
-              value={`${statistics.lowestScore}%`}
+              value={
+                statistics.lowestScore ? `${statistics.lowestScore}%` : "0%"
+              }
               color="#ef4444"
             />
             <MetricRow
               label="Média"
-              value={`${Math.round(statistics.averageScore)}%`}
+              value={
+                statistics.averageScore
+                  ? `${Math.round(statistics.averageScore)}%`
+                  : "0%"
+              }
               color="#3b82f6"
             />
           </div>
@@ -142,7 +154,7 @@ export function OverviewTab({ statistics, accentColor }: OverviewTabProps) {
                 className="text-3xl font-bold"
                 style={{ color: "var(--color-text-primary)" }}
               >
-                {Math.round(statistics.averageScore)}
+                {statistics.averageScore ? Math.round(statistics.averageScore) : "Nenhum ponto registrado"}
               </p>
             </div>
 

@@ -187,7 +187,7 @@ export function ExerciseCard({
           />
 
           <div className="flex gap-2 pt-2">
-            <button
+            <Button
               onClick={onViewStats}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all hover:scale-105"
               style={{
@@ -198,8 +198,8 @@ export function ExerciseCard({
             >
               <BarChart3 size={16} />
               Estatísticas
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={onEdit}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all hover:scale-105"
               style={{
@@ -209,7 +209,7 @@ export function ExerciseCard({
             >
               <Edit3 size={16} />
               Editar
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
@@ -228,7 +228,7 @@ export function ExerciseCard({
           >
             Nenhuma tentativa realizada ainda
           </p>
-          <button
+          <Button
             onClick={onEdit}
             className="px-4 py-2 rounded-lg font-medium transition-all hover:scale-105"
             style={{
@@ -237,7 +237,7 @@ export function ExerciseCard({
             }}
           >
             Editar Exercício
-          </button>
+          </Button>
         </div>
       )}
     </div>
@@ -256,7 +256,7 @@ function MenuButton({
   danger?: boolean;
 }) {
   return (
-    <button
+    <Button
       onClick={onClick}
       className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors hover:bg-opacity-10"
       style={{
@@ -274,7 +274,7 @@ function MenuButton({
     >
       {icon}
       {label}
-    </button>
+    </Button>
   );
 }
 
