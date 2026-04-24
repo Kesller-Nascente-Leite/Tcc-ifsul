@@ -88,7 +88,7 @@ const INITIAL_FORM_STATE: ExerciseFormState = {
 
 const STEPS = [
   { id: 1, label: "Detalhes", description: "Nome, pontuacao e comportamento" },
-  { id: 2, label: "Questoes", description: "Monte o conteudo e o gabarito" },
+  { id: 2, label: "Questões", description: "Monte o conteudo e o gabarito" },
   { id: 3, label: "Revisao", description: "Confira tudo antes de salvar" },
 ] as const;
 
@@ -138,7 +138,7 @@ const DISPLAY_MODE_OPTIONS: Array<{
   {
     value: "ALL_AT_ONCE",
     label: "Tudo na mesma tela",
-    description: "O aluno ve todas as questoes de uma vez.",
+    description: "O aluno ve todas as questões de uma vez.",
   },
   {
     value: "SEQUENTIAL",
@@ -555,7 +555,7 @@ export function CreateExercise() {
             </h2>
             <div className="mt-5 grid grid-cols-3 gap-3">
               <SummaryChip
-                label="Questoes"
+                label="Questões"
                 value={questions.length.toString()}
                 accentColor={accentColor}
               />
@@ -577,7 +577,7 @@ export function CreateExercise() {
               {currentStep === 0 &&
                 "Defina o objetivo e as regras do exercicio."}
               {currentStep === 1 &&
-                "Monte as questoes e confira a distribuicao de pontos."}
+                "Monte as questões e confira a distribuicao de pontos."}
               {currentStep === 2 && "Revise o conteudo final antes de salvar."}
             </p>
           </section>
@@ -763,7 +763,7 @@ export function CreateExercise() {
 
               <SectionBlock
                 title="Experiencia do aluno"
-                description="Escolha como as questoes serao apresentadas e quais informacoes aparecem ao final."
+                description="Escolha como as questões serao apresentadas e quais informacoes aparecem ao final."
               >
                 <div className="grid gap-3 lg:grid-cols-3">
                   {DISPLAY_MODE_OPTIONS.map((option) => {
@@ -815,8 +815,8 @@ export function CreateExercise() {
 
                 <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                   <ToggleTile
-                    label="Embaralhar questoes"
-                    description="Muda a ordem das questoes para cada tentativa."
+                    label="Embaralhar questões"
+                    description="Muda a ordem das questões para cada tentativa."
                     checked={form.shuffleQuestions}
                     onChange={(checked) =>
                       updateForm({ shuffleQuestions: checked })
@@ -825,7 +825,7 @@ export function CreateExercise() {
                   />
                   <ToggleTile
                     label="Embaralhar opções"
-                    description="Embaralha alternativas de questoes objetivas."
+                    description="Embaralha alternativas de questões objetivas."
                     checked={form.shuffleOptions}
                     onChange={(checked) =>
                       updateForm({ shuffleOptions: checked })
@@ -878,7 +878,7 @@ export function CreateExercise() {
                       className="text-2xl font-semibold"
                       style={{ color: "var(--color-text-primary)" }}
                     >
-                      Monte as questoes
+                      Monte as questões
                     </h2>
                     <p
                       className="mt-1 text-sm"
@@ -1079,7 +1079,7 @@ export function CreateExercise() {
                   </h3>
                   <div className="mt-5 grid grid-cols-2 gap-3">
                     <MetricCard
-                      label="Questoes"
+                      label="Questões"
                       value={questions.length.toString()}
                     />
                     <MetricCard
@@ -1127,7 +1127,7 @@ export function CreateExercise() {
                 >
                   <div className="grid gap-3 md:grid-cols-2">
                     <ReviewRow
-                      label="Embaralhar questoes"
+                      label="Embaralhar questões"
                       value={form.shuffleQuestions ? "Sim" : "Nao"}
                     />
                     <ReviewRow
@@ -1161,7 +1161,7 @@ export function CreateExercise() {
               </div>
 
               <SectionBlock
-                title="Preview das questoes"
+                title="Preview das questões"
                 description="Esse resumo ajuda a validar rapidamente o tipo, a pontuacao e o gabarito de cada item."
               >
                 <div className="space-y-4">
@@ -1257,7 +1257,7 @@ export function CreateExercise() {
             >
               {currentStep === 0 &&
                 "Primeiro definimos as regras gerais do exercicio."}
-              {currentStep === 1 && "Depois montamos as questoes e o gabarito."}
+              {currentStep === 1 && "Depois montamos as questões e o gabarito."}
               {currentStep === 2 && "Por fim, confira tudo antes de salvar."}
             </p>
 

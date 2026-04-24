@@ -25,7 +25,7 @@ export function getQuestionTypeLabel(type: QuestionType) {
 export function getDisplayModeLabel(mode: QuestionDisplayMode) {
   switch (mode) {
     case "ALL_AT_ONCE":
-      return "Todas as questoes de uma vez";
+      return "Todas as questões de uma vez";
     case "SEQUENTIAL":
       return "Uma questao por vez";
     default:

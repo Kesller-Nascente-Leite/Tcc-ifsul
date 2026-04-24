@@ -50,7 +50,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/teacher/exercises/{exerciseId}/statistics")
-    public Optional<ExerciseStatisticsDTO> getStatistics(@PathVariable("exerciseId") Long exerciseId) {
+    public ExerciseStatisticsDTO getStatistics(@PathVariable("exerciseId") Long exerciseId) {
         return exerciseService.getStatistics(exerciseId);
     }
 

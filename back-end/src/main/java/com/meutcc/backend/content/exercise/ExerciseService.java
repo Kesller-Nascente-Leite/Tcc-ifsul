@@ -267,38 +267,53 @@ public class ExerciseService {
         exerciseRepository.delete(exercise);
     }
 
-    public Optional<ExerciseStatisticsDTO> getStatistics(Long exerciseId) {
+    public ExerciseStatisticsDTO getStatistics(Long exerciseId) {
         Exercise exercise = exerciseRepository.findById(exerciseId).orElseThrow(
                 () -> new ExerciseException("Nenhum exercícios encontrado para tirar as estatísticas")
         );
         securityService.validateCourseOwner(exercise.getLesson().getModule().getCourse().getId());
-        return exerciseRepository.getStatistics(exerciseId).stream()
+        return exerciseAttemptRepository.getStatistics(exerciseId).stream()
                 .findFirst()
-                .map(this::toExerciseStatisticsDTO);
+                .map(this::toExerciseStatisticsDTO)
+                .orElse(new ExerciseStatisticsDTO(
+                        exercise.getTitle(),
+                        0,
+                        0,
+                        null,
+                        null,
+                        0,
+                        0,
+                        0.0,
+                        0,
+                        null,
+                        null
+                ));
     }
 
     private ExerciseStatisticsDTO toExerciseStatisticsDTO(Object[] row) {
-        Long totalStudents = toLong(row[0]);
-        Long totalAttempts = toLong(row[1]);
-        BigDecimal avgScore = toBigDecimal(row[2]);
-        BigDecimal avgPercentage = toBigDecimal(row[3]);
-        Long passedCount = toLong(row[4]);
-        Long failedCount = toLong(row[5]);
-        Double avgTimeSpent = toDouble(row[6]);
-        BigDecimal highestScore = toBigDecimal(row[7]);
-        BigDecimal lowestScore = toBigDecimal(row[8]);
+        String exerciseTitle = row[0].toString();
+        Integer totalStudents = toLong(row[1]).intValue();
+        int totalAttempts = toLong(row[2]).intValue();
+        BigDecimal averageScore = toBigDecimal(row[3]);
+        BigDecimal averagePercentage = toBigDecimal(row[4]);
+        Integer passedCount = toLong(row[5]).intValue();
+        Integer failedCount = toLong(row[6]).intValue();
+        Double averageTimeSpent = toDouble(row[7]);
+        BigDecimal highestScore = toBigDecimal(row[8]);
+        BigDecimal lowestScore = toBigDecimal(row[9]);
 
         double passRate = totalAttempts > 0 ? (passedCount.doubleValue() / totalAttempts) * 100.0 : 0.0;
 
         return new ExerciseStatisticsDTO(
-                totalStudents.intValue(),
-                totalAttempts.intValue(),
-                avgScore,
-                avgPercentage,
-                passedCount.intValue(),
-                failedCount.intValue(),
+                exerciseTitle,
+                totalStudents,
+                totalAttempts,
+                averageScore,
+                averagePercentage,
+                passedCount,
+                failedCount,
                 passRate,
-                avgTimeSpent != null ? avgTimeSpent.intValue() : 0,
+                averageTimeSpent != null ? averageTimeSpent.intValue() : 0,
                 highestScore,
                 lowestScore
         );

@@ -67,7 +67,7 @@ const router = createBrowserRouter([
           },
           {
             path: "*",
-            element: <h1>404 - P�gina n�o encontrada</h1>,
+            element: <h1>404 - Página não encontrada</h1>,
           },
           {
             path: "/unauthorized",

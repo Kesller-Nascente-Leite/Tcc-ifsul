@@ -19,21 +19,6 @@ public interface ExerciseRepository extends JpaRepository<Exercise, Long> {
             """)
     Optional<Exercise> findByIdWithQuestions(Long id);
 
-    @Query("""
-                SELECT
-                    COUNT(DISTINCT ea.student),
-                    COUNT(ea),
-                    AVG(ea.score),
-                    AVG(ea.percentage),
-                    SUM(CASE WHEN ea.passed = true THEN 1 ELSE 0 END),
-                    SUM(CASE WHEN ea.passed = false THEN 1 ELSE 0 END),
-                    AVG(ea.timeSpent),
-                    MAX(ea.score),
-                    MIN(ea.score)
-                FROM ExerciseAttempt ea
-                WHERE ea.exercise.id = :exerciseId
-                AND ea.status = 'GRADED'
-            """)
-    List<Object[]> getStatistics(@Param("exerciseId") Long exerciseId);
+
 
 }

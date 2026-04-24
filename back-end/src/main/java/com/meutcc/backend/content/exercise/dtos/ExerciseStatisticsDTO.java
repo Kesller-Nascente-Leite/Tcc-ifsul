@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ExerciseStatisticsDTO(
+        String exerciseTitle,
         Integer totalStudents,
         Integer totalAttempts,
         BigDecimal averageScore,

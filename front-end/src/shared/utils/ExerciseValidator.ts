@@ -109,7 +109,7 @@ export class ExerciseValidator {
     if (totalPoints === undefined || totalPoints === null || totalPoints <= 0) {
       errors.push({
         field: "questions",
-        message: `Voc� deve adicionar uma quantidade de pontos`,
+        message: `Você deve adicionar uma quantidade de pontos`,
       });
       return errors;
     }
@@ -117,7 +117,7 @@ export class ExerciseValidator {
     if (sumPoints > totalPoints) {
       errors.push({
         field: "questions",
-        message: `A soma dos pontos das questoes (${sumPoints}) excede a pontuacao total (${totalPoints})`,
+        message: `A soma dos pontos das questões (${sumPoints}) excede a pontuacao total (${totalPoints})`,
       });
       return errors;
     }
@@ -125,7 +125,7 @@ export class ExerciseValidator {
     if (sumPoints < totalPoints) {
       errors.push({
         field: "questions",
-        message: `A soma dos pontos das questoes (${sumPoints}) n�o excede a pontuacao total (${totalPoints})`,
+        message: `A soma dos pontos das questões (${sumPoints}) não excede a pontuacao total (${totalPoints})`,
       });
       return errors;
     }

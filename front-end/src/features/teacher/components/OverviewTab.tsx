@@ -154,7 +154,7 @@ export function OverviewTab({ statistics, accentColor }: OverviewTabProps) {
                 className="text-3xl font-bold"
                 style={{ color: "var(--color-text-primary)" }}
               >
-                {statistics.averageScore ? Math.round(statistics.averageScore) : "Nenhum ponto registrado"}
+                {statistics.averageScore ? Math.round(statistics.averageScore) : "0"}
               </p>
             </div>
 

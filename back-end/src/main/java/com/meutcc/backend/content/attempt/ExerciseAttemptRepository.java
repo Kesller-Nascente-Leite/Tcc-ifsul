@@ -19,4 +19,25 @@ public interface ExerciseAttemptRepository extends JpaRepository<ExerciseAttempt
         ORDER BY ea.createdAt DESC
     """)
     List<ExerciseAttempt> findByExerciseIdWithAnswers(@Param("exerciseId") Long exerciseId);
+
+
+    @Query("""
+                SELECT
+                    ea.exercise.title,
+                    COUNT(DISTINCT ea.student),
+                    COUNT(ea),
+                    AVG(ea.score),
+                    AVG(ea.percentage),
+                    SUM(CASE WHEN ea.passed = true THEN 1 ELSE 0 END),
+                    SUM(CASE WHEN ea.passed = false THEN 1 ELSE 0 END),
+                    AVG(ea.timeSpent),
+                    MAX(ea.score),
+                    MIN(ea.score)
+                FROM ExerciseAttempt ea
+                INNER JOIN ea.exercise e
+                WHERE ea.exercise.id = :exerciseId
+                AND ea.status = 'GRADED'
+                GROUP BY ea.exercise.title
+            """)
+    List<Object[]> getStatistics(@Param("exerciseId") Long exerciseId);
 }
