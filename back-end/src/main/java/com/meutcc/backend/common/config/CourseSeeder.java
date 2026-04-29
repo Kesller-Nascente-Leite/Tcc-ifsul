@@ -12,6 +12,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -26,6 +27,7 @@ public class CourseSeeder implements ApplicationRunner {
     private UserRepository userRepository;
 
     @Override
+    @Transactional
     public void run(@NonNull ApplicationArguments args) {
         if (courseRepository.count() == 0) {
             List<Teacher> teachers = teacherRepository.findAll();
@@ -38,36 +40,42 @@ public class CourseSeeder implements ApplicationRunner {
                                 .title("Introdução à Programação")
                                 .description("Conceitos básicos de lógica, variáveis e estruturas de controle.")
                                 .published(true)
+                                .isPrivate(false)
                                 .teacher(mainTeacher)
                                 .build(),
                         Course.builder()
                                 .title("Java e Spring Boot")
                                 .description("Curso prático sobre Java moderno e desenvolvimento com Spring Boot.")
                                 .published(true)
+                                .isPrivate(false)
                                 .teacher(teachers.get(1 % teachers.size()))
                                 .build(),
                         Course.builder()
                                 .title("Estruturas de Dados e Algoritmos")
                                 .description("Fundamentos de estruturas de dados, complexidade e algoritmos comuns.")
                                 .published(false)
+                                .isPrivate(true)
                                 .teacher(teachers.get(2 % teachers.size()))
                                 .build(),
                         Course.builder()
                                 .title("Desenvolvimento Front-end")
                                 .description("HTML, CSS, JavaScript e frameworks modernos para interfaces web.")
                                 .published(true)
+                                .isPrivate(false)
                                 .teacher(teachers.get(3 % teachers.size()))
                                 .build(),
                         Course.builder()
                                 .title("Banco de Dados e SQL")
                                 .description("Modelagem relacional, consultas SQL e boas práticas em bancos de dados.")
                                 .published(false)
+                                .isPrivate(false)
                                 .teacher(mainTeacher)
                                 .build(),
                         Course.builder()
                                 .title("DevOps Básico")
                                 .description("Introdução a CI/CD, containers e automação de deploy.")
                                 .published(false)
+                                .isPrivate(true)
                                 .teacher(mainTeacher)
                                 .build()
                 );

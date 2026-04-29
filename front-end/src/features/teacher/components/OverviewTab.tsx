@@ -17,7 +17,7 @@ export function OverviewTab({ statistics, accentColor }: OverviewTabProps) {
         <StatCard
           icon={<Users size={24} />}
           label="Total de Tentativas"
-          value={statistics.totalAttempts }
+          value={statistics.totalAttempts}
           color={accentColor}
         />
         <StatCard
@@ -154,7 +154,9 @@ export function OverviewTab({ statistics, accentColor }: OverviewTabProps) {
                 className="text-3xl font-bold"
                 style={{ color: "var(--color-text-primary)" }}
               >
-                {statistics.averageScore ? Math.round(statistics.averageScore) : "0"}
+                {statistics.averageScore
+                  ? Math.round(statistics.averageScore)
+                  : "0"}
               </p>
             </div>
 
@@ -216,7 +218,7 @@ function MetricRow({
 }
 
 function formatTime(seconds: number): string {
-  if (!seconds) return "0min";
+  if (!seconds) return "0 min";
   const minutes = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return secs > 0 ? `${minutes}min ${secs}s` : `${minutes}min`;

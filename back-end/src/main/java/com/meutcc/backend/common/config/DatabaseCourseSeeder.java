@@ -109,6 +109,7 @@ public class DatabaseCourseSeeder {
                 .title(COURSE_TITLE)
                 .description("Aprenda do zero sobre bancos de dados relacionais e a linguagem SQL. Domine consultas, criacao de tabelas e relacionamentos.")
                 .published(false)
+                .isPrivate(false)
                 .teacher(teacher)
                 .build();
 

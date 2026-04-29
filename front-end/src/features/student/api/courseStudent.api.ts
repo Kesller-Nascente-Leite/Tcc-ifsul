@@ -5,7 +5,7 @@ import { type CourseDTO } from "@/shared/types/CourseDTO";
 export const CourseStudentApi = {
   list: (params?: any) => api.get<CourseDTO[]>("/student/courses", { params }),
 
-  listAllCourse: () => api.get<CourseDTO[]>("/student/courses/all"),
+  listAllPublicCourse: () => api.get<CourseDTO[]>("/student/courses/public/all"),
 
   // Para buscar um curso expecifico
   get: (id: number) => api.get<CourseDTO>(`/student/courses/${id}`),

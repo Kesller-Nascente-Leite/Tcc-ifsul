@@ -20,6 +20,9 @@ public record CourseDTO(
         @NotNull(message = "Status de publicação deve ser informado")
         boolean published,
 
+        @NotNull(message = "Status de privacidade deve ser informado")
+        boolean isPrivate,
+
         Long teacherId,
 
         String teacherName

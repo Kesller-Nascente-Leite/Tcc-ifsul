@@ -108,9 +108,10 @@ export function AvailableCourses() {
   const loadCourses = async () => {
     try {
       setIsLoading(true);
-      const response = await CourseStudentApi.listAllCourse();
-      setCourses(response.data);
-      setFilteredCourses(response.data);
+      const response = await CourseStudentApi.listAllPublicCourse();
+      const publicCourses = response.data.filter((course) => !course.isPrivate);
+      setCourses(publicCourses);
+      setFilteredCourses(publicCourses);
     } catch (error) {
       console.error("Erro ao carregar cursos:", error);
       setNotification({

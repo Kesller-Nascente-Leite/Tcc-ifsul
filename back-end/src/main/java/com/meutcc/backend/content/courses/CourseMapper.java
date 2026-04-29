@@ -22,5 +22,6 @@ public interface CourseMapper {
     Course toEntity(CourseDTO dto, Teacher teacher);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "private", source = "isPrivate")
     void updateEntity(@MappingTarget Course course, CourseDTO dto);
 }

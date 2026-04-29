@@ -29,6 +29,7 @@ export function TeacherCourse() {
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
   const [courses, setCourses] = useState<CourseDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -132,6 +133,7 @@ export function TeacherCourse() {
       published: false,
       teacherId: teacherId,
       teacherName: teacherName,
+      isPrivate,
     };
 
     try {
@@ -142,6 +144,7 @@ export function TeacherCourse() {
       setCourses((prev) => [created, ...prev]);
       setTitle("");
       setDescription("");
+      setIsPrivate(false);
 
       setCurrentPage(1);
       showNotification("success", "Curso criado com sucesso!");
@@ -206,6 +209,30 @@ export function TeacherCourse() {
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
       showNotification("error", "Erro ao atualizar status de publicação");
+    }
+  };
+
+  const togglePrivacy = async (course: CourseDTO) => {
+    if (!course.id) return;
+
+    try {
+      const updated: CourseDTO = {
+        ...course,
+        isPrivate: !course.isPrivate,
+      };
+
+      await CourseTeacherApi.update(course.id, updated);
+      setCourses((prev) => prev.map((c) => (c.id === course.id ? updated : c)));
+
+      showNotification(
+        "success",
+        updated.isPrivate
+          ? "Curso definido como privado!"
+          : "Curso definido como público!",
+      );
+    } catch (error) {
+      console.error("Erro ao atualizar modo do curso:", error);
+      showNotification("error", "Erro ao atualizar modo do curso");
     }
   };
 
@@ -303,6 +330,40 @@ export function TeacherCourse() {
               />
             </div>
 
+            <div className="space-y-3">
+              <Label className="block text-sm font-medium text-text-secondary">
+                Modo de inscrição
+              </Label>
+              <div className="grid grid-cols-2 gap-2">
+                <ButtonComponent
+                  type="button"
+                  onClick={() => setIsPrivate(false)}
+                  className={`w-full ${
+                    !isPrivate
+                      ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                      : "bg-slate-100 dark:bg-slate-800 text-text-primary"
+                  }`}
+                >
+                  Público
+                </ButtonComponent>
+                <ButtonComponent
+                  type="button"
+                  onClick={() => setIsPrivate(true)}
+                  className={`w-full ${
+                    isPrivate
+                      ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300"
+                      : "bg-slate-100 dark:bg-slate-800 text-text-primary"
+                  }`}
+                >
+                  Privado
+                </ButtonComponent>
+              </div>
+              <p className="text-xs text-text-secondary">
+                Cursos privados só podem receber alunos via convite do professor.
+                Cursos públicos ficam visíveis para inscrições abertas.
+              </p>
+            </div>
+
             <div className="pt-2">
               <ButtonComponent
                 onClick={saveCourse}
@@ -363,16 +424,25 @@ export function TeacherCourse() {
                         <h4 className="font-bold text-lg text-text-primary break-all">
                           {course.title}
                         </h4>
-                        {course.published ? (
-                          <span className="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 flex items-center gap-1 shrink-0">
-                            <CheckCircle size={12} />
-                            Publicado
+                        <div className="flex flex-wrap gap-2">
+                          {course.published ? (
+                            <span className="px-2 py-1 text-xs rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 flex items-center gap-1 shrink-0">
+                              <CheckCircle size={12} />
+                              Publicado
+                            </span>
+                          ) : (
+                            <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 shrink-0">
+                              Rascunho
+                            </span>
+                          )}
+                          <span className={`px-2 py-1 text-xs rounded-full ${
+                            course.isPrivate
+                              ? "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300"
+                              : "bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300"
+                          }`}>
+                            {course.isPrivate ? "Privado" : "Público"}
                           </span>
-                        ) : (
-                          <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 shrink-0">
-                            Rascunho
-                          </span>
-                        )}
+                        </div>
                       </div>
                       <p className="text-sm text-text-secondary line-clamp-2">
                         {course.description}
@@ -433,6 +503,17 @@ export function TeacherCourse() {
                           onClick={() => togglePublish(course)}
                         >
                           {course.published ? "Despublicar" : "Publicar"}
+                        </Button>
+
+                        <Button
+                          className={`flex-1 sm:flex-none flex items-center justify-center px-3 py-2 text-sm rounded-lg transition-colors ${
+                            course.isPrivate
+                              ? "bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 hover:bg-sky-200"
+                              : "bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 hover:bg-orange-200"
+                          }`}
+                          onClick={() => togglePrivacy(course)}
+                        >
+                          {course.isPrivate ? "Tornar Público" : "Tornar Privado"}
                         </Button>
 
                         <Button

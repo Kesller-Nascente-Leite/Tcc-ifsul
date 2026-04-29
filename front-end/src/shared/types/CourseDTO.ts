@@ -5,4 +5,5 @@ export interface CourseDTO {
   published: boolean;
   teacherId: number;
   teacherName: string;
+  isPrivate: boolean;
 }

@@ -23,8 +23,8 @@ public class CourseService {
     private final AuthenticationService authenticationService;
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
-    public List<CourseDTO> findAllCourses() {
-        List<Course> listCourse = courseRepository.findAll().stream().toList();
+    public List<CourseDTO> findAllPublicCourses() {
+        List<Course> listCourse = courseRepository.findAllPublicCourses();
         return courseMapper.toDTOList(listCourse);
     }
 
@@ -51,15 +51,25 @@ public class CourseService {
 
     @Transactional(readOnly = true)
     public CourseDTO getCourseById(Long courseId) throws CourseException {
-        authenticationService.getAuthenticatedTeacher();
-        securityService.validateCourseOwner(courseId);
         Course course = courseRepository.findById(courseId).orElseThrow(() -> new CourseException("Curso não encontrado"));
+
+        try {
+            // Tenta obter professor autenticado - se for um professor, valida se é dono
+            authenticationService.getAuthenticatedTeacher();
+            securityService.validateCourseOwner(courseId);
+        } catch (Exception e) {
+            // Se não for professor ou não for dono, verifica se o curso é público
+            if (course.isPrivate()) {
+                throw new CourseException("Acesso negado. Este curso é privado.");
+            }
+        }
+
         return courseMapper.toDTO(course);
     }
 
     @Transactional
     public CourseResponse updateCourse(Long id, CourseDTO dto) {
-        Teacher teacher = authenticationService.getAuthenticatedTeacher();
+        authenticationService.getAuthenticatedTeacher();
         Course course = courseRepository.findById(id).orElseThrow(() -> new CourseException("Nenhum curso encontrada."));
         securityService.validateCourseOwner(id);
 
@@ -71,7 +81,7 @@ public class CourseService {
 
     @Transactional
     public void deleteCourse(Long id) throws CourseException {
-        Teacher teacher = authenticationService.getAuthenticatedTeacher();
+        authenticationService.getAuthenticatedTeacher();
         Course course = courseRepository.findById(id).orElseThrow(() ->
                 new CourseException("Nenhum curso encontrada."));
         securityService.validateCourseOwner(id);

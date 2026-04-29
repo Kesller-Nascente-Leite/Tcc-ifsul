@@ -22,10 +22,10 @@ public class CourseController {
         return Collections.emptyList();
     }
 
-    @GetMapping("/student/courses/all")
+    @GetMapping("/student/courses/public/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<CourseDTO> listAllCourses() {
-        return courseService.findAllCourses();
+    public List<CourseDTO> listAllPublicCourses() {
+        return courseService.findAllPublicCourses();
     }
 
     @GetMapping("/teacher/courses/{courseId}")

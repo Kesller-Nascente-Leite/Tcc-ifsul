@@ -14,6 +14,7 @@ type CourseItem = {
   published: boolean;
   teacherId: number;
   teacherName: string;
+  isPrivate?: boolean;
 };
 
 export function EditCourses() {
@@ -26,6 +27,7 @@ export function EditCourses() {
   const [course, setCourse] = useState<CourseItem | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -71,6 +73,7 @@ export function EditCourses() {
       setCourse(loadedCourse);
       setTitle(loadedCourse.title);
       setDescription(loadedCourse.description);
+      setIsPrivate(loadedCourse.isPrivate ?? false);
     } catch (error) {
       console.error("Erro ao carregar curso:", error);
       const errorResponse = (error as { response?: { status: number } })
@@ -106,6 +109,7 @@ export function EditCourses() {
       ...course,
       title: title.trim(),
       description: description.trim(),
+      isPrivate,
     };
 
     try {
@@ -213,6 +217,36 @@ export function EditCourses() {
               rows={5}
               className="w-full px-4 py-3 rounded-lg border bg-background border-border text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
             />
+          </div>
+
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-text-secondary mb-2">
+              Modo de inscrição
+            </p>
+            <div className="flex gap-2">
+              <ButtonComponent
+                type="button"
+                onClick={() => setIsPrivate(false)}
+                className={`w-full ${
+                  !isPrivate
+                    ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
+                    : "bg-slate-100 dark:bg-slate-800 text-text-primary"
+                }`}
+              >
+                Público
+              </ButtonComponent>
+              <ButtonComponent
+                type="button"
+                onClick={() => setIsPrivate(true)}
+                className={`w-full ${
+                  isPrivate
+                    ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300"
+                    : "bg-slate-100 dark:bg-slate-800 text-text-primary"
+                }`}
+              >
+                Privado
+              </ButtonComponent>
+            </div>
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">

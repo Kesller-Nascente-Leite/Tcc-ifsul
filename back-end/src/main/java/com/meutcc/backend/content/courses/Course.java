@@ -26,6 +26,9 @@ public class Course extends BaseEntity {
 
     private boolean published;
 
+    @Builder.Default
+    private boolean isPrivate = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id", nullable = false)
     private Teacher teacher;
