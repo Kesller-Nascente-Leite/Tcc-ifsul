@@ -34,3 +34,7 @@ build/
 
 ### Db and Others ###
 application.properties
+application.dev.properties
+application.prod.properties
+src/main/resources/application-local.properties
+src/main/resources/application-supabase.properties

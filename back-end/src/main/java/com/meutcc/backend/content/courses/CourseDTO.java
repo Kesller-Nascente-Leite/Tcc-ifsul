@@ -1,5 +1,6 @@
 package com.meutcc.backend.content.courses;
 
+import com.meutcc.backend.user.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -19,9 +20,13 @@ public record CourseDTO(
         @NotNull(message = "Status de publicação deve ser informado")
         boolean published,
 
+        @NotNull(message = "Status de privacidade deve ser informado")
+        boolean isPrivate,
+
         Long teacherId,
 
         String teacherName
+
 ) {
 }
 

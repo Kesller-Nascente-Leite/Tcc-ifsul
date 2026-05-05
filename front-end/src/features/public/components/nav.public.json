@@ -1,0 +1,8 @@
+{
+  "menuItems": [
+    { "id": 1, "label": "Início", "path": "/" , "icon": "Home"},
+    { "id": 2, "label": "Funcionalidades", "path": "/features", "icon": "Boxes"},
+    { "id": 3, "label": "Planos", "path": "/pricing", "icon": "BankNote" },
+    { "id": 4, "label": "Sobre", "path": "/about", "icon": "CircleQuestionMark" }
+  ]
+}

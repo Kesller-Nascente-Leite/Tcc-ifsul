@@ -2,6 +2,7 @@ package com.meutcc.backend.content.courses;
 
 import com.meutcc.backend.common.model.BaseEntity;
 import com.meutcc.backend.content.module.Module;
+import com.meutcc.backend.student.Student;
 import com.meutcc.backend.teacher.Teacher;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,6 +26,9 @@ public class Course extends BaseEntity {
 
     private boolean published;
 
+    @Builder.Default
+    private boolean isPrivate = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id", nullable = false)
     private Teacher teacher;
@@ -33,16 +37,9 @@ public class Course extends BaseEntity {
     @OrderBy("orderIndex ASC")
     @Builder.Default
     private List<Module> modules = new ArrayList<>();
-/*
-    public void addModule(Module module) {
-        modules.add(module);
-        module.setCourse(this);
-    }
 
-    public void removeModule(Module module) {
-        modules.remove(module);
-        module.setCourse(null);
-    }
 
- */
+    @ManyToMany(mappedBy = "courses", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<Student> students = new ArrayList<>();
 }

@@ -1,0 +1,40 @@
+{
+  "menuItems": [
+    {
+      "id": 1,
+      "label": "Visão Geral",
+      "path": "/teacher/dashboard",
+      "icon": "Home"
+    },
+    {
+      "id": 2,
+      "label": "Meus Cursos",
+      "path": "/teacher/course",
+      "icon": "BookOpen"
+    },
+    {
+      "id": 3,
+      "label": "Módulos",
+      "path": "/teacher/modules",
+      "icon": "Package"
+    },
+    {
+      "id": 4,
+      "label": "Atribuições",
+      "path": "/teacher/assignments",
+      "icon": "CheckSquare"
+    },
+    {
+      "id": 5,
+      "label": "Cronograma",
+      "path": "/teacher/schedule",
+      "icon": "Calendar"
+    },
+    {
+      "id": 6,
+      "label": "Desempenho",
+      "path": "/teacher/analytics",
+      "icon": "BarChart2"
+    }
+  ]
+}

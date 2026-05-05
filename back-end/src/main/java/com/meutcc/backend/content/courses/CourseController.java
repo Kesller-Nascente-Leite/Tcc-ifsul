@@ -1,6 +1,5 @@
 package com.meutcc.backend.content.courses;
 
-import com.meutcc.backend.common.exceptions.CourseException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,58 +10,51 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/courses")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class CourseController {
 
     private final CourseService courseService;
 
-    @PreAuthorize("hasAuthority('STUDENT')")
-    @GetMapping("/student")
+    @GetMapping("/student/courses")
     @ResponseStatus(HttpStatus.OK)
     public List<Course> listMyCourses() {
         return Collections.emptyList();
     }
 
-    @PreAuthorize("hasAuthority('STUDENT')")
-    @GetMapping("/student/all")
+    @GetMapping("/student/courses/public/all")
     @ResponseStatus(HttpStatus.OK)
-    public List<CourseDTO> listAllCourses() throws CourseException {
-        return courseService.findAllCourses();
+    public List<CourseDTO> listAllPublicCourses() {
+        return courseService.findAllPublicCourses();
     }
 
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @GetMapping("/teacher/{id}")
+    @GetMapping("/teacher/courses/{courseId}")
     @ResponseStatus(HttpStatus.OK)
-    public CourseDTO getCourseById(@PathVariable Long id) throws CourseException {
-        return courseService.checkIfTheCourseExistsByID(id);
+    public CourseDTO getCourseById(@PathVariable("courseId") Long courseId) {
+        return courseService.getCourseById(courseId);
     }
 
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @GetMapping("/teacher/list-all-teacher-courses")
+    @GetMapping("/teacher/courses/list-all-teacher-courses")
     @ResponseStatus(HttpStatus.OK)
-    public List<CourseDTO> listAllTeacherCourses() throws CourseException {
+    public List<CourseDTO> listAllTeacherCourses() {
         return courseService.findAllTeacherCourses();
     }
 
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @PostMapping("/teacher/create")
+    @PostMapping("/teacher/courses/create")
     @ResponseStatus(HttpStatus.CREATED)
     public CourseDTO createCourse(@RequestBody @Valid CourseDTO courseDTO) {
         return courseService.createCourse(courseDTO);
     }
 
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @PutMapping("/teacher/{id}")
+    @PutMapping("/teacher/courses/{id}")
     @ResponseStatus(HttpStatus.OK)
     public CourseResponse updateCourse(@PathVariable Long id, @RequestBody @Valid CourseDTO courseDTO) throws Exception {
         return courseService.updateCourse(id, courseDTO);
     }
 
-    @PreAuthorize("hasAuthority('TEACHER')")
-    @DeleteMapping("/teacher/{id}/delete")
+    @DeleteMapping("/teacher/courses/{id}/delete")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteCourse(@PathVariable Long id) throws CourseException {
+    public void deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
     }
 }

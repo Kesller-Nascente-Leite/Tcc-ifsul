@@ -1,7 +1,6 @@
 package com.meutcc.backend.study;
 
 import com.meutcc.backend.common.model.BaseEntity;
-import com.meutcc.backend.content.subject.Subject;
 import com.meutcc.backend.student.Student;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,9 +20,6 @@ public class StudySession extends BaseEntity {
     @JoinColumn(name = "student_id")
     private Student student;
 
-    @ManyToOne
-    @JoinColumn(name = "subject_id")
-    private Subject subject;
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;

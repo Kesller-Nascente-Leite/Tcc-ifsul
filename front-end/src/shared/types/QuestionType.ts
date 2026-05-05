@@ -1,0 +1,8 @@
+export type QuestionType =
+  | "MULTIPLE_CHOICE_SINGLE"
+  | "MULTIPLE_CHOICE_MULTIPLE"
+  | "TRUE_FALSE"
+  | "ESSAY"
+  | "FILL_BLANKS"
+  | "ORDERING"
+  | "MATCHING";
