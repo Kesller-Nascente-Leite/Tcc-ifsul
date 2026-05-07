@@ -1,7 +1,6 @@
 package com.meutcc.backend.content.courses;
 
-import com.meutcc.backend.content.module.Module;
-import com.meutcc.backend.content.module.ModuleException;
+import com.meutcc.backend.student.Student;
 import com.meutcc.backend.user.security.AuthenticationService;
 import com.meutcc.backend.user.security.SecurityService;
 import com.meutcc.backend.teacher.Teacher;
@@ -12,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -89,4 +89,14 @@ public class CourseService {
     }
 
 
+    public List<Student> listStudentCourses(Long id) {
+        authenticationService.getAuthenticatedTeacher();
+        Optional<Course> course = courseRepository.findById(id);
+        if (course.isEmpty()) {
+            return null;
+        }
+        List<Student> listStudentByCourse = course.get().getStudents();
+        return listStudentByCourse.stream().toList();
+
+    }
 }

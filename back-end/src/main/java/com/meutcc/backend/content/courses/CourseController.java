@@ -1,5 +1,6 @@
 package com.meutcc.backend.content.courses;
 
+import com.meutcc.backend.student.Student;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -57,4 +58,11 @@ public class CourseController {
     public void deleteCourse(@PathVariable Long id) {
         courseService.deleteCourse(id);
     }
+
+    @GetMapping("/teacher/courses/{id}/students")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Student> listStudentCourses(@PathVariable Long id) {
+        return courseService.listStudentCourses(id);
+    }
+
 }

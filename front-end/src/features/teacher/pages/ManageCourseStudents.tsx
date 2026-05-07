@@ -12,7 +12,6 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { ButtonComponent } from "@/shared/components/ui/ButtonComponent";
-import { InputComponent } from "@/shared/components/ui/InputComponent";
 import { useTheme } from "@/app/providers/ThemeContext";
 import {
   ConfirmDialog,
@@ -32,9 +31,7 @@ export function ManageCourseStudents() {
   // Estados
   const [course, setCourse] = useState<CourseDTO | null>(null);
   const [students, setStudents] = useState<StudentDTO[]>([]);
-  const [studentEmail, setStudentEmail] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [isAdding, setIsAdding] = useState(false);
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "warning";
     message: string;
@@ -73,43 +70,6 @@ export function ManageCourseStudents() {
   ) => {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 4000);
-  };
-
-  const addStudent = async () => {
-    if (!studentEmail.trim()) {
-      showNotification("error", "Digite um email válido");
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(studentEmail)) {
-      showNotification("error", "Formato de email inválido");
-      return;
-    }
-
-    if (!courseId) return;
-
-    try {
-      setIsAdding(true);
-      await CourseEnrollmentApi.enrollStudent(
-        Number(courseId),
-        studentEmail.trim(),
-      );
-
-      // Recarregar lista
-      await loadCourseData();
-      setStudentEmail("");
-      showNotification("success", "Aluno adicionado com sucesso!");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error("Erro ao adicionar aluno:", error);
-      showNotification(
-        "error",
-        error.response?.data?.message || "Erro ao adicionar aluno",
-      );
-    } finally {
-      setIsAdding(false);
-    }
   };
 
   const removeStudent = async (student: StudentDTO) => {
@@ -184,7 +144,7 @@ export function ManageCourseStudents() {
           <span className="text-sm">Voltar para Cursos</span>
         </button>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-text-primary mb-1">
               {course.title}
@@ -194,26 +154,32 @@ export function ManageCourseStudents() {
             </p>
           </div>
 
-          <ButtonComponent
-            type="button"
-            onClick={() => navigate(`/teacher/courses/${courseId}/students/add`)}
-          >
-            <div className="flex items-center gap-2">
-              <UserPlus size={16} />
-              <span>Adicionar Aluno</span>
-            </div>
-          </ButtonComponent>
+          <div className="flex flex-col gap-3 sm:flex-row-reverse sm:items-center">
+            <ButtonComponent
+              type="button"
+              onClick={() => navigate(`/teacher/courses/${courseId}/students/add`)}
+              className="w-full sm:w-auto"
+            >
+              <div className="flex items-center gap-2">
+                <UserPlus size={16} />
+                <span>Adicionar Aluno</span>
+              </div>
+            </ButtonComponent>
 
           {/* Estatísticas */}
-          <div className="text-right">
-            <p className="text-2xl font-bold" style={{ color: accentColor }}>
-              {students.length}
-            </p>
-            <p className="text-xs text-text-secondary">
-              {students.length === 1
-                ? "Aluno Matriculado"
-                : "Alunos Matriculados"}
-            </p>
+            <div className="rounded-xl border border-border bg-surface px-4 py-3 text-left sm:text-right">
+              <p
+                className="text-2xl font-bold leading-none"
+                style={{ color: accentColor }}
+              >
+                {students.length}
+              </p>
+              <p className="mt-1 text-xs text-text-secondary">
+                {students.length === 1
+                  ? "Aluno Matriculado"
+                  : "Alunos Matriculados"}
+              </p>
+            </div>
           </div>
         </div>
       </header>
@@ -256,59 +222,10 @@ export function ManageCourseStudents() {
         </div>
       )}
 
-      {/* Grid Principal */}
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Formulário de Adição */}
-        <div className="lg:col-span-1 p-6 rounded-2xl border bg-surface border-border h-fit space-y-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div
-              className="p-2 rounded-lg"
-              style={{ backgroundColor: `${accentColor}15` }}
-            >
-              <UserPlus size={20} style={{ color: accentColor }} />
-            </div>
-            <h3 className="font-bold text-lg">Adicionar Aluno</h3>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-text-secondary mb-2">
-              Email do Aluno *
-            </label>
-            <InputComponent
-              type="email"
-              value={studentEmail}
-              onChange={(e) =>
-                setStudentEmail((e.target as HTMLInputElement).value)
-              }
-              placeholder="aluno@exemplo.com"
-              disabled={isAdding}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  addStudent();
-                }
-              }}
-            />
-            <p className="text-xs text-text-secondary mt-2">
-              Digite o email de um aluno cadastrado na plataforma
-            </p>
-          </div>
-
-          <ButtonComponent
-            onClick={addStudent}
-            isDisabled={isAdding || !studentEmail.trim()}
-          >
-            {isAdding ? "Adicionando..." : "Adicionar Aluno"}
-          </ButtonComponent>
-        </div>
-
-        {/* Lista de Alunos */}
-        <div className="lg:col-span-2 p-6 rounded-2xl border bg-surface border-border">
-          <div className="flex items-center justify-between mb-4">
+      <section>
+        <div className="p-6 rounded-2xl border bg-surface border-border">
+          <div className="mb-4">
             <h3 className="font-bold text-lg">Alunos Matriculados</h3>
-            <div className="flex items-center gap-2 text-sm text-text-secondary">
-              <Users size={16} />
-              <span>{students.length} aluno(s)</span>
-            </div>
           </div>
 
           {students.length === 0 ? (
@@ -321,7 +238,7 @@ export function ManageCourseStudents() {
                 Nenhum aluno matriculado ainda.
               </p>
               <p className="text-sm text-text-secondary mt-2">
-                Adicione alunos usando o formulário ao lado
+                Use o botão Adicionar Aluno para matricular o primeiro aluno.
               </p>
             </div>
           ) : (

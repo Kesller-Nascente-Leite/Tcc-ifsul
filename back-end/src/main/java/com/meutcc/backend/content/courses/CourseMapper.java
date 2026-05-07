@@ -18,15 +18,6 @@ public interface CourseMapper {
     List<CourseDTO> toDTOList(List<Course> courses);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "teacher", ignore = true)
-    @Mapping(target = "modules", ignore = true)
-    @Mapping(target = "students", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "private", expression = "java(dto.isPrivate())")
-    Course toEntity(CourseDTO dto);
-
-    @Mapping(target = "id", ignore = true)
     @Mapping(target = "teacher", source = "teacher")
     @Mapping(target = "modules", ignore = true)
     @Mapping(target = "students", ignore = true)
