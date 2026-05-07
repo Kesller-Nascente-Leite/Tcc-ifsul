@@ -7,6 +7,7 @@ import { TeacherLayout } from "@/features/teacher/components/TeacherLayout";
 import { EditCourses } from "@/features/teacher/pages/EditCourses";
 import { TeacherModules } from "@/features/teacher/pages/TeacherModule";
 import { ManageCourseStudents } from "@/features/teacher/pages/ManageCourseStudents";
+import { AddCourseStudent } from "@/features/teacher/pages/AddCourseStudent";
 import { EditModule } from "@/features/teacher/pages/EditModule";
 import { TeacherLessons } from "@/features/teacher/pages/TeacherLesson";
 import { VideoPlayerPage } from "@/features/teacher/pages/video/VideoPlayerPage";
@@ -40,6 +41,10 @@ export const TeacherRoutes: RouteObject[] = [
       {
         path: "courses/:courseId/students",
         element: <ManageCourseStudents />,
+      },
+      {
+        path: "courses/:courseId/students/add",
+        element: <AddCourseStudent />,
       },
       {
         path: "modules",

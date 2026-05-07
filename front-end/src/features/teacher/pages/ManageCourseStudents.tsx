@@ -184,7 +184,7 @@ export function ManageCourseStudents() {
           <span className="text-sm">Voltar para Cursos</span>
         </button>
 
-        <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold text-text-primary mb-1">
               {course.title}
@@ -193,6 +193,16 @@ export function ManageCourseStudents() {
               Gerenciamento de Alunos
             </p>
           </div>
+
+          <ButtonComponent
+            type="button"
+            onClick={() => navigate(`/teacher/courses/${courseId}/students/add`)}
+          >
+            <div className="flex items-center gap-2">
+              <UserPlus size={16} />
+              <span>Adicionar Aluno</span>
+            </div>
+          </ButtonComponent>
 
           {/* Estatísticas */}
           <div className="text-right">
