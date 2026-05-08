@@ -17,6 +17,7 @@ import { CourseTeacherApi } from "@/features/teacher/api/courseTeacher.api";
 import { CourseEnrollmentApi } from "@/features/teacher/api/courseEnrollment.api";
 import type { CourseDTO } from "@/shared/types/CourseDTO";
 import type { StudentDTO } from "@/shared/types/CourseEnrollmentDTO";
+import { Form } from "react-aria-components";
 
 type Notification = {
   type: "success" | "error" | "warning";
@@ -227,7 +228,7 @@ export function AddCourseStudent() {
       )}
 
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <form
+        <Form
           onSubmit={handleSubmit}
           className="space-y-5 rounded-2xl border border-border bg-surface p-6 lg:col-span-2"
         >
@@ -282,7 +283,7 @@ export function AddCourseStudent() {
               Adicionar aluno
             </ButtonComponent>
           </div>
-        </form>
+        </Form>
 
         <aside className="rounded-2xl border border-border bg-surface p-6">
           <div

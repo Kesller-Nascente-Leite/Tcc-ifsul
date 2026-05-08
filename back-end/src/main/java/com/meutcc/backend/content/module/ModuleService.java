@@ -1,9 +1,6 @@
 package com.meutcc.backend.content.module;
 
-import com.meutcc.backend.content.courses.CourseException;
 import com.meutcc.backend.content.courses.Course;
-import com.meutcc.backend.content.courses.CourseRepository;
-import com.meutcc.backend.user.security.AuthenticationService;
 import com.meutcc.backend.user.security.SecurityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,31 +13,25 @@ import java.util.List;
 public class ModuleService {
 
     private final ModuleRepository moduleRepository;
-    private final AuthenticationService authenticationService;
     private final SecurityService securityService;
     private final ModuleMapper moduleMapper;
-    private final CourseRepository courseRepository;
 
     @Transactional(readOnly = true)
     public List<ModuleDTO> listByCourses(Long courseId) {
+        securityService.validateCourseOwner(courseId);
         List<Module> modules = moduleRepository.findByCourseId(courseId);
         return moduleMapper.toDTOs(modules);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public ModuleDTO getModuleById(Long id) {
-        securityService.validateCourseOwner(id);
-        Module modules = moduleRepository.findById(id).orElseThrow(
-                () -> new ModuleException("Esse módulo não existe!")
-        );
-        return moduleMapper.toDTO(modules);
+        Module module = securityService.getModuleIfOwner(id);
+        return moduleMapper.toDTO(module);
     }
 
     @Transactional
     public ModuleDTO create(ModuleDTO dto) {
-        securityService.validateCourseOwner(dto.courseId());
-        Course course = courseRepository.findById(dto.courseId()).orElseThrow(()
-                -> new CourseException("Curso não encontrado."));
+        Course course = securityService.getCourseIfOwner(dto.courseId());
 
         Module module = moduleMapper.toEntity(dto);
         module.setCourse(course);
@@ -52,10 +43,7 @@ public class ModuleService {
 
     @Transactional
     public ModuleDTO update(Long id, ModuleDTO dto) {
-        Module module = moduleRepository.findById(id).orElseThrow(
-                () -> new ModuleException("Curso não encontrado.")
-        );
-        securityService.validateCourseOwner(module.getCourse().getId());
+        Module module = securityService.getModuleIfOwner(id);
         moduleMapper.updateEntityFromDTO(dto, module);
         Module updateModule = moduleRepository.save(module);
 
@@ -65,12 +53,7 @@ public class ModuleService {
 
     @Transactional
     public void delete(Long id) {
-        authenticationService.getAuthenticatedTeacher();
-        courseRepository.findById(id).orElseThrow(() -> new CourseException("Nenhum curso encontrada."));
-        securityService.validateCourseOwner(id);
-        Module module = moduleRepository.findById(id).orElseThrow(
-                () -> new ModuleException("Nenhum módulo encontrado.")
-        );
+        Module module = securityService.getModuleIfOwner(id);
         moduleRepository.delete(module);
     }
 

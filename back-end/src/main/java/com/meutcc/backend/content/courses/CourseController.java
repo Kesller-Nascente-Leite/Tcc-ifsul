@@ -62,7 +62,13 @@ public class CourseController {
     @GetMapping("/teacher/courses/{id}/students")
     @ResponseStatus(HttpStatus.OK)
     public List<Student> listStudentCourses(@PathVariable Long id) {
-        return courseService.listStudentCourses(id);
+        return courseService.listStudentByCourses(id);
+    }
+
+    @PostMapping("/teacher/courses/{id}/students/add")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CourseResponse enrollStudent(@PathVariable Long id, @RequestParam String emailStudent){
+        return courseService.enrollStudent(id, emailStudent);
     }
 
 }

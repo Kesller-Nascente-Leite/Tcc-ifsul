@@ -1,6 +1,7 @@
 package com.meutcc.backend.content.courses;
 
 import com.meutcc.backend.student.Student;
+import com.meutcc.backend.student.StudentRepository;
 import com.meutcc.backend.user.security.AuthenticationService;
 import com.meutcc.backend.user.security.SecurityService;
 import com.meutcc.backend.teacher.Teacher;
@@ -21,6 +22,7 @@ public class CourseService {
     private final CourseMapper courseMapper;
     private final SecurityService securityService;
     private final AuthenticationService authenticationService;
+    private final StudentRepository studentRepository;
 
     @Transactional(readOnly = true, propagation = Propagation.REQUIRED)
     public List<CourseDTO> findAllPublicCourses() {
@@ -88,8 +90,8 @@ public class CourseService {
         courseRepository.delete(course);
     }
 
-
-    public List<Student> listStudentCourses(Long id) {
+    @Transactional
+    public List<Student> listStudentByCourses(Long id) {
         authenticationService.getAuthenticatedTeacher();
         Optional<Course> course = courseRepository.findById(id);
         if (course.isEmpty()) {
@@ -98,5 +100,37 @@ public class CourseService {
         List<Student> listStudentByCourse = course.get().getStudents();
         return listStudentByCourse.stream().toList();
 
+    }
+
+    @Transactional
+    public CourseResponse enrollStudent(Long id, String emailStudent) {
+        authenticationService.getAuthenticatedTeacher();
+        securityService.validateCourseOwner(id);
+
+        Optional<Course> optionalCourse = courseRepository.findById(id);
+        if (optionalCourse.isEmpty()) {
+            return new CourseResponse("Nenhum curso encontrada.");
+        }
+
+        Optional<Student> optionalStudent = studentRepository.findByUserEmail(emailStudent);
+        if (optionalStudent.isEmpty()) {
+            return new CourseResponse("Nenhum aluno encontrado com esse e-mail.");
+        }
+
+        Course course = optionalCourse.get();
+        Student student = optionalStudent.get();
+
+        boolean alreadyEnrolled = student.getCourses().stream()
+                .anyMatch(studentCourse -> studentCourse.getId().equals(course.getId()));
+
+        if (alreadyEnrolled) {
+            return new CourseResponse("Aluno já está matriculado neste curso.");
+        }
+
+        student.getCourses().add(course);
+        course.getStudents().add(student);
+        studentRepository.save(student);
+
+        return new CourseResponse("Aluno matriculado com sucesso!");
     }
 }

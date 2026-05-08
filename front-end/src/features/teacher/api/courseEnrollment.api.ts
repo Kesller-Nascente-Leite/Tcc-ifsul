@@ -9,7 +9,7 @@ export const CourseEnrollmentApi = {
 
   // Adicionar aluno ao curso (por email)
   enrollStudent: (courseId: number, studentEmail: string) => {
-    return api.post<CourseEnrollmentDTO>(`/teacher/courses/${courseId}/students`, {
+    return api.post<CourseEnrollmentDTO>(`/teacher/courses/${courseId}/students/add`, {
       studentEmail,
     });
   },
